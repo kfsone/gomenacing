@@ -1,0 +1,8 @@
+.vs
+.vscode
+.idea
+*.db
+*.buntdb
+*.tmp
+*~
+data
