@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
@@ -69,6 +68,7 @@ func TestSystem_GetFacility(t *testing.T) {
 		facility, err := system.NewFacility(200, "facility 1", FacilityFeatureMask(0))
 		assert.NotNil(t, facility)
 		assert.Nil(t, err)
+		system.Facilities = append(system.Facilities, facility)
 
 		assert.Nil(t, system.GetFacility(""))
 		assert.Equal(t, facility, system.GetFacility("FacIliTy 1"))
@@ -79,6 +79,7 @@ func TestSystem_GetFacility(t *testing.T) {
 		facility, err := system.NewFacility(201, "facility 2", FacilityFeatureMask(0))
 		assert.NotNil(t, facility)
 		assert.Nil(t, err)
+		system.Facilities = append(system.Facilities, facility)
 
 		assert.Nil(t, system.GetFacility(""))
 		assert.NotNil(t, system.GetFacility("facility 1"))
@@ -121,7 +122,7 @@ func TestSystem_NewFacility(t *testing.T) {
 		assert.Error(t, err, "invalid (empty) facility name")
 	})
 
-	t.Run("Add first facility", func(t *testing.T) {
+	t.Run("Create genuine facility", func(t *testing.T) {
 		features := FeatBlackMarket | FeatSmallPad
 		facility, err := system.NewFacility(111, "first", features)
 		assert.Nil(t, err)
@@ -131,37 +132,7 @@ func TestSystem_NewFacility(t *testing.T) {
 		assert.Equal(t, system, facility.System)
 		assert.Equal(t, features, facility.Features)
 
-		assert.Equal(t, 1, len(system.Facilities))
-		assert.Equal(t, facility, system.Facilities[0])
-	})
-
-	t.Run("Add second facility", func(t *testing.T) {
-		facility, err := system.NewFacility(200, "second", FeatMarket)
-		assert.Nil(t, err)
-		assert.NotNil(t, facility)
-		assert.Equal(t, EntityID(200), facility.Id)
-		assert.Equal(t, "SECOND", facility.DbName)
-		assert.Equal(t, system, facility.System)
-		assert.Equal(t, FeatMarket, facility.Features)
-
-		assert.Equal(t, 2, len(system.Facilities))
-		assert.NotEqual(t, facility, system.Facilities[0])
-		assert.Equal(t, EntityID(111), system.Facilities[0].Id)
-		assert.Equal(t, facility, system.Facilities[1])
-	})
-
-	t.Run("Duplicate detections", func(t *testing.T) {
-		facility, err := system.NewFacility(111, "third", FeatSmallPad)
-		assert.Nil(t, facility)
-		assert.Equal(t, 2, len(system.Facilities))
-		assert.True(t, errors.Is(err, ErrDuplicateEntity))
-		assert.EqualError(t, err, "SYSTEM/FIRST (#111): duplicate: facility id in system")
-
-		facility, err = system.NewFacility(999, "SEcoNd", FeatSmallPad)
-		assert.Nil(t, facility)
-		assert.Equal(t, 2, len(system.Facilities))
-		assert.True(t, errors.Is(err, ErrDuplicateEntity))
-		assert.EqualError(t, err, "SYSTEM/SECOND (#200): duplicate: facility name in system")
+		assert.Equal(t, 0, len(system.Facilities))
 	})
 }
 

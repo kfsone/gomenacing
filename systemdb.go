@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/tidwall/gjson"
 	"os"
+	"strings"
 )
 
 type SystemDatabase struct {
@@ -42,7 +43,7 @@ func NewSystemDatabase() SystemDatabase {
 	return SystemDatabase{make(map[EntityID]*System), make(map[string]EntityID), make(map[EntityID]*Facility)}
 }
 
-func (sdb *SystemDatabase) loadPopulatedSystems(env *Env) error {
+func (sdb *SystemDatabase) importSystems(env *Env) error {
 	///TODO: Get name from env
 	const filename = "c:/users/oliver/data/eddb/systems_populated.jsonl"
 	if file, err := os.Open(filename); err != nil {
@@ -50,7 +51,7 @@ func (sdb *SystemDatabase) loadPopulatedSystems(env *Env) error {
 	} else {
 		defer file.Close()
 		err = IterateLinesInFile(filename, file, func(json string) error {
-			if _, err := sdb.AddSystemFromJson(json); err != nil {
+			if _, err := sdb.addSystemFromJson(json); err != nil {
 				return env.FilterError(err)
 			}
 			return nil
@@ -61,7 +62,7 @@ func (sdb *SystemDatabase) loadPopulatedSystems(env *Env) error {
 	}
 }
 
-func (sdb *SystemDatabase) loadFacilities(env *Env) error {
+func (sdb *SystemDatabase) importFacilities(env *Env) error {
 	///TODO: Get name from env
 	const filename = "c:/users/oliver/data/eddb/stations.jsonl"
 	if file, err := os.Open(filename); err != nil {
@@ -69,7 +70,7 @@ func (sdb *SystemDatabase) loadFacilities(env *Env) error {
 	} else {
 		defer file.Close()
 		err = IterateLinesInFile(filename, file, func(json string) error {
-			if _, err := sdb.AddFacilityFromJson(json); err != nil {
+			if _, err := sdb.addFacilityFromJson(json); err != nil {
 				return env.FilterError(err)
 			}
 			return nil
@@ -80,7 +81,45 @@ func (sdb *SystemDatabase) loadFacilities(env *Env) error {
 	}
 }
 
-func (sdb *SystemDatabase) AddSystemFromJson(json string) (*System, error) {
+func (sdb *SystemDatabase) registerSystem(system *System) error {
+	if _, present := sdb.systemsById[system.Id]; present != false {
+		return fmt.Errorf("%s (#%d): %w: system id", system.DbName, system.Id, ErrDuplicateEntity)
+	}
+	if _, present := sdb.systemIds[system.DbName]; present != false {
+		return fmt.Errorf("%s (#%d): %w: system name", system.DbName, system.Id, ErrDuplicateEntity)
+	}
+
+	sdb.systemsById[system.Id] = system
+	sdb.systemIds[system.DbName] = system.Id
+
+	return nil
+}
+
+func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
+	if facility.System == nil {
+		return errors.New("attempted to register facility with nil system")
+	}
+
+	if _, exists := sdb.facilitiesById[facility.Id]; exists != false {
+		return fmt.Errorf("%s (#%d): %w: facility id", facility.Name(2), facility.Id, ErrDuplicateEntity)
+	}
+
+	for _, existing := range facility.System.Facilities {
+		if existing.Id == facility.Id {
+			return fmt.Errorf("%s (#%d): %w: facility id in system", facility.Name(2), facility.Id, ErrDuplicateEntity)
+		}
+		if strings.EqualFold(existing.DbName, facility.DbName) {
+			return fmt.Errorf("%s (#%d): %w: facility name in system", facility.Name(2), facility.Id, ErrDuplicateEntity)
+		}
+	}
+
+	facility.System.Facilities = append(facility.System.Facilities, facility)
+	sdb.facilitiesById[facility.Id] = facility
+
+	return nil
+}
+
+func (sdb *SystemDatabase) addSystemFromJson(json string) (*System, error) {
 	if !gjson.Valid(json) {
 		return nil, errors.New("invalid json: " + json)
 	}
@@ -93,20 +132,14 @@ func (sdb *SystemDatabase) AddSystemFromJson(json string) (*System, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, present := sdb.systemsById[system.Id]; present != false {
-		return nil, fmt.Errorf("%s (#%d): %w: system id", system.DbName, system.Id, ErrDuplicateEntity)
+	if err = sdb.registerSystem(system); err != nil {
+		return nil, err
 	}
-	if _, present := sdb.systemIds[system.DbName]; present != false {
-		return nil, fmt.Errorf("%s (#%d): %w: system name", system.DbName, system.Id, ErrDuplicateEntity)
-	}
-
-	sdb.systemsById[system.Id] = system
-	sdb.systemIds[system.DbName] = system.Id
 
 	return system, nil
 }
 
-func (sdb *SystemDatabase) AddFacilityFromJson(json string) (*Facility, error) {
+func (sdb *SystemDatabase) addFacilityFromJson(json string) (*Facility, error) {
 	if !gjson.Valid(json) {
 		return nil, errors.New("invalid json: " + json)
 	}
@@ -115,18 +148,9 @@ func (sdb *SystemDatabase) AddFacilityFromJson(json string) (*Facility, error) {
 		return nil, errors.New("malformed facility entry: " + json)
 	}
 	facilityId, facilityName, systemId := results[0].Int(), results[1].String(), EntityID(results[2].Int())
-	if facilityId <= 0 {
-		return nil, errors.New("invalid facility ID: " + results[0].String())
-	}
-	if systemId <= 0 {
-		return nil, errors.New("invalid system id for facility: " + results[2].String())
-	}
 	system, ok := sdb.systemsById[systemId]
 	if !ok {
 		return nil, fmt.Errorf("%s (#%d): %w: system id #%d", facilityName, facilityId, ErrUnknownEntity, systemId)
-	}
-	if _, exists := sdb.facilitiesById[EntityID(facilityId)]; exists != false {
-		return nil, fmt.Errorf("%s/%s (#%d): %w: facility id", system.DbName, facilityName, facilityId, ErrDuplicateEntity)
 	}
 	var featureMask = stringToFeaturePad(results[3].String())
 	for i, mask := range featureMasks {
@@ -143,7 +167,9 @@ func (sdb *SystemDatabase) AddFacilityFromJson(json string) (*Facility, error) {
 	facility.GovernmentId = int32(results[6].Int())
 	facility.AllegianceId = int32(results[7].Int())
 
-	sdb.facilitiesById[EntityID(facilityId)] = facility
+	if err = sdb.registerFacility(facility); err != nil {
+		return nil, err
+	}
 
 	return facility, nil
 }

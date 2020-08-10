@@ -32,8 +32,8 @@ func main() {
 	// Parse the systems file.
 
 	sdb := NewSystemDatabase()
-	fatalize(sdb.loadPopulatedSystems(env))
-	fatalize(sdb.loadFacilities(env))
+	fatalize(sdb.importSystems(env))
+	fatalize(sdb.importFacilities(env))
 
 	reader := bufio.NewReader(os.Stdin)
 

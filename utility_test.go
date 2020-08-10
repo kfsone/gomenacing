@@ -15,6 +15,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_captureLog(t *testing.T) {
+	str := captureLog(t, func(t *testing.T) {
+		log.Print("!hello world!")
+	})
+	assert.Contains(t, str, "!hello world!")
+}
+
 func Test_ensureDirectory(t *testing.T) {
 	// Create a temporary directory for testing
 	tmpPath, err := ioutil.TempDir("", "go-dangerous-test")
@@ -71,13 +78,6 @@ func Test_ensureDirectory(t *testing.T) {
 	created, err = ensureDirectory(path)
 	assert.False(t, created)
 	assert.True(t, os.IsExist(err))
-}
-
-func TestCaptureLog(t *testing.T) {
-	str := captureLog(t, func(t *testing.T) {
-		log.Print("!hello world!")
-	})
-	assert.Contains(t, str, "!hello world!")
 }
 
 func Test_stringToFeaturePad(t *testing.T) {
@@ -139,7 +139,7 @@ func TestIterateLinesInFile(t *testing.T) {
 
 	// Run the iterator in the background in-case it deadlocks
 	go func() {
-		err = IterateLinesInFile("fakefile", file, func(line string) error {
+		err = IterateLinesInFile("fake.file", file, func(line string) error {
 			if line != "X" {
 				received += line + "\n"
 				return nil
@@ -151,6 +151,6 @@ func TestIterateLinesInFile(t *testing.T) {
 
 	assert.Eventually(t, func() bool { return err != nil }, time.Second, time.Microsecond)
 	assert.True(t, errors.Is(err, io.ErrClosedPipe))
-	assert.Equal(t, "fakefile:3: io: read/write on closed pipe", err.Error())
+	assert.Equal(t, "fake.file:3: io: read/write on closed pipe", err.Error())
 	assert.Equal(t, testData, received)
 }

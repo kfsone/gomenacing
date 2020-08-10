@@ -31,7 +31,7 @@ func (e *Generator) Cancel(err error) {
 	e.cancelled = true
 }
 
-func (e Generator) Cancelled() bool {
+func (e *Generator) Cancelled() bool {
 	return e.cancelled
 }
 

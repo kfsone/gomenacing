@@ -23,7 +23,6 @@ func TestNewGenerator(t *testing.T) {
 	var sink <-chan interface{} = outputCh
 	assert.Equal(t, sink, generator.OutputCh)
 	assert.False(t, generator.cancelled)
-	assert.NotNil(t, generator.wg)
 	assert.Nil(t, generator.err)
 
 	var something = 0

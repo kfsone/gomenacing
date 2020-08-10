@@ -36,15 +36,7 @@ func (s *System) NewFacility(id int64, dbName string, features FacilityFeatureMa
 	if len(dbName) == 0 {
 		return nil, errors.New("invalid (empty) facility name")
 	}
-	// duplicate check
-	for _, facility := range s.Facilities {
-		if facility.Id == EntityID(id) {
-			return nil, fmt.Errorf("%s/%s (#%d): %w: facility id in system", s.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
-		}
-		if strings.EqualFold(facility.DbName, dbName) {
-			return nil, fmt.Errorf("%s/%s (#%d): %w: facility name in system", s.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
-		}
-	}
+
 	facility := &Facility{
 		DatabaseEntity: DatabaseEntity{
 			Id:     EntityID(id),
@@ -53,7 +45,7 @@ func (s *System) NewFacility(id int64, dbName string, features FacilityFeatureMa
 		System:   s,
 		Features: features,
 	}
-	s.Facilities = append(s.Facilities, facility)
+
 	return facility, nil
 }
 

@@ -13,6 +13,18 @@ import (
 
 // Miscellaneous utility functions.
 
+// Captures any log output produced by a test function and returns it as a string.
+func captureLog(t *testing.T, test func(t *testing.T)) string {
+	// https://stackoverflow.com/questions/44119951/how-to-check-a-log-output-in-go-test
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer func() {
+		log.SetOutput(os.Stderr)
+	}()
+	test(t)
+	return buf.String()
+}
+
 // ensureDirectory creates a directory and its parents if it does not already exist.
 func ensureDirectory(path string) (created bool, err error) {
 	// Check whether it exists, and if it does check it's a directory.
@@ -26,17 +38,6 @@ func ensureDirectory(path string) (created bool, err error) {
 		}
 	}
 	return
-}
-
-func captureLog(t *testing.T, test func(t *testing.T)) string {
-	// https://stackoverflow.com/questions/44119951/how-to-check-a-log-output-in-go-test
-	var buf bytes.Buffer
-	log.SetOutput(&buf)
-	defer func() {
-		log.SetOutput(os.Stderr)
-	}()
-	test(t)
-	return buf.String()
 }
 
 func stringToFeaturePad(padSize string) FacilityFeatureMask {
