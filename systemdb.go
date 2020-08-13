@@ -6,10 +6,13 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	flag "github.com/spf13/pflag"
 )
 
-const SystemsJson = "systems_populated.jsonl"
-const filename = "c:/users/oliver/data/eddb/systems_populated.jsonl"
+var EddbPath = flag.StringP("eddbdir", "e", "", "Path to EDDB json files to import.")
+var EddbSystems = "systems_populated.jsonl"
+var EddbFacilities = "stations.jsonl"
 
 type SystemDatabase struct {
 	systemsById    map[EntityID]*System
@@ -90,8 +93,11 @@ func countErrors(errorCh <-chan error) error {
 }
 
 func (sdb *SystemDatabase) importSystems() error {
-	///TODO: Get name from env
+	if EddbPath == nil || len(*EddbPath) == 0 {
+		return nil
+	}
 	var system *System
+	filename := DataFilePath(*EddbPath, EddbSystems)
 	errorsCh, err := ImportJsonFile(filename, systemFields, func(json JsonLine) (err error) {
 		if system, err = NewSystemFromJson(json.Results); err != nil {
 			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)
@@ -101,8 +107,8 @@ func (sdb *SystemDatabase) importSystems() error {
 		}
 		return nil
 	})
-	err = countErrors(errorsCh)
 	if err == nil {
+		err = countErrors(errorsCh)
 	}
 	if err != nil {
 		return err
@@ -114,9 +120,11 @@ func (sdb *SystemDatabase) importSystems() error {
 }
 
 func (sdb *SystemDatabase) importFacilities() error {
-	///TODO: Get name from env
-	const filename = "c:/users/oliver/data/eddb/stations.jsonl"
+	if EddbPath == nil || len(*EddbPath) == 0 {
+		return nil
+	}
 	var facility *Facility
+	var filename = DataFilePath(*EddbPath, EddbFacilities)
 	errorsCh, err := ImportJsonFile(filename, facilityFields, func(json JsonLine) (err error) {
 		if facility, err = NewFacilityFromJson(json.Results, sdb); err != nil {
 			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)

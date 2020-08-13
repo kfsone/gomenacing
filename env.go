@@ -2,21 +2,26 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"log"
 	"path/filepath"
+
+	flag "github.com/spf13/pflag"
 )
 
 // DefaultPath is the directory data files will be stored in unless overridden.
-var DefaultPath = flag.String("path", ".", "Top-level directory to operate from.")
+var DefaultPath = flag.StringP("path", "p", ".", "Top-level directory to operate from.")
+
 // DefaultDbFile is the default filename for the database.
-var DefaultDbFile = flag.String("db", "menace.db", "Name of the gomenace database.")
+var DefaultDbFile = flag.StringP("db", "d", "menace.db", "Name of the gomenace database.")
+
 // ShowWarnings enables noisy warnings about json parsing and loading during imports.
-var ShowWarnings = flag.Bool("-warnings", false, "Show warnings about data imports (can be noisy).")
+var ShowWarnings = flag.BoolP("warnings", "W", false, "Show warnings about data imports (can be noisy).")
+
 // Should it be an error when a duplicate system is encountered?
-var ErrorOnDuplicate = flag.Bool("-erronduplicate", false, "Turn duplicates in json files into errors.")
+var ErrorOnDuplicate = flag.Bool("erronduplicate", false, "Turn duplicates in json files into errors.")
+
 // Should it be an error when something references an unknown parent.
-var ErrorOnUnknown = flag.Bool("-erronunknown", false, "Make unknown system/station references in json files into errors.")
+var ErrorOnUnknown = flag.Bool("erronunknown", false, "Make unknown system/station references in json files into errors.")
 
 // SetupEnv prepares the environment options/flags, after
 // ensuring the directory for the environment exists.

@@ -2,10 +2,11 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"log"
 	"os"
+
+	flag "github.com/spf13/pflag"
 )
 
 func fatalize(err error) {
