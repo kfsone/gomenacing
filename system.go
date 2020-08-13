@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/tidwall/gjson"
 	"strings"
+	"time"
 )
 
 type System struct {
@@ -13,6 +14,7 @@ type System struct {
 	Position   Coordinate  `json:"pos"`
 	Permit     bool        `json:"permit"`
 	Facilities []*Facility `json:"-"`
+	Updated    time.Time   `json:"updated"`
 }
 
 func NewSystem(id int64, dbName string, position Coordinate, permit bool) (*System, error) {
@@ -32,27 +34,6 @@ func NewSystem(id int64, dbName string, position Coordinate, permit bool) (*Syst
 func NewSystemFromJson(json []gjson.Result) (*System, error) {
 	position := Coordinate{json[2].Float(), json[3].Float(), json[4].Float()}
 	return NewSystem(json[0].Int(), json[1].String(), position, json[5].Bool())
-}
-
-func (s *System) NewFacility(id int64, dbName string, features FacilityFeatureMask) (*Facility, error) {
-	if id <= 0 || id >= 1<<32 {
-		return nil, errors.New(fmt.Sprintf("invalid facility id: %d", id))
-	}
-	dbName = strings.TrimSpace(dbName)
-	if len(dbName) == 0 {
-		return nil, errors.New("invalid (empty) facility name")
-	}
-
-	facility := &Facility{
-		DbEntity: DbEntity{
-			Id:     EntityID(id),
-			DbName: strings.ToUpper(dbName),
-		},
-		System:   s,
-		Features: features,
-	}
-
-	return facility, nil
 }
 
 func (s System) Distance(to *System) Square {

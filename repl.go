@@ -8,8 +8,6 @@ import (
 	"log"
 )
 
-type Database struct{}
-
 type Repl struct {
 	db         *Database
 	src        *bufio.Scanner

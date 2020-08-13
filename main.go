@@ -15,6 +15,21 @@ func fatalize(err error) {
 	}
 }
 
+func importEddbData(db *Database) {
+	errorsCh := make(chan error, 2)
+	defer close(errorsCh)
+	go func () {
+		errorsCh <- importFacilities(db)
+	} ()
+	go func () {
+		errorsCh <- importSystems(db)
+	} ()
+	firstErr, secondErr := <-errorsCh, <-errorsCh
+	fatalize(firstErr)
+	fatalize(secondErr)
+}
+
+
 func main() {
 	flag.Parse()
 	SetupEnv()
@@ -25,15 +40,15 @@ func main() {
 	/// TODO: Parse arguments
 
 	var db *Database
-	//db, err := OpenDatabase()
-	//fatalize(err)
-	//defer db.Close()
+	db, err := GetDatabase(*DefaultPath)
+	fatalize(err)
 
-	// Parse the systems file.
+	if *EddbPath != "" {
+		importEddbData(db)
+	}
 
 	sdb := NewSystemDatabase()
-	fatalize(sdb.importSystems())
-	fatalize(sdb.importFacilities())
+	fatalize(db.LoadData(sdb))
 
 	reader := bufio.NewReader(os.Stdin)
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -92,60 +91,6 @@ func countErrors(errorCh <-chan error) error {
 	return nil
 }
 
-func (sdb *SystemDatabase) importSystems() error {
-	if EddbPath == nil || len(*EddbPath) == 0 {
-		return nil
-	}
-	var system *System
-	filename := DataFilePath(*EddbPath, EddbSystems)
-	errorsCh, err := ImportJsonFile(filename, systemFields, func(json JsonLine) (err error) {
-		if system, err = NewSystemFromJson(json.Results); err != nil {
-			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)
-		}
-		if err = sdb.registerSystem(system); err != nil {
-			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)
-		}
-		return nil
-	})
-	if err == nil {
-		err = countErrors(errorsCh)
-	}
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Loaded %d systems.\n", len(sdb.systemIds))
-
-	return nil
-}
-
-func (sdb *SystemDatabase) importFacilities() error {
-	if EddbPath == nil || len(*EddbPath) == 0 {
-		return nil
-	}
-	var facility *Facility
-	var filename = DataFilePath(*EddbPath, EddbFacilities)
-	errorsCh, err := ImportJsonFile(filename, facilityFields, func(json JsonLine) (err error) {
-		if facility, err = NewFacilityFromJson(json.Results, sdb); err != nil {
-			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)
-		}
-		if err = sdb.registerFacility(facility); err != nil {
-			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)
-		}
-		return nil
-	})
-	if err == nil {
-		err = countErrors(errorsCh)
-	}
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Loaded %d facilities.\n", len(sdb.facilitiesById))
-
-	return nil
-}
-
 func (sdb *SystemDatabase) registerSystem(system *System) error {
 	if _, present := sdb.systemsById[system.Id]; present != false {
 		return fmt.Errorf("%s (#%d): %w: system id", system.DbName, system.Id, ErrDuplicateEntity)
@@ -161,21 +106,23 @@ func (sdb *SystemDatabase) registerSystem(system *System) error {
 }
 
 func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
-	if facility.System == nil {
-		return errors.New("attempted to register facility with nil system")
+	system, exists := sdb.systemsById[facility.SystemId]
+	if exists == false {
+		return fmt.Errorf("%s (#%d): %w: system id: %d", facility.DbName, facility.Id, ErrUnknownEntity, facility.SystemId)
 	}
-
+	facility.System = system
 	if _, exists := sdb.facilitiesById[facility.Id]; exists != false {
-		return fmt.Errorf("%s (#%d): %w: facility id", facility.Name(2), facility.Id, ErrDuplicateEntity)
+		return fmt.Errorf("%s/%s (#%d): %w: facility id", system.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
 	}
 
-	for _, existing := range facility.System.Facilities {
+	for _, existing := range system.Facilities {
 		if strings.EqualFold(existing.DbName, facility.DbName) {
-			return fmt.Errorf("%s (#%d): %w: facility name in system", facility.Name(2), facility.Id, ErrDuplicateEntity)
+			return fmt.Errorf("%s/%s (#%d): %w: facility name in system", system.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
 		}
 	}
 
-	facility.System.Facilities = append(facility.System.Facilities, facility)
+	system.Facilities = append(system.Facilities, facility)
+	facility.System = system
 	sdb.facilitiesById[facility.Id] = facility
 
 	return nil

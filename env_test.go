@@ -121,7 +121,7 @@ func TestFilterError(t *testing.T) {
 
 func TestDataFilePath(t *testing.T) {
 	var oldDefaultPath = *DefaultPath
-	defer func () { *DefaultPath = oldDefaultPath }()
+	defer func() { *DefaultPath = oldDefaultPath }()
 	*DefaultPath = "data/test"
 
 	assert.Equal(t, filepath.Join("data/test", "foo.txt"), DataFilePath("foo.txt"))

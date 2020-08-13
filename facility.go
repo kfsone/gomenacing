@@ -1,8 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/tidwall/gjson"
+	"log"
+	"strings"
 	"time"
 )
 
@@ -29,14 +32,15 @@ const (
 // Facility represents any orbital or planetary facility, where trade could happen.
 type Facility struct {
 	DbEntity
-	System         *System             // The system housing this facility.
-	Features       FacilityFeatureMask // Features it has.
-	LsFromStar     float64             // Distance from star.
-	TypeId         int32               // Frontier facility type.
-	GovernmentId   int32               // Government operating the facility.
-	AllegianceId   int32               // Group to which the facility is allied.
-	CommodityCount uint64              // How many commodities have been seen here.
-	Updated        time.Time           // When the facility was last updated.
+	SystemId       EntityID            `json:"system_id"` // The system housing this facility.
+	System         *System             `json:"-"`
+	Features       FacilityFeatureMask `json:"features"` // Features it has.
+	LsFromStar     float64             `json:"ls"`       // Distance from star.
+	TypeId         int32               `json:"type"`     // Frontier facility type.
+	GovernmentId   int32               `json:"govt"`     // Government operating the facility.
+	AllegianceId   int32               `json:"alleg"`    // Group to which the facility is allied.
+	CommodityCount uint64              `json:"-"`        // How many commodities have been seen here.
+	Updated        time.Time           `json:"updated"`  // When the facility was last updated.
 }
 
 func (f Facility) Name(_ int) string {
@@ -71,19 +75,50 @@ func (f Facility) SupportsPadSize(size FacilityFeatureMask) bool {
 	}
 }
 
-func NewFacilityFromJson(json []gjson.Result, sdb *SystemDatabase) (*Facility, error) {
-	facilityId, facilityName, systemId := json[0].Int(), json[1].String(), EntityID(json[2].Int())
-	system, ok := sdb.systemsById[systemId]
-	if !ok {
-		return nil, fmt.Errorf("%s (#%d): %w: system id #%d", facilityName, facilityId, ErrUnknownEntity, systemId)
+func NewFacility(id int64, dbName string, system interface{}, features FacilityFeatureMask) (*Facility, error) {
+	if id <= 0 || id >= 1<<32 {
+		return nil, errors.New(fmt.Sprintf("invalid facility id: %d", id))
 	}
+	dbName = strings.TrimSpace(dbName)
+	if len(dbName) == 0 {
+		return nil, errors.New("invalid (empty) facility name")
+	}
+
+	var systemId EntityID
+	var systemPtr *System
+
+	switch typed := system.(type) {
+	case int64:
+		systemId = EntityID(typed)
+	case *System:
+		systemPtr = typed
+		systemId = typed.Id
+	default:
+		log.Fatalf("invalid parameter for system passed to NewFacility: %#v", system)
+	}
+
+	facility := &Facility{
+		DbEntity: DbEntity{
+			Id:     EntityID(id),
+			DbName: strings.ToUpper(dbName),
+		},
+		SystemId: systemId,
+		System:   systemPtr,
+		Features: features,
+	}
+
+	return facility, nil
+}
+
+func NewFacilityFromJson(json []gjson.Result) (*Facility, error) {
+	facilityId, facilityName, systemId := json[0].Int(), json[1].String(), json[2].Int()
 	var featureMask = stringToFeaturePad(json[3].String())
 	for i, mask := range featureMasks {
 		if json[8+i].Bool() {
 			featureMask |= mask
 		}
 	}
-	facility, err := system.NewFacility(facilityId, facilityName, featureMask)
+	facility, err := NewFacility(facilityId, facilityName, systemId, featureMask)
 	if err == nil {
 		facility.LsFromStar = json[4].Float()
 		facility.TypeId = int32(json[5].Int())
