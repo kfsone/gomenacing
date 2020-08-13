@@ -6,7 +6,7 @@ import "strings"
 type Category struct {
 	DbEntity
 	// Commodities is the list of items within this group.
-	Commodities []Commodity
+	Commodities []*Commodity
 }
 
 // NewCategory creates a new category entry.

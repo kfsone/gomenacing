@@ -2,6 +2,12 @@ package main
 
 import "errors"
 
+// MissingCategory is an error raised when attempting to create a commodity without a category.
+var MissingCategory = errors.New("called NewCommodity with nil category")
+
+// Fields used to describe commodity in eddb.
+var commodityFields = []string{ "id", "name", "category.id", "category.name", "is_non_marketable", "average_price", "ed_id"}
+
 // Commodity is a representation of a tradable item.
 type Commodity struct {
 	DbEntity
@@ -10,9 +16,6 @@ type Commodity struct {
 	AvgPrice int       // Average market price.
 	FDevId   FDevID    // FrontierDev internal ID.
 }
-
-// MissingCategory is an error raised when attempting to create a commodity without a category.
-var MissingCategory = errors.New("called NewCommodity with nil category")
 
 // NewCommodity constructs a Commodity instance based on the input parameters.
 func NewCommodity(id EntityID, dbName string, category *Category, fullName string, avgPrice int, fdevId FDevID) (*Commodity, error) {
