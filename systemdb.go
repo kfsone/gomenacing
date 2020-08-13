@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+const SystemsJson = "systems_populated.jsonl"
+const filename = "c:/users/oliver/data/eddb/systems_populated.jsonl"
+
 type SystemDatabase struct {
 	systemsById    map[EntityID]*System
 	systemIds      map[string]EntityID
@@ -72,10 +75,10 @@ func ImportJsonFile(filename string, fields []string, callback func(JsonLine) er
 // Consumes an error channel, counts and reports any errors that don't get filtered
 // by the environment and either returns nil if there were no errors, or an error
 // describing how many errors there were.
-func countErrors(env *Env, filename string, errorCh <-chan error) error {
+func countErrors(errorCh <-chan error) error {
 	var errorCount int
 	for err := range errorCh {
-		if err = env.FilterError(err); err != nil {
+		if err = FilterError(err); err != nil {
 			errorCount += 1
 			log.Print(err.Error())
 		}
@@ -86,9 +89,8 @@ func countErrors(env *Env, filename string, errorCh <-chan error) error {
 	return nil
 }
 
-func (sdb *SystemDatabase) importSystems(env *Env) error {
+func (sdb *SystemDatabase) importSystems() error {
 	///TODO: Get name from env
-	const filename = "c:/users/oliver/data/eddb/systems_populated.jsonl"
 	var system *System
 	errorsCh, err := ImportJsonFile(filename, systemFields, func(json JsonLine) (err error) {
 		if system, err = NewSystemFromJson(json.Results); err != nil {
@@ -99,8 +101,8 @@ func (sdb *SystemDatabase) importSystems(env *Env) error {
 		}
 		return nil
 	})
+	err = countErrors(errorsCh)
 	if err == nil {
-		err = countErrors(env, filename, errorsCh)
 	}
 	if err != nil {
 		return err
@@ -111,7 +113,7 @@ func (sdb *SystemDatabase) importSystems(env *Env) error {
 	return nil
 }
 
-func (sdb *SystemDatabase) importFacilities(env *Env) error {
+func (sdb *SystemDatabase) importFacilities() error {
 	///TODO: Get name from env
 	const filename = "c:/users/oliver/data/eddb/stations.jsonl"
 	var facility *Facility
@@ -125,7 +127,7 @@ func (sdb *SystemDatabase) importFacilities(env *Env) error {
 		return nil
 	})
 	if err == nil {
-		err = countErrors(env, filename, errorsCh)
+		err = countErrors(errorsCh)
 	}
 	if err != nil {
 		return err

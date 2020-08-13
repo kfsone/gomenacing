@@ -152,29 +152,22 @@ func TestSystemDatabase_registerFacility(t *testing.T) {
 }
 
 //func TestSystemDatabase_importFacilities(t *testing.T) {
-//	env, err := NewEnv("", "")
-//	require.Nil(t, err)
-//	require.NotNil(t, env)
-//
-//	env.SilenceWarnings = true
-//
 //	sdb := NewSystemDatabase()
 //	require.NotNil(t, sdb)
 //
-//	require.Nil(t, sdb.importSystems(env))
-//	require.Nil(t, sdb.importFacilities(env))
+//	require.Nil(t, sdb.importSystems())
+//	require.Nil(t, sdb.importFacilities())
 //}
 
 func Test_countErrors(t *testing.T) {
 	var err error
-	env := Env{}
 	const filename = "test.me"
 
 	// No errors, no count.
 	errorCh := make(chan error, 8)
 	close(errorCh)
 	logged := captureLog(t, func(t *testing.T) {
-		err = countErrors(&env, filename, errorCh)
+		err = countErrors(errorCh)
 	})
 	assert.Nil(t, err)
 
@@ -184,7 +177,7 @@ func Test_countErrors(t *testing.T) {
 	errorCh <- errors.New("[world]")
 	close(errorCh)
 	logged = captureLog(t, func(t *testing.T) {
-		err = countErrors(&env, filename, errorCh)
+		err = countErrors(errorCh)
 	})
 	assert.Error(t, err)
 	assert.Equal(t, "failed because of 2 error(s)", err.Error())

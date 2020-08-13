@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -14,30 +15,28 @@ func fatalize(err error) {
 }
 
 func main() {
-	fmt.Println("GoMenacing v0.01 (C) Oliver 'kfsone' Smith, 2020")
+	flag.Parse()
+	SetupEnv()
 
-	// Create a destination for parameters.
-	env, err := NewEnv("", "")
-	fatalize(err)
-	env.SilenceWarnings = true
+	fmt.Println("GoMenacing v0.01 (C) Oliver 'kfsone' Smith, 2020")
 
 	// Populate the parameters.
 	/// TODO: Parse arguments
 
 	var db *Database
-	//db, err := OpenDatabase(env)
+	//db, err := OpenDatabase()
 	//fatalize(err)
 	//defer db.Close()
 
 	// Parse the systems file.
 
 	sdb := NewSystemDatabase()
-	fatalize(sdb.importSystems(env))
-	fatalize(sdb.importFacilities(env))
+	fatalize(sdb.importSystems())
+	fatalize(sdb.importFacilities())
 
 	reader := bufio.NewReader(os.Stdin)
 
-	repl, err := NewRepl(env, db, bufio.NewScanner(reader), os.Stdout)
+	repl, err := NewRepl(db, bufio.NewScanner(reader), os.Stdout)
 	fatalize(err)
 
 	if db != nil {

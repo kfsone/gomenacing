@@ -11,15 +11,14 @@ import (
 type Database struct{}
 
 type Repl struct {
-	env        *Env
 	db         *Database
 	src        *bufio.Scanner
 	out        io.StringWriter
 	terminated bool
 }
 
-func NewRepl(env *Env, db *Database, src *bufio.Scanner, out io.StringWriter) (*Repl, error) {
-	repl := Repl{env: env, db: db, src: src, out: out}
+func NewRepl(db *Database, src *bufio.Scanner, out io.StringWriter) (*Repl, error) {
+	repl := Repl{db: db, src: src, out: out}
 	return &repl, nil
 }
 
