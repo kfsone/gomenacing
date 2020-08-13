@@ -1,6 +1,10 @@
 package main
 
-import "time"
+import (
+	"fmt"
+	"github.com/tidwall/gjson"
+	"time"
+)
 
 // FacilityFeatureMask holds a bit-mask of features/services of Facilities.
 type FacilityFeatureMask uint
@@ -65,4 +69,27 @@ func (f Facility) SupportsPadSize(size FacilityFeatureMask) bool {
 	default:
 		return false
 	}
+}
+
+func NewFacilityFromJson(json []gjson.Result, sdb *SystemDatabase) (*Facility, error) {
+	facilityId, facilityName, systemId := json[0].Int(), json[1].String(), EntityID(json[2].Int())
+	system, ok := sdb.systemsById[systemId]
+	if !ok {
+		return nil, fmt.Errorf("%s (#%d): %w: system id #%d", facilityName, facilityId, ErrUnknownEntity, systemId)
+	}
+	var featureMask = stringToFeaturePad(json[3].String())
+	for i, mask := range featureMasks {
+		if json[8+i].Bool() {
+			featureMask |= mask
+		}
+	}
+	facility, err := system.NewFacility(facilityId, facilityName, featureMask)
+	if err == nil {
+		facility.LsFromStar = json[4].Float()
+		facility.TypeId = int32(json[5].Int())
+		facility.GovernmentId = int32(json[6].Int())
+		facility.AllegianceId = int32(json[7].Int())
+	}
+
+	return facility, nil
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/stretchr/testify/require"
+	"github.com/tidwall/gjson"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -87,4 +89,51 @@ func TestFacility_SupportsPadSize(t *testing.T) {
 	assert.True(t, facility.SupportsPadSize(FeatLargePad))
 	assert.False(t, facility.SupportsPadSize(FacilityFeatureMask(0)))
 	assert.False(t, facility.SupportsPadSize(FeatRefuel))
+}
+
+func TestFacility_NewFacilityFromJson(t *testing.T) {
+	sdb := NewSystemDatabase()
+
+	json := `{
+		"id": 3, "name": "Luna","system_id": "1",
+		"max_landing_pad_size": "M",
+		"type_id": 8,
+		"government_id": 13,
+		"allegiance_id": 27,
+		"distance_to_star": 1.204,
+		"has_blackmarket": true,
+		"has_commodities": false,
+		"has_docking": true,
+		"has_market": false,
+		"has_outfitting": true,
+		"has_rearm": false,
+		"has_refuel": true,
+		"has_repair": false,
+		"has_shipyard": true,
+		"is_planetary": false
+	}`
+	results := gjson.GetMany(json, facilityFields...)
+	require.Len(t, facilityFields, len(results))
+
+	// Try against an unregistered system.
+	facility, err := NewFacilityFromJson(results, sdb)
+	assert.Nil(t, facility)
+	if assert.Error(t, err) {
+		assert.Equal(t, "Luna (#3): unknown: system id #1", err.Error())
+	}
+
+	system := System{DbEntity: DbEntity{1, "SOL"}}
+	require.Nil(t, sdb.registerSystem(&system))
+
+	facility, err = NewFacilityFromJson(results, sdb)
+	require.Nil(t, err)
+	require.NotNil(t, facility)
+	assert.Equal(t, EntityID(3), facility.Id)
+	assert.Equal(t, "LUNA", facility.DbName)
+	assert.Equal(t, &system, facility.System)
+	assert.EqualValues(t, 8, facility.TypeId)
+	assert.EqualValues(t, 13, facility.GovernmentId)
+	assert.EqualValues(t, 27, facility.AllegianceId)
+	assert.Equal(t, 1.204, facility.LsFromStar)
+	assert.Equal(t, FeatMediumPad|FeatBlackMarket|FeatDocking|FeatOutfitting|FeatRefuel|FeatShipyard, facility.Features)
 }

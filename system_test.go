@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/tidwall/gjson"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -45,6 +46,21 @@ func TestNewSystem(t *testing.T) {
 	assert.Equal(t, 3.0, system.Position.Z)
 	assert.True(t, system.Permit)
 	assert.Empty(t, system.Facilities)
+}
+
+func TestSystem_NewSystemFromJson(t *testing.T) {
+	json := "{\"id\":1,\"name\":\"sol\",\"x\":0,\"y\":0.0,\"z\":0.00,\"needs_permit\":true}"
+	results := gjson.GetMany(json, systemFields...)
+	require.Len(t, systemFields, len(results))
+
+	system, err := NewSystemFromJson(results)
+	require.Nil(t, err)
+	require.NotNil(t, system)
+
+	assert.Equal(t, EntityID(1), system.Id)
+	assert.Equal(t, "SOL", system.DbName)
+	assert.Equal(t, Coordinate{0, 0, 0}, system.Position)
+	assert.Equal(t, true, system.Permit)
 }
 
 func TestSystem_Distance(t *testing.T) {

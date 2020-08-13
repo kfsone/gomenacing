@@ -101,9 +101,9 @@ func GetJsonRowsFromFile(filename string, source io.Reader, fieldNames []string,
 			}
 			results := gjson.GetMany(line.string, fieldNames...)
 			// Check if any were bad
-			var badData = len(results) != len(fieldNames)
+			var badData bool
 			for _, field := range results {
-				if field.Type == 0 {
+				if field.Type == 0 && len(field.Raw) == 0 {
 					badData = true
 					break
 				}

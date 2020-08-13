@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/tidwall/gjson"
 	"log"
 	"os"
 	"strings"
@@ -17,6 +16,10 @@ type SystemDatabase struct {
 
 var systemFields = []string{
 	"id", "name", "x", "y", "z", "needs_permit",
+}
+
+var featureMasks = []FacilityFeatureMask{
+	FeatBlackMarket, FeatCommodities, FeatDocking, FeatMarket, FeatOutfitting, FeatRearm, FeatRefuel, FeatRepair, FeatShipyard, FeatPlanetary,
 }
 
 var facilityFields = []string{
@@ -40,12 +43,8 @@ var facilityFields = []string{
 	"is_planetary",
 }
 
-var featureMasks = []FacilityFeatureMask{
-	FeatBlackMarket, FeatCommodities, FeatDocking, FeatMarket, FeatOutfitting, FeatRearm, FeatRefuel, FeatRepair, FeatShipyard, FeatPlanetary,
-}
-
-func NewSystemDatabase() SystemDatabase {
-	return SystemDatabase{make(map[EntityID]*System), make(map[string]EntityID), make(map[EntityID]*Facility)}
+func NewSystemDatabase() *SystemDatabase {
+	return &SystemDatabase{make(map[EntityID]*System), make(map[string]EntityID), make(map[EntityID]*Facility)}
 }
 
 func ImportJsonFile(filename string, fields []string, callback func(JsonLine) error) (chan error, error) {
@@ -92,7 +91,7 @@ func (sdb *SystemDatabase) importSystems(env *Env) error {
 	const filename = "c:/users/oliver/data/eddb/systems_populated.jsonl"
 	var system *System
 	errorsCh, err := ImportJsonFile(filename, systemFields, func(json JsonLine) (err error) {
-		if system, err = sdb.makeSystemFromJson(json.Results); err != nil {
+		if system, err = NewSystemFromJson(json.Results); err != nil {
 			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)
 		}
 		if err = sdb.registerSystem(system); err != nil {
@@ -117,7 +116,7 @@ func (sdb *SystemDatabase) importFacilities(env *Env) error {
 	const filename = "c:/users/oliver/data/eddb/stations.jsonl"
 	var facility *Facility
 	errorsCh, err := ImportJsonFile(filename, facilityFields, func(json JsonLine) (err error) {
-		if facility, err = sdb.makeFacilityFromJson(json.Results); err != nil {
+		if facility, err = NewFacilityFromJson(json.Results, sdb); err != nil {
 			return fmt.Errorf("%s:%d: %w", filename, json.LineNo, err)
 		}
 		if err = sdb.registerFacility(facility); err != nil {
@@ -170,32 +169,4 @@ func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
 	sdb.facilitiesById[facility.Id] = facility
 
 	return nil
-}
-
-func (sdb *SystemDatabase) makeSystemFromJson(json []gjson.Result) (*System, error) {
-	position := Coordinate{json[2].Float(), json[3].Float(), json[4].Float()}
-	return NewSystem(json[0].Int(), json[1].String(), position, json[5].Bool())
-}
-
-func (sdb *SystemDatabase) makeFacilityFromJson(json []gjson.Result) (*Facility, error) {
-	facilityId, facilityName, systemId := json[0].Int(), json[1].String(), EntityID(json[2].Int())
-	system, ok := sdb.systemsById[systemId]
-	if !ok {
-		return nil, fmt.Errorf("%s (#%d): %w: system id #%d", facilityName, facilityId, ErrUnknownEntity, systemId)
-	}
-	var featureMask = stringToFeaturePad(json[3].String())
-	for i, mask := range featureMasks {
-		if json[8+i].Bool() {
-			featureMask |= mask
-		}
-	}
-	facility, err := system.NewFacility(facilityId, facilityName, featureMask)
-	if err == nil {
-		facility.LsFromStar = json[4].Float()
-		facility.TypeId = int32(json[5].Int())
-		facility.GovernmentId = int32(json[6].Int())
-		facility.AllegianceId = int32(json[7].Int())
-	}
-
-	return facility, nil
 }

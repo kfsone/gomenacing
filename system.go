@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/tidwall/gjson"
 	"strings"
 )
 
@@ -26,6 +27,11 @@ func NewSystem(id int64, dbName string, position Coordinate, permit bool) (*Syst
 		return nil, errors.New("empty system name")
 	}
 	return &System{DbEntity: DbEntity{EntityID(id), strings.ToUpper(name)}, Position: position, Permit: permit}, nil
+}
+
+func NewSystemFromJson(json []gjson.Result) (*System, error) {
+	position := Coordinate{json[2].Float(), json[3].Float(), json[4].Float()}
+	return NewSystem(json[0].Int(), json[1].String(), position, json[5].Bool())
 }
 
 func (s *System) NewFacility(id int64, dbName string, features FacilityFeatureMask) (*Facility, error) {
