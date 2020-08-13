@@ -10,7 +10,7 @@ var (
 	// DefaultDbPath is the directory data files will be stored in unless overridden.
 	DefaultDbPath = "data"
 	// DefaultDbFile is the default filename for the database.
-	DefaultDbFile = "dangerous.buntdb"
+	DefaultDbFile = "dangerous.db"
 )
 
 // Env is a holder of runtime environment options/configuration values.

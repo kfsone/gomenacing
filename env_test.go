@@ -24,7 +24,7 @@ func TestEnv_DataPath(t *testing.T) {
 
 func TestNewEnv(t *testing.T) {
 	// Verify that we can create an env for an existing directory.
-	tempDir, err := ioutil.TempDir("", "gdtest")
+	tempDir, err := ioutil.TempDir("", "menacing-test")
 	assert.Nil(t, err)
 	assert.NotEmpty(t, tempDir)
 	defer os.RemoveAll(tempDir)
@@ -85,35 +85,39 @@ func TestFilterError(t *testing.T) {
 	result = captureLog(t, func(t *testing.T) {
 		assert.Nil(t, env.FilterError(fmt.Errorf("test: %w", ErrDuplicateEntity)))
 	})
-	assert.Contains(t, result, "test: duplicate")
+	if assert.NotNil(t, result) {
+		assert.Len(t, result, 1)
+		assert.Contains(t, result[0], "test: duplicate")
+	}
 
-	// enabling duplicationErrors should change this to just returning an error/no olog
+	// enabling duplicationErrors should change this to just returning an error/no log
 	env.ErrorOnDuplicate = true
 	result = captureLog(t, func(t *testing.T) {
 		err := env.FilterError(fmt.Errorf("test: %w", ErrDuplicateEntity))
 		assert.True(t, errors.Is(err, ErrDuplicateEntity))
 	})
-	assert.Empty(t, result)
+	assert.Nil(t, result)
 
 	// ErrUnknownEntity should likewise be filtered/logged.
 	result = captureLog(t, func(t *testing.T) {
 		assert.Nil(t, env.FilterError(fmt.Errorf("test: %w", ErrUnknownEntity)))
 	})
-	assert.Contains(t, result, "test: unknown")
-
+	if assert.NotNil(t, result) {
+		assert.Len(t, result, 1)
+		assert.Contains(t, result[0], "test: unknown")
+	}
 	env.ErrorOnUnknown = true
 	result = captureLog(t, func(t *testing.T) {
 		err := env.FilterError(fmt.Errorf("test: %w", ErrUnknownEntity))
 		assert.True(t, errors.Is(err, ErrUnknownEntity))
 	})
-	assert.Empty(t, result)
+	assert.Nil(t, result)
 
-	// Turning on silencewarnings should get nils but no outputs
+	// Turning on SilenceWarnings should get nils but no outputs
 	env = Env{SilenceWarnings: true}
 	result = captureLog(t, func(t *testing.T) {
 		assert.Nil(t, env.FilterError(fmt.Errorf("test: %w", ErrDuplicateEntity)))
 		assert.Nil(t, env.FilterError(fmt.Errorf("test: %w", ErrUnknownEntity)))
 	})
-	assert.Empty(t, result)
-
+	assert.Nil(t, result)
 }

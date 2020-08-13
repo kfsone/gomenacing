@@ -2,9 +2,9 @@ package main
 
 import "errors"
 
-// Commodity is a representation of a tradeable item.
+// Commodity is a representation of a tradable item.
 type Commodity struct {
-	DatabaseEntity
+	DbEntity
 	Category *Category // Which category the commodity is part of.
 	FullName string    // The UI name of the product.
 	AvgPrice int       // Average market price.
@@ -20,11 +20,11 @@ func NewCommodity(id EntityID, dbName string, category *Category, fullName strin
 		return nil, MissingCategory
 	}
 	return &Commodity{
-		DatabaseEntity: DatabaseEntity{id, dbName},
-		Category:       category,
-		FullName:       fullName,
-		AvgPrice:       avgPrice,
-		FDevId:         fdevId,
+		DbEntity: DbEntity{id, dbName},
+		Category: category,
+		FullName: fullName,
+		AvgPrice: avgPrice,
+		FDevId:   fdevId,
 	}, nil
 }
 

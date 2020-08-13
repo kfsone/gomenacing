@@ -24,7 +24,7 @@ const (
 
 // Facility represents any orbital or planetary facility, where trade could happen.
 type Facility struct {
-	DatabaseEntity
+	DbEntity
 	System         *System             // The system housing this facility.
 	Features       FacilityFeatureMask // Features it has.
 	LsFromStar     float64             // Distance from star.

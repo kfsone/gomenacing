@@ -8,7 +8,7 @@ import (
 
 type System struct {
 	// System describes a star system within Elite Dangerous.
-	DatabaseEntity
+	DbEntity
 	Position   Coordinate  `json:"pos"`
 	Permit     bool        `json:"permit"`
 	Facilities []*Facility `json:"-"`
@@ -21,26 +21,26 @@ func NewSystem(id int64, dbName string, position Coordinate, permit bool) (*Syst
 	if id >= (1 << 32) {
 		return nil, errors.New(fmt.Sprintf("invalid system id (too large): %d", id))
 	}
-	name := strings.ToUpper(strings.TrimSpace(dbName))
+	name := strings.TrimSpace(dbName)
 	if len(name) == 0 {
 		return nil, errors.New("empty system name")
 	}
-	return &System{DatabaseEntity: DatabaseEntity{EntityID(id), name}, Position: position, Permit: permit}, nil
+	return &System{DbEntity: DbEntity{EntityID(id), strings.ToUpper(name)}, Position: position, Permit: permit}, nil
 }
 
 func (s *System) NewFacility(id int64, dbName string, features FacilityFeatureMask) (*Facility, error) {
 	if id <= 0 || id >= 1<<32 {
-		return nil, errors.New(fmt.Sprintf("invalid facility/facility id: %d", id))
+		return nil, errors.New(fmt.Sprintf("invalid facility id: %d", id))
 	}
-	dbName = strings.ToUpper(strings.TrimSpace(dbName))
+	dbName = strings.TrimSpace(dbName)
 	if len(dbName) == 0 {
 		return nil, errors.New("invalid (empty) facility name")
 	}
 
 	facility := &Facility{
-		DatabaseEntity: DatabaseEntity{
+		DbEntity: DbEntity{
 			Id:     EntityID(id),
-			DbName: dbName,
+			DbName: strings.ToUpper(dbName),
 		},
 		System:   s,
 		Features: features,

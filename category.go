@@ -4,14 +4,14 @@ import "strings"
 
 // Category is a grouping of Commodities, e.g. Agricultural Products.
 type Category struct {
-	DatabaseEntity
+	DbEntity
 	// Commodities is the list of items within this group.
 	Commodities []Commodity
 }
 
 // NewCategory creates a new category entry.
 func NewCategory(ID EntityID, DbName string) Category {
-	return Category{DatabaseEntity: DatabaseEntity{ID, DbName}}
+	return Category{DbEntity: DbEntity{ID, DbName}}
 }
 
 // Name returns the user-facing name of this Category.

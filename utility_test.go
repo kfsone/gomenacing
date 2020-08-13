@@ -1,7 +1,9 @@
 package main
 
 import (
-	"errors"
+	"fmt"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"io"
 	"io/ioutil"
 	"log"
@@ -10,16 +12,26 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func Test_captureLog(t *testing.T) {
-	str := captureLog(t, func(t *testing.T) {
+	stringList := captureLog(t, func(t *testing.T) {
+	})
+	assert.Nil(t, stringList)
+	stringList = captureLog(t, func(t *testing.T) {
 		log.Print("!hello world!")
 	})
-	assert.Contains(t, str, "!hello world!")
+	assert.Len(t, stringList, 1)
+	assert.Contains(t, stringList[0], "!hello world!")
+	stringList = captureLog(t, func(t *testing.T) {
+		log.Print("line1")
+		log.Print("line2")
+		log.Print("line3")
+	})
+	assert.Len(t, stringList, 3)
+	assert.Contains(t, stringList[0], "line1")
+	assert.Contains(t, stringList[1], "line2")
+	assert.Contains(t, stringList[2], "line3")
 }
 
 func Test_ensureDirectory(t *testing.T) {
@@ -103,54 +115,69 @@ func Test_stringToFeaturePad(t *testing.T) {
 	assert.Equal(t, FacilityFeatureMask(0), stringToFeaturePad("Ss"))
 }
 
-func TestGenerateLinesFromReader(t *testing.T) {
-	const testData = "testing\n1, 2, testing\n"
-
-	// Create a fake reader
-	reader := strings.NewReader(testData)
-	generator := GenerateLinesFromReader(reader)
-	require.NotNil(t, generator)
-
-	// The generator should send us two lines and then end.
-	var received string
-	go func() {
-		for line := range generator.OutputCh {
-			received += line.(string) + "\n"
-		}
-	}()
-
-	assert.Eventually(t, func() bool { return received == testData }, time.Millisecond*20, time.Microsecond*10)
-
-	// Check that we can collect the error, and that it is nil
-	var done bool
-	go func() {
-		done = generator.Error() == nil
-	}()
-
-	assert.Eventually(t, func() bool { return done }, time.Millisecond*10, time.Microsecond)
+// A scanner that injects a non-EOF to ensure we test the handling of scanner.Err()
+type MockReader struct {
+	strings.Reader
+	err error
 }
 
-func TestIterateLinesInFile(t *testing.T) {
-	const testData = "line 1\nline 2\n"
-	var received string
-	var err error
+func (m *MockReader) Read(p []byte) (n int, err error) {
+	// Just forward calls to Read() until we reach EOF, then if we have
+	// an error in the MockReader, return that and remove it, so that the
+	// next call will return the original error
+	n, err = m.Reader.Read(p)
+	if err == io.EOF && m.err != nil {
+		err = m.err
+		m.err = nil
+	}
+	return
+}
 
-	file := strings.NewReader(testData + "X\n")
+func TestGetJsonRowsFromFile(t *testing.T) {
+	var fieldNames = []string{"b", "a"}
+	const jsonl = "{\"a\":\"1\",\"b\":2}\n{\"b\":3, \"a\"  : \"4\"}\nintentional error\n{\"c\":\"3po\",\"a\":\"5\",\"b\":6}\n{\"a\":1}\n"
+	jsonReader := &MockReader{*strings.NewReader(jsonl), fmt.Errorf("scan error")}
+	errorCh := make(chan error, 2)
 
-	// Run the iterator in the background in-case it deadlocks
+	jsonLines := GetJsonRowsFromFile("jsonl.jsonl", jsonReader, fieldNames, errorCh)
+	require.NotNil(t, jsonLines)
+	// We should get 3 lines total.
+	var allLines bool
+	type ResultType struct {
+		lineNo int
+		intVal int64
+		strVal string
+	}
+	var results []ResultType
 	go func() {
-		err = IterateLinesInFile("fake.file", file, func(line string) error {
-			if line != "X" {
-				received += line + "\n"
-				return nil
-			} else {
-				return io.ErrClosedPipe
-			}
-		})
+		defer close(errorCh)
+		for line := range jsonLines {
+			lineNo := line.LineNo
+			intVal := line.Results[0].Int()
+			strVal := line.Results[1].String()
+			results = append(results, ResultType{lineNo, intVal, strVal})
+		}
+		allLines = true
 	}()
 
-	assert.Eventually(t, func() bool { return err != nil }, time.Second, time.Microsecond)
-	assert.True(t, errors.Is(err, io.ErrClosedPipe))
-	assert.Equal(t, "fake.file:3: io: read/write on closed pipe", err.Error())
-	assert.Equal(t, testData, received)
+	var allErrors bool
+	var errorList []string
+	go func() {
+		for err := range errorCh {
+			errorList = append(errorList, err.Error())
+		}
+		allErrors = true
+	}()
+
+	assert.Eventually(t, func() bool { return allLines }, time.Millisecond*50, time.Microsecond*10)
+	assert.Len(t, results, 3)
+	assert.Equal(t, ResultType{1, 2, "1"}, results[0])
+	assert.Equal(t, ResultType{2, 3, "4"}, results[1])
+	assert.Equal(t, ResultType{4, 6, "5"}, results[2])
+
+	assert.Eventually(t, func() bool { return allErrors }, time.Millisecond*50, time.Microsecond*10)
+	assert.Len(t, errorList, 3)
+	assert.Contains(t, errorList, "jsonl.jsonl:3: invalid json: intentional error")
+	assert.Contains(t, errorList, "jsonl.jsonl:5: bad entry: {\"a\":1}")
+	assert.Contains(t, errorList, "jsonl.jsonl:5: parse error: scan error")
 }

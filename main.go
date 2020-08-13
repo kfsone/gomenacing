@@ -18,8 +18,8 @@ func main() {
 
 	// Create a destination for parameters.
 	env, err := NewEnv("", "")
-	env.SilenceWarnings = true
 	fatalize(err)
+	env.SilenceWarnings = true
 
 	// Populate the parameters.
 	/// TODO: Parse arguments
@@ -40,6 +40,8 @@ func main() {
 	repl, err := NewRepl(env, db, bufio.NewScanner(reader), os.Stdout)
 	fatalize(err)
 
-	err = repl.Run("GoM> ")
-	fatalize(err)
+	if db != nil {
+		err = repl.Run("GoM> ")
+		fatalize(err)
+	}
 }

@@ -12,8 +12,8 @@ type SectorKey struct {
 	X, Y, Z int
 }
 
-// Anything that can go into the database is a DatabaseEntity.
-type DatabaseEntity struct {
+// Anything that can go into the database is a DbEntity.
+type DbEntity struct {
 	Id     EntityID `json:"id"`
 	DbName string   `json:"name"`
 }

@@ -13,19 +13,27 @@ func TestNewSystem(t *testing.T) {
 	t.Run("Reject bad parameters", func(t *testing.T) {
 		system, err := NewSystem(0, "x", Coordinate{}, false)
 		assert.Nil(t, system)
-		assert.Error(t, err, "invalid system id: 0")
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid system id: 0", err.Error())
+		}
 
 		system, err = NewSystem(1<<32, "x", Coordinate{}, false)
 		assert.Nil(t, system)
-		assert.Errorf(t, err, "invalid system id (too large): %d", 1<<32)
+		if assert.Error(t, err) {
+			assert.Equal(t, fmt.Errorf("invalid system id (too large): %d", 1<<32), err)
+		}
 
 		system, err = NewSystem(1, "", Coordinate{}, false)
 		assert.Nil(t, system)
-		assert.Error(t, err, "empty system name")
+		if assert.Error(t, err) {
+			assert.Equal(t, "empty system name", err.Error())
+		}
 
 		system, err = NewSystem((1<<32)-1, "  ", Coordinate{}, false)
 		assert.Nil(t, system)
-		assert.Error(t, err, "empty system name")
+		if assert.Error(t, err) {
+			assert.Equal(t, "empty system name", err.Error())
+		}
 	})
 
 	system, err := NewSystem(111, "system of a down", Coordinate{1.0, 2.0, 3.0}, true)
@@ -107,19 +115,27 @@ func TestSystem_NewFacility(t *testing.T) {
 	t.Run("Reject bad values", func(t *testing.T) {
 		facility, err := system.NewFacility(0, "", 0)
 		assert.Nil(t, facility)
-		assert.Errorf(t, err, "invalid facility id: %d", -1)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid facility id: 0", err.Error())
+		}
 
 		facility, err = system.NewFacility(1<<32, "", 0)
 		assert.Nil(t, facility)
-		assert.Errorf(t, err, "invalid facility id: %d", 1<<32)
+		if assert.Error(t, err) {
+			assert.Equal(t, fmt.Errorf("invalid facility id: %d", 1<<32), err)
+		}
 
 		facility, err = system.NewFacility(1<<32-1, "", 0)
 		assert.Nil(t, facility)
-		assert.Error(t, err, "invalid (empty) facility name")
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid (empty) facility name", err.Error())
+		}
 
 		facility, err = system.NewFacility(1, " \t ", 0)
 		assert.Nil(t, facility)
-		assert.Error(t, err, "invalid (empty) facility name")
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid (empty) facility name", err.Error())
+		}
 	})
 
 	t.Run("Create genuine facility", func(t *testing.T) {
@@ -132,7 +148,7 @@ func TestSystem_NewFacility(t *testing.T) {
 		assert.Equal(t, system, facility.System)
 		assert.Equal(t, features, facility.Features)
 
-		assert.Equal(t, 0, len(system.Facilities))
+		assert.Empty(t, system.Facilities)
 	})
 }
 

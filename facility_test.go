@@ -50,8 +50,8 @@ func TestFacility_IsTrading(t *testing.T) {
 }
 
 func TestFacility_Name(t *testing.T) {
-	system := System{DatabaseEntity: DatabaseEntity{DbName: "SystemName"}}
-	facility := Facility{DatabaseEntity: DatabaseEntity{DbName: "StationName"}, System: &system}
+	system := System{DbEntity: DbEntity{DbName: "SystemName"}}
+	facility := Facility{DbEntity: DbEntity{DbName: "StationName"}, System: &system}
 	expectedName := "SystemName/StationName"
 	assert.Equal(t, expectedName, facility.Name(-1))
 	assert.Equal(t, expectedName, facility.Name(0))
