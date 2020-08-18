@@ -78,18 +78,7 @@ func TestSystemDatabase_registerFacility(t *testing.T) {
 	sys2 := System{DbEntity: DbEntity{2, "second"}}
 	require.Nil(t, sdb.registerSystem(&sys2))
 
-	// Check that a missing system is validated.
-	err := sdb.registerFacility(&Facility{})
-	if assert.Error(t, err) {
-		assert.Equal(t, "attempted to register facility with invalid id: 0", err.Error())
-	}
-
-	err = sdb.registerFacility(&Facility{DbEntity: DbEntity{Id: 1}})
-	if assert.Error(t, err) {
-		assert.Equal(t, "attempted to register facility #1 without a name", err.Error())
-	}
-
-	err = sdb.registerFacility(&Facility{DbEntity: DbEntity{Id: 1, DbName: "first"}})
+	err := sdb.registerFacility(&Facility{DbEntity: DbEntity{Id: 1, DbName: "first"}})
 	if assert.Error(t, err) {
 		assert.Equal(t, "first (#1): attempted to register facility without a system id", err.Error())
 	}

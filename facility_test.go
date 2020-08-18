@@ -18,25 +18,25 @@ func TestNewFacility(t *testing.T) {
 		facility, err := NewFacility(0, "", nil, 0)
 		assert.Nil(t, facility)
 		if assert.Error(t, err) {
-			assert.Equal(t, "invalid facility id: 0", err.Error())
+			assert.Equal(t, "invalid id: 0", err.Error())
 		}
 
 		facility, err = NewFacility(1<<32, "", nil, 0)
 		assert.Nil(t, facility)
 		if assert.Error(t, err) {
-			assert.Equal(t, fmt.Errorf("invalid facility id: %d", 1<<32), err)
+			assert.Equal(t, fmt.Errorf("invalid id: %d", 1<<32), err)
 		}
 
 		facility, err = NewFacility(1<<32-1, "", nil, 0)
 		assert.Nil(t, facility)
 		if assert.Error(t, err) {
-			assert.Equal(t, "invalid (empty) facility name", err.Error())
+			assert.Equal(t, "invalid/empty name: \"\"", err.Error())
 		}
 
 		facility, err = NewFacility(1, " \t ", nil, 0)
 		assert.Nil(t, facility)
 		if assert.Error(t, err) {
-			assert.Equal(t, "invalid (empty) facility name", err.Error())
+			assert.Equal(t, "invalid/empty name: \" \t \"", err.Error())
 		}
 
 		facility, err = NewFacility(1, "first", nil, 0)
@@ -131,10 +131,7 @@ func TestFacility_Name(t *testing.T) {
 	system := System{DbEntity: DbEntity{DbName: "SystemName"}}
 	facility := Facility{DbEntity: DbEntity{DbName: "StationName"}, System: &system}
 	expectedName := "SystemName/StationName"
-	assert.Equal(t, expectedName, facility.Name(-1))
-	assert.Equal(t, expectedName, facility.Name(0))
-	assert.Equal(t, expectedName, facility.Name(1))
-	assert.Equal(t, expectedName, facility.Name(3))
+	assert.Equal(t, expectedName, facility.Name())
 }
 
 func TestFacility_SupportsPadSize(t *testing.T) {

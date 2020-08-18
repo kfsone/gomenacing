@@ -10,11 +10,15 @@ type Category struct {
 }
 
 // NewCategory creates a new category entry.
-func NewCategory(ID EntityID, DbName string) Category {
-	return Category{DbEntity: DbEntity{ID, DbName}}
+func NewCategory(id int64, name string) (category Category, err error) {
+	entity, err := NewDbEntity(id, strings.ToUpper(name))
+	if err == nil {
+		category.DbEntity = entity
+	}
+	return
 }
 
 // Name returns the user-facing name of this Category.
-func (c Category) Name(_ int) string {
-	return strings.ToUpper(c.DbName)
+func (c Category) Name() string {
+	return c.DbName
 }

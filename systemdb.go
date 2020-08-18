@@ -109,12 +109,6 @@ func (sdb *SystemDatabase) registerSystem(system *System) error {
 }
 
 func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
-	if facility.Id <= EntityID(0) {
-		return fmt.Errorf("attempted to register facility with invalid id: %d", facility.Id)
-	}
-	if facility.DbName == "" {
-		return fmt.Errorf("attempted to register facility #%d without a name", facility.Id)
-	}
 	var exists bool
 	system, systemId := facility.System, facility.SystemId
 	if system == nil {
@@ -129,12 +123,12 @@ func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
 		systemId = system.Id
 	}
 	if _, exists = sdb.facilitiesById[facility.Id]; exists != false {
-		return fmt.Errorf("%s (#%d): %w: facility id", facility.Name(1), facility.Id, ErrDuplicateEntity)
+		return fmt.Errorf("%s (#%d): %w: facility id", facility.Name(), facility.Id, ErrDuplicateEntity)
 	}
 
 	for _, existing := range system.Facilities {
 		if strings.EqualFold(existing.DbName, facility.DbName) {
-			return fmt.Errorf("%s (#%d): %w: facility name in system", facility.Name(1), facility.Id, ErrDuplicateEntity)
+			return fmt.Errorf("%s (#%d): %w: facility name in system", facility.Name(), facility.Id, ErrDuplicateEntity)
 		}
 	}
 

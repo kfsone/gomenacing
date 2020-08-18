@@ -7,16 +7,14 @@ import (
 )
 
 func TestCategory_Name(t *testing.T) {
-	c := NewCategory(1112, "Hello world")
-	assert.Equal(t, c.Name(0), "HELLO WORLD")
-
-	c = NewCategory(1234, "pizza PIE")
-	assert.Equal(t, c.Name(100), "PIZZA PIE")
+	assert.Equal(t, "Hello World", Category{DbEntity:DbEntity{1, "Hello World"}}.Name())
 }
 
 func TestNewCategory(t *testing.T) {
-	category := NewCategory(123, "hello")
-	assert.Equal(t, EntityID(123), category.Id)
-	assert.Equal(t, "hello", category.DbName)
-	assert.Empty(t, category.Commodities)
+	category, err := NewCategory(123, "hello")
+	if assert.Nil(t, err) {
+		assert.Equal(t, EntityID(123), category.Id)
+		assert.Equal(t, "HELLO", category.DbName)
+		assert.Empty(t, category.Commodities)
+	}
 }

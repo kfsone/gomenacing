@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"github.com/tidwall/gjson"
 	"strings"
@@ -42,7 +41,7 @@ type Facility struct {
 	Updated        time.Time           `json:"updated"`  // When the facility was last updated.
 }
 
-func (f Facility) Name(_ int) string {
+func (f Facility) Name() string {
 	return f.System.DbName + "/" + f.DbName
 }
 
@@ -82,12 +81,9 @@ func checkSystemID(systemId int64) (entityId EntityID, err error) {
 }
 
 func NewFacility(id int64, dbName string, system interface{}, features FacilityFeatureMask) (facility *Facility, err error) {
-	if id <= 0 || id >= 1<<32 {
-		return nil, errors.New(fmt.Sprintf("invalid facility id: %d", id))
-	}
-	dbName = strings.TrimSpace(dbName)
-	if len(dbName) == 0 {
-		return nil, errors.New("invalid (empty) facility name")
+	entity, err := NewDbEntity(id, strings.ToUpper(dbName))
+	if err != nil {
+		return nil, err
 	}
 
 	var systemId EntityID
@@ -116,10 +112,7 @@ func NewFacility(id int64, dbName string, system interface{}, features FacilityF
 	}
 
 	facility = &Facility{
-		DbEntity: DbEntity{
-			Id:     EntityID(id),
-			DbName: strings.ToUpper(dbName),
-		},
+		DbEntity: entity,
 		SystemId: systemId,
 		System:   systemPtr,
 		Features: features,

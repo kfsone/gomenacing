@@ -1,8 +1,6 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"github.com/tidwall/gjson"
 	"strings"
 	"time"
@@ -18,17 +16,11 @@ type System struct {
 }
 
 func NewSystem(id int64, dbName string, position Coordinate, permit bool) (*System, error) {
-	if id <= 0 {
-		return nil, errors.New(fmt.Sprintf("invalid system id: %d", id))
+	entity, err := NewDbEntity(id, strings.ToUpper(dbName))
+	if err != nil {
+		return nil, err
 	}
-	if id >= (1 << 32) {
-		return nil, errors.New(fmt.Sprintf("invalid system id (too large): %d", id))
-	}
-	name := strings.TrimSpace(dbName)
-	if len(name) == 0 {
-		return nil, errors.New("empty system name")
-	}
-	return &System{DbEntity: DbEntity{EntityID(id), strings.ToUpper(name)}, Position: position, Permit: permit}, nil
+	return &System{DbEntity: entity, Position: position, Permit: permit}, nil
 }
 
 func NewSystemFromJson(json []gjson.Result) (*System, error) {
@@ -40,7 +32,7 @@ func (s System) Distance(to *System) Square {
 	return s.Position.Distance(to.Position)
 }
 
-func (s System) Name(_ int) string {
+func (s System) Name() string {
 	return s.DbName
 }
 

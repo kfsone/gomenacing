@@ -15,25 +15,25 @@ func TestNewSystem(t *testing.T) {
 		system, err := NewSystem(0, "x", Coordinate{}, false)
 		assert.Nil(t, system)
 		if assert.Error(t, err) {
-			assert.Equal(t, "invalid system id: 0", err.Error())
+			assert.Equal(t, "invalid id: 0", err.Error())
 		}
 
 		system, err = NewSystem(1<<32, "x", Coordinate{}, false)
 		assert.Nil(t, system)
 		if assert.Error(t, err) {
-			assert.Equal(t, fmt.Errorf("invalid system id (too large): %d", 1<<32), err)
+			assert.Equal(t, fmt.Errorf("invalid id: %d", 1<<32), err)
 		}
 
 		system, err = NewSystem(1, "", Coordinate{}, false)
 		assert.Nil(t, system)
 		if assert.Error(t, err) {
-			assert.Equal(t, "empty system name", err.Error())
+			assert.Equal(t, "invalid/empty name: \"\"", err.Error())
 		}
 
 		system, err = NewSystem((1<<32)-1, "  ", Coordinate{}, false)
 		assert.Nil(t, system)
 		if assert.Error(t, err) {
-			assert.Equal(t, "empty system name", err.Error())
+			assert.Equal(t, "invalid/empty name: \"  \"", err.Error())
 		}
 	})
 
@@ -116,11 +116,7 @@ func TestSystem_GetFacility(t *testing.T) {
 func TestSystem_Name(t *testing.T) {
 	system, err := NewSystem(100, "system1", Coordinate{}, false)
 	require.Nil(t, err)
-	assert.Equal(t, "SYSTEM1", system.Name(-1))
-	assert.Equal(t, "SYSTEM1", system.Name(0))
-	assert.Equal(t, "SYSTEM1", system.Name(1))
-	assert.Equal(t, "SYSTEM1", system.Name(2))
-	assert.Equal(t, "SYSTEM1", system.Name(999))
+	assert.Equal(t, "SYSTEM1", system.Name())
 }
 
 func TestSystem_String(t *testing.T) {
