@@ -60,14 +60,14 @@ func stringToFeaturePad(padSize string) FacilityFeatureMask {
 	return FacilityFeatureMask(0)
 }
 
-type JsonLine struct {
+type JsonEntry struct {
 	LineNo  int
 	Results []gjson.Result
 }
 
 // Reads a file and invokes the specified callback for each line in it.
 // If an error occurs, the error will be decorated with the filename and line no.
-func GetJsonRowsFromFile(filename string, source io.Reader, fieldNames []string, errorCh chan<- error) chan JsonLine {
+func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string, errorCh chan<- error) chan JsonEntry {
 	scanner := bufio.NewScanner(source)
 	lineNo := 0
 
@@ -75,7 +75,7 @@ func GetJsonRowsFromFile(filename string, source io.Reader, fieldNames []string,
 		int
 		string
 	}, 8)
-	jsonsCh := make(chan JsonLine, 8)
+	jsonsCh := make(chan JsonEntry, 8)
 
 	go func() {
 		defer close(linesCh)
@@ -112,7 +112,7 @@ func GetJsonRowsFromFile(filename string, source io.Reader, fieldNames []string,
 				errorCh <- fmt.Errorf("%s:%d: bad entry: %s", filename, line.int, line.string)
 				continue
 			}
-			jsonsCh <- JsonLine{line.int, results}
+			jsonsCh <- JsonEntry{line.int, results}
 		}
 	}()
 

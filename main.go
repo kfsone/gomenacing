@@ -24,9 +24,19 @@ func importEddbData(db *Database) {
 	go func() {
 		errorsCh <- importSystems(db)
 	}()
-	firstErr, secondErr := <-errorsCh, <-errorsCh
-	failOnError(firstErr)
-	failOnError(secondErr)
+	go func() {
+		errorsCh <- importCommodities(db)
+	}()
+	errorCount := 0
+	for i := 0; i < 3; i++ {
+		if err := <-errorsCh; err != nil {
+			log.Print(err)
+			errorCount += 1
+		}
+	}
+	if errorCount > 0 {
+		log.Fatal("Stopping because of errors.")
+	}
 }
 
 func main() {

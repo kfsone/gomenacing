@@ -12,15 +12,22 @@ import (
 var EddbPath = flag.StringP("eddbdir", "e", "", "Path to EDDB json files to import.")
 
 const (
-	EddbSystems    string = "systems_populated.jsonl"
-	EddbFacilities string = "stations.jsonl"
-	//EddbCommodities string = "commodities.json"
+	EddbSystems     string = "systems_populated.jsonl"
+	EddbFacilities  string = "stations.jsonl"
+	EddbCommodities string = "commodities.json"
 )
 
 type SystemDatabase struct {
-	systemsById    map[EntityID]*System
-	systemIds      map[string]EntityID
+	// Index of Systems by their database ids.
+	systemsById map[EntityID]*System
+	// Look-up a system's EntityID by it's name.
+	systemIds map[string]EntityID
+	// Index of Facilities by their database ids.
 	facilitiesById map[EntityID]*Facility
+	// Index of Commodities by their database ids.
+	commoditiesById map[EntityID]*Commodity
+	// Look-up a commodity's EntityID by it's name.
+	commodityIds map[string]EntityID
 }
 
 var systemFields = []string{
@@ -53,10 +60,16 @@ var facilityFields = []string{
 }
 
 func NewSystemDatabase() *SystemDatabase {
-	return &SystemDatabase{make(map[EntityID]*System), make(map[string]EntityID), make(map[EntityID]*Facility)}
+	return &SystemDatabase{
+		systemsById:     make(map[EntityID]*System),
+		systemIds:       make(map[string]EntityID),
+		facilitiesById:  make(map[EntityID]*Facility),
+		commoditiesById: make(map[EntityID]*Commodity),
+		commodityIds:    make(map[string]EntityID),
+	}
 }
 
-func ImportJsonFile(filename string, fields []string, callback func(*JsonLine) error) (chan error, error) {
+func ImportJsonlFile(filename string, fields []string, callback func(*JsonEntry) error) (chan error, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -64,9 +77,9 @@ func ImportJsonFile(filename string, fields []string, callback func(*JsonLine) e
 	// GoRoutine to consume json rows and pass them to the callback
 	errorsCh := make(chan error, 4)
 	go func() {
-		defer func () { failOnError(file.Close()) }()
+		defer func() { failOnError(file.Close()) }()
 		defer close(errorsCh)
-		rows := GetJsonRowsFromFile(filename, file, fields, errorsCh)
+		rows := GetJsonItemsFromFile(filename, file, fields, errorsCh)
 		for row := range rows {
 			if err := callback(&row); err != nil {
 				errorsCh <- err
@@ -94,18 +107,40 @@ func countErrors(errorCh <-chan error) error {
 	return nil
 }
 
-func (sdb *SystemDatabase) registerSystem(system *System) error {
-	if _, present := sdb.systemsById[system.Id]; present != false {
-		return fmt.Errorf("%s (#%d): %w: system id", system.DbName, system.Id, ErrDuplicateEntity)
+func registerIdLookup(entity DbEntity, ids map[string]EntityID) bool {
+	name := strings.ToLower(entity.DbName)
+	if _, present := ids[name]; present != false {
+		return false
 	}
-	if _, present := sdb.systemIds[system.DbName]; present != false {
-		return fmt.Errorf("%s (#%d): %w: system name", system.DbName, system.Id, ErrDuplicateEntity)
+	ids[name] = entity.Id
+	return true
+}
+
+func (sdb *SystemDatabase) registerCommodity(commodity *Commodity) (err error) {
+	if _, present := sdb.commoditiesById[commodity.Id]; present == false {
+		if registerIdLookup(commodity.DbEntity, sdb.commodityIds) {
+			sdb.commoditiesById[commodity.Id] = commodity
+			return nil
+		}
+		err = fmt.Errorf("%w: item name", ErrDuplicateEntity)
+	} else {
+		err = fmt.Errorf("%w: item id", ErrDuplicateEntity)
+	}
+	return fmt.Errorf("%s (#%d): %w", commodity.DbName, commodity.Id, err)
+}
+
+func (sdb *SystemDatabase) registerSystem(system *System) (err error) {
+	if _, present := sdb.systemsById[system.Id]; present == false {
+		if registerIdLookup(system.DbEntity, sdb.systemIds) {
+			sdb.systemsById[system.Id] = system
+			return nil
+		}
+		err = fmt.Errorf("%w: system name", ErrDuplicateEntity)
+	} else {
+		err = fmt.Errorf("%w: system id", ErrDuplicateEntity)
 	}
 
-	sdb.systemsById[system.Id] = system
-	sdb.systemIds[system.DbName] = system.Id
-
-	return nil
+	return fmt.Errorf("%s (#%d): %w", system.DbName, system.Id, err)
 }
 
 func (sdb *SystemDatabase) GetSystem(name string) (system *System) {

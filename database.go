@@ -1,24 +1,42 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/tidwall/gjson"
+	"io/ioutil"
+	"log"
 	"path/filepath"
 
+	"github.com/tidwall/gjson"
+
 	"github.com/akrylysov/pogreb"
+	"golang.org/x/sync/errgroup"
 )
 
 type Database struct {
 	storePath string
 }
 
-func (db Database) Systems() (*pogreb.DB, error) {
-	return pogreb.Open(filepath.Join(db.storePath, "systems"), nil)
+// Helper that opens a specific pogreb schema
+func getSchema(path string, name string) (*pogreb.DB, error) {
+	return pogreb.Open(filepath.Join(path, name), nil)
 }
 
+// Returns an open handle to the commodity schema
+func (db Database) Commodities() (*pogreb.DB, error) {
+	return getSchema(db.storePath, "commodities")
+}
+
+// Returns an open handle to the facility schema
 func (db Database) Facilities() (*pogreb.DB, error) {
-	return pogreb.Open(filepath.Join(db.storePath, "facilities"), nil)
+	return getSchema(db.storePath, "facilities")
+}
+
+// Returns an open handle to the system schema
+func (db Database) Systems() (*pogreb.DB, error) {
+	return getSchema(db.storePath, "systems")
 }
 
 func GetDatabase(path string) (*Database, error) {
@@ -27,12 +45,12 @@ func GetDatabase(path string) (*Database, error) {
 }
 
 func importWrapper(store *pogreb.DB, source string, fields []string, convertFn func([]gjson.Result) (interface{}, error)) error {
-	defer func () { failOnError(store.Close()) }()
+	defer func() { failOnError(store.Close()) }()
 	filename := DataFilePath(*EddbPath, source)
 	loaded := 0
 	var data []byte
 
-	errorsCh, err := ImportJsonFile(filename, fields, func(jsonLine *JsonLine) (err error) {
+	errorsCh, err := ImportJsonlFile(filename, fields, func(jsonLine *JsonEntry) (err error) {
 		item, err := convertFn(jsonLine.Results)
 		if err == nil {
 			if data, err = json.Marshal(item); err == nil {
@@ -71,8 +89,60 @@ func importFacilities(db *Database) error {
 	return err
 }
 
+func importCommodities(db *Database) error {
+	// Read the json.
+	filename := DataFilePath(*EddbPath, EddbCommodities)
+	text, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	result := gjson.ParseBytes(text)
+	// Check what we have is an array
+	if !result.IsArray() || len(result.Array()) <= 0 {
+		log.Println("No commodities to import")
+		return nil
+	}
+
+	store, err := db.Commodities()
+	if err != nil {
+		return err
+	}
+	defer func() { failOnError(store.Close()) }()
+
+	if store == nil {
+		panic("missing store")
+	}
+
+	var hadError bool
+	var loaded int64
+	result.ForEach(func(_, value gjson.Result) bool {
+		item, err := NewCommodityFromJsonMap(value)
+		if err != nil {
+			if FilterError(err) != nil {
+				log.Print(err)
+				hadError = true
+			}
+			return true
+		}
+		if data, err := json.Marshal(item); err == nil {
+			if err = store.Put([]byte(value.Map()["id"].Raw), data); err == nil {
+				loaded += 1
+				return true
+			}
+		}
+		return false
+	})
+
+	if hadError {
+		return errors.New("Errors importing commodities")
+	}
+
+	fmt.Printf("%s: imported %d items\n", EddbCommodities, loaded)
+	return nil
+}
+
 func loadData(name string, store *pogreb.DB, handler func(val []byte) error) error {
-	defer func () { failOnError(store.Close()) }()
+	defer func() { failOnError(store.Close()) }()
 
 	it := store.Items()
 	loaded := 0
@@ -128,9 +198,42 @@ func (db *Database) loadFacilities(sdb *SystemDatabase) error {
 	return err
 }
 
-func (db *Database) LoadData(sdb *SystemDatabase) (err error) {
-	if err = db.loadSystems(sdb); err == nil {
-		err = db.loadFacilities(sdb)
+func (db *Database) loadCommodities(sdb *SystemDatabase) error {
+	store, err := db.Commodities()
+	if err == nil {
+		sdb.commodityIds = make(map[string]EntityID, store.Count())
+		sdb.commoditiesById = make(map[EntityID]*Commodity, store.Count())
+		err = loadData("Commodities", store, func(val []byte) error {
+			var item = &Commodity{}
+			if err = json.Unmarshal(val, item); err == nil {
+				err = sdb.registerCommodity(item)
+			}
+			return err
+		})
 	}
 	return err
+}
+
+func (db *Database) LoadData(sdb *SystemDatabase) (err error) {
+	ctx := context.Background()
+	eg, ctx := errgroup.WithContext(ctx)
+
+	// Systems and facilities need to be loaded synchronously for now.
+	///TODO: Evaluate making loadFacilities not associate facility->system
+	eg.Go(func() error {
+		if err = db.loadSystems(sdb); err == nil {
+			err = db.loadFacilities(sdb)
+		}
+		return err
+	})
+	// We can load the commodity list in parallel
+	eg.Go(func() error {
+		return db.loadCommodities(sdb)
+	})
+	if err := eg.Wait(); err != nil {
+		return err
+	}
+
+	// Now import any prices.
+	return nil
 }

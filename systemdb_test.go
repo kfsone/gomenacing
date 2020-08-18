@@ -12,6 +12,46 @@ func TestNewSystemDatabase(t *testing.T) {
 	assert.NotNil(t, sdb.systemsById)
 	assert.NotNil(t, sdb.systemIds)
 	assert.NotNil(t, sdb.facilitiesById)
+	assert.NotNil(t, sdb.commoditiesById)
+	assert.NotNil(t, sdb.commodityIds)
+}
+
+func TestSystemDatabase_registerCommodity(t *testing.T) {
+	sdb := NewSystemDatabase()
+	assert.Len(t, sdb.commoditiesById, 0)
+	assert.Len(t, sdb.commodityIds, 0)
+
+	item1 := Commodity{DbEntity: DbEntity{1, "first"}}
+	assert.Nil(t, sdb.registerCommodity(&item1))
+	assert.Equal(t, sdb.commoditiesById, map[EntityID]*Commodity{item1.Id: &item1})
+	assert.Equal(t, sdb.commodityIds, map[string]EntityID{"first": item1.Id})
+
+	err := sdb.registerCommodity(&item1)
+	if assert.Error(t, err) {
+		assert.Equal(t, "first (#1): duplicate: item id", err.Error())
+	}
+	assert.Equal(t, sdb.commoditiesById, map[EntityID]*Commodity{item1.Id: &item1})
+	assert.Equal(t, sdb.commodityIds, map[string]EntityID{"first": item1.Id})
+
+	item2 := Commodity{DbEntity: DbEntity{2, "first"}}
+	err = sdb.registerCommodity(&item2)
+	if assert.Error(t, err) {
+		assert.Equal(t, "first (#2): duplicate: item name", err.Error())
+	}
+	assert.Equal(t, sdb.commoditiesById, map[EntityID]*Commodity{item1.Id: &item1})
+	assert.Equal(t, sdb.commodityIds, map[string]EntityID{"first": item1.Id})
+
+	item2.DbName = "second"
+	assert.Nil(t, sdb.registerCommodity(&item2))
+	assert.Equal(t, sdb.commoditiesById, map[EntityID]*Commodity{item1.Id: &item1, item2.Id: &item2})
+	assert.Equal(t, sdb.commodityIds, map[string]EntityID{"first": item1.Id, "second": item2.Id})
+
+	err = sdb.registerCommodity(&item2)
+	if assert.Error(t, err) {
+		assert.Equal(t, "second (#2): duplicate: item id", err.Error())
+	}
+	assert.Equal(t, sdb.commoditiesById, map[EntityID]*Commodity{item1.Id: &item1, item2.Id: &item2})
+	assert.Equal(t, sdb.commodityIds, map[string]EntityID{"first": item1.Id, "second": item2.Id})
 }
 
 func TestSystemDatabase_registerSystem(t *testing.T) {
@@ -215,11 +255,11 @@ func TestSystemDatabase_GetSystem(t *testing.T) {
 		assert.Nil(t, sdb.GetSystem("first"))
 	})
 
-	first := System{DbEntity:DbEntity{1, "first"}}
+	first := System{DbEntity: DbEntity{1, "first"}}
 	err := sdb.registerSystem(&first)
 	require.Nil(t, err)
 
-	second := System{DbEntity:DbEntity{2, "second"}}
+	second := System{DbEntity: DbEntity{2, "second"}}
 	err = sdb.registerSystem(&second)
 	require.Nil(t, err)
 

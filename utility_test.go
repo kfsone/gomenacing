@@ -139,7 +139,7 @@ func TestGetJsonRowsFromFile(t *testing.T) {
 	jsonReader := &MockReader{*strings.NewReader(jsonl), fmt.Errorf("scan error")}
 	errorCh := make(chan error, 2)
 
-	jsonLines := GetJsonRowsFromFile("jsonl.jsonl", jsonReader, fieldNames, errorCh)
+	jsonLines := GetJsonItemsFromFile("jsonl.jsonl", jsonReader, fieldNames, errorCh)
 	require.NotNil(t, jsonLines)
 	// We should get 3 lines total.
 	var allLines bool

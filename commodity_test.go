@@ -7,7 +7,7 @@ import (
 )
 
 func TestCommodity_Name(t *testing.T) {
-	commodity, err := NewCommodity(2, "a thing", 3, 10, 111)
+	commodity, err := NewCommodity(DbEntity{2, "a thing"}, 3, 10, 111)
 	assert.Nil(t, err)
 	assert.NotNil(t, commodity)
 	assert.Equal(t, commodity.DbName, commodity.Name())
@@ -15,7 +15,7 @@ func TestCommodity_Name(t *testing.T) {
 
 func TestNewCommodity(t *testing.T) {
 	t.Run("NewCommodity", func(t *testing.T) {
-		commodity, err := NewCommodity(2222, "A Thing", 7, 10, 123)
+		commodity, err := NewCommodity(DbEntity{2222, "A Thing"}, 7, 10, 123)
 		assert.Nil(t, err)
 		assert.NotNil(t, commodity)
 		assert.Equal(t, EntityID(2222), commodity.Id)
@@ -26,7 +26,7 @@ func TestNewCommodity(t *testing.T) {
 	})
 
 	t.Run("NewCommodity rejects nil category", func(t *testing.T) {
-		commodity, err := NewCommodity(2222, "A Thing", 0, 10, 123)
+		commodity, err := NewCommodity(DbEntity{2222, "A Thing"}, 0, 10, 123)
 		if assert.Nil(t, commodity) && assert.Error(t, err) {
 			assert.Equal(t, "invalid commodity category id: 0", err.Error())
 		}
