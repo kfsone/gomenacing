@@ -27,7 +27,7 @@ func GetDatabase(path string) (*Database, error) {
 }
 
 func importWrapper(store *pogreb.DB, source string, fields []string, convertFn func([]gjson.Result) (interface{}, error)) error {
-	defer failOnError(store.Close())
+	defer func () { failOnError(store.Close()) }()
 	filename := DataFilePath(*EddbPath, source)
 	loaded := 0
 	var data []byte
@@ -72,7 +72,7 @@ func importFacilities(db *Database) error {
 }
 
 func loadData(name string, store *pogreb.DB, handler func(val []byte) error) error {
-	defer failOnError(store.Close())
+	defer func () { failOnError(store.Close()) }()
 
 	it := store.Items()
 	loaded := 0

@@ -64,7 +64,7 @@ func ImportJsonFile(filename string, fields []string, callback func(*JsonLine) e
 	// GoRoutine to consume json rows and pass them to the callback
 	errorsCh := make(chan error, 4)
 	go func() {
-		defer failOnError(file.Close())
+		defer func () { failOnError(file.Close()) }()
 		defer close(errorsCh)
 		rows := GetJsonRowsFromFile(filename, file, fields, errorsCh)
 		for row := range rows {
@@ -130,12 +130,12 @@ func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
 		systemId = system.Id
 	}
 	if _, exists = sdb.facilitiesById[facility.Id]; exists != false {
-		return fmt.Errorf("%s (#%d): %w: facility id", facility.Name(), facility.Id, ErrDuplicateEntity)
+		return fmt.Errorf("%s/%s (#%d): %w: facility id", system.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
 	}
 
 	for _, existing := range system.Facilities {
 		if strings.EqualFold(existing.DbName, facility.DbName) {
-			return fmt.Errorf("%s (#%d): %w: facility name in system", facility.Name(), facility.Id, ErrDuplicateEntity)
+			return fmt.Errorf("%s/%s (#%d): %w: facility name in system", system.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
 		}
 	}
 
