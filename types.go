@@ -11,9 +11,3 @@ type FDevID uint32
 type SectorKey struct {
 	X, Y, Z int
 }
-
-// Anything that can go into the database is a DbEntity.
-type DbEntity struct {
-	Id     EntityID `json:"id"`
-	DbName string   `json:"name"`
-}
