@@ -27,13 +27,6 @@ var ErrorOnUnknown = flag.Bool("erronunknown", false, "Make unknown system/stati
 // ensuring the directory for the environment exists.
 // Leave 'path' and/or 'filename' blank for default values.
 func SetupEnv() error {
-	// Create the directory if we need to
-	if DefaultPath == nil {
-		return errors.New("usage error: -path is unset")
-	}
-	if DefaultDbFile == nil {
-		return errors.New("usage error: -db is unset")
-	}
 	// Make sure the directory actually exists.
 	if _, err := ensureDirectory(*DefaultPath); err != nil {
 		return err

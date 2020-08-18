@@ -60,8 +60,7 @@ func ImportJsonFile(filename string, fields []string, callback func(JsonLine) er
 	// GoRoutine to consume json rows and pass them to the callback
 	errorsCh := make(chan error, 4)
 	go func() {
-		defer file.Close()
-
+		defer failOnError(file.Close())
 		defer close(errorsCh)
 		rows := GetJsonRowsFromFile(filename, file, fields, errorsCh)
 		for row := range rows {
@@ -106,23 +105,37 @@ func (sdb *SystemDatabase) registerSystem(system *System) error {
 }
 
 func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
-	system, exists := sdb.systemsById[facility.SystemId]
-	if exists == false {
-		return fmt.Errorf("%s (#%d): %w: system id: %d", facility.DbName, facility.Id, ErrUnknownEntity, facility.SystemId)
+	if facility.Id <= EntityID(0) {
+		return fmt.Errorf("attempted to register facility with invalid id: %d", facility.Id)
 	}
-	facility.System = system
-	if _, exists := sdb.facilitiesById[facility.Id]; exists != false {
-		return fmt.Errorf("%s/%s (#%d): %w: facility id", system.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
+	if facility.DbName == "" {
+		return fmt.Errorf("attempted to register facility #%d without a name", facility.Id)
+	}
+	var exists bool
+	system, systemId := facility.System, facility.SystemId
+	if system == nil {
+		if systemId == 0 {
+			return fmt.Errorf("%s (#%d): attempted to register facility without a system id", facility.DbName, facility.Id)
+		}
+		system, exists = sdb.systemsById[facility.SystemId]
+		if exists == false {
+			return fmt.Errorf("%s (#%d): system id: %w: %d", facility.DbName, facility.Id, ErrUnknownEntity, systemId)
+		}
+	} else {
+		systemId = system.Id
+	}
+	if _, exists = sdb.facilitiesById[facility.Id]; exists != false {
+		return fmt.Errorf("%s (#%d): %w: facility id", facility.Name(1), facility.Id, ErrDuplicateEntity)
 	}
 
 	for _, existing := range system.Facilities {
 		if strings.EqualFold(existing.DbName, facility.DbName) {
-			return fmt.Errorf("%s/%s (#%d): %w: facility name in system", system.DbName, facility.DbName, facility.Id, ErrDuplicateEntity)
+			return fmt.Errorf("%s (#%d): %w: facility name in system", facility.Name(1), facility.Id, ErrDuplicateEntity)
 		}
 	}
 
+	facility.System, facility.SystemId = system, systemId
 	system.Facilities = append(system.Facilities, facility)
-	facility.System = system
 	sdb.facilitiesById[facility.Id] = facility
 
 	return nil

@@ -9,7 +9,7 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-func fatalize(err error) {
+func failOnError(err error) {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -18,21 +18,20 @@ func fatalize(err error) {
 func importEddbData(db *Database) {
 	errorsCh := make(chan error, 2)
 	defer close(errorsCh)
-	go func () {
+	go func() {
 		errorsCh <- importFacilities(db)
-	} ()
-	go func () {
+	}()
+	go func() {
 		errorsCh <- importSystems(db)
-	} ()
+	}()
 	firstErr, secondErr := <-errorsCh, <-errorsCh
-	fatalize(firstErr)
-	fatalize(secondErr)
+	failOnError(firstErr)
+	failOnError(secondErr)
 }
-
 
 func main() {
 	flag.Parse()
-	SetupEnv()
+	failOnError(SetupEnv())
 
 	fmt.Println("GoMenacing v0.01 (C) Oliver 'kfsone' Smith, 2020")
 
@@ -41,22 +40,22 @@ func main() {
 
 	var db *Database
 	db, err := GetDatabase(*DefaultPath)
-	fatalize(err)
+	failOnError(err)
 
 	if *EddbPath != "" {
 		importEddbData(db)
 	}
 
 	sdb := NewSystemDatabase()
-	fatalize(db.LoadData(sdb))
+	failOnError(db.LoadData(sdb))
 
 	reader := bufio.NewReader(os.Stdin)
 
 	repl, err := NewRepl(db, bufio.NewScanner(reader), os.Stdout)
-	fatalize(err)
+	failOnError(err)
 
 	if db != nil {
 		err = repl.Run("GoM> ")
-		fatalize(err)
+		failOnError(err)
 	}
 }

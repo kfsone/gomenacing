@@ -1,12 +1,88 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/gjson"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestNewFacility(t *testing.T) {
+	system, err := NewSystem(100, "system", Coordinate{}, false)
+	require.Nil(t, err)
+	assert.Empty(t, system.Facilities)
+
+	t.Run("Reject bad values", func(t *testing.T) {
+		facility, err := NewFacility(0, "", nil, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid facility id: 0", err.Error())
+		}
+
+		facility, err = NewFacility(1<<32, "", nil, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, fmt.Errorf("invalid facility id: %d", 1<<32), err)
+		}
+
+		facility, err = NewFacility(1<<32-1, "", nil, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid (empty) facility name", err.Error())
+		}
+
+		facility, err = NewFacility(1, " \t ", nil, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid (empty) facility name", err.Error())
+		}
+
+		facility, err = NewFacility(1, "first", nil, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "nil system", err.Error())
+		}
+
+		facility, err = NewFacility(1, "first", -1, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid value for system id: -1", err.Error())
+		}
+
+		facility, err = NewFacility(1, "first", int64(-1), 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid value for system id: -1", err.Error())
+		}
+
+		facility, err = NewFacility(1, "first", EntityID(0), 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid value for system id: 0", err.Error())
+		}
+
+		facility, err = NewFacility(1, "first", struct{}{}, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "invalid parameter for system passed to NewFacility: struct {}{}", err.Error())
+		}
+	})
+
+	t.Run("Create genuine facility", func(t *testing.T) {
+		features := FeatBlackMarket | FeatSmallPad
+		facility, err := NewFacility(111, "first", system, features)
+		assert.Nil(t, err)
+		assert.NotNil(t, facility)
+		assert.Equal(t, EntityID(111), facility.Id)
+		assert.Equal(t, "FIRST", facility.DbName)
+		assert.Equal(t, system, facility.System)
+		assert.Equal(t, features, facility.Features)
+
+		assert.Empty(t, system.Facilities)
+	})
+}
 
 func TestFacility_HasFeatures(t *testing.T) {
 	facility := Facility{
@@ -92,8 +168,6 @@ func TestFacility_SupportsPadSize(t *testing.T) {
 }
 
 func TestFacility_NewFacilityFromJson(t *testing.T) {
-	sdb := NewSystemDatabase()
-
 	json := `{
 		"id": 3, "name": "Luna","system_id": "1",
 		"max_landing_pad_size": "M",
@@ -115,22 +189,13 @@ func TestFacility_NewFacilityFromJson(t *testing.T) {
 	results := gjson.GetMany(json, facilityFields...)
 	require.Len(t, facilityFields, len(results))
 
-	// Try against an unregistered system.
-	facility, err := NewFacilityFromJson(results, sdb)
-	assert.Nil(t, facility)
-	if assert.Error(t, err) {
-		assert.Equal(t, "Luna (#3): unknown: system id #1", err.Error())
-	}
-
-	system := System{DbEntity: DbEntity{1, "SOL"}}
-	require.Nil(t, sdb.registerSystem(&system))
-
-	facility, err = NewFacilityFromJson(results, sdb)
+	facility, err := NewFacilityFromJson(results)
 	require.Nil(t, err)
 	require.NotNil(t, facility)
 	assert.Equal(t, EntityID(3), facility.Id)
 	assert.Equal(t, "LUNA", facility.DbName)
-	assert.Equal(t, &system, facility.System)
+	assert.EqualValues(t, 1, facility.SystemId)
+	assert.Nil(t, facility.System)
 	assert.EqualValues(t, 8, facility.TypeId)
 	assert.EqualValues(t, 13, facility.GovernmentId)
 	assert.EqualValues(t, 27, facility.AllegianceId)

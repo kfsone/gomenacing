@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/tidwall/gjson"
-	"log"
 	"strings"
 	"time"
 )
@@ -75,7 +74,14 @@ func (f Facility) SupportsPadSize(size FacilityFeatureMask) bool {
 	}
 }
 
-func NewFacility(id int64, dbName string, system interface{}, features FacilityFeatureMask) (*Facility, error) {
+func checkSystemID(systemId int64) (entityId EntityID, err error) {
+	if systemId <= 0 || systemId >= 1<<32 {
+		return EntityID(0), fmt.Errorf("invalid value for system id: %d", systemId)
+	}
+	return EntityID(systemId), nil
+}
+
+func NewFacility(id int64, dbName string, system interface{}, features FacilityFeatureMask) (facility *Facility, err error) {
 	if id <= 0 || id >= 1<<32 {
 		return nil, errors.New(fmt.Sprintf("invalid facility id: %d", id))
 	}
@@ -88,16 +94,28 @@ func NewFacility(id int64, dbName string, system interface{}, features FacilityF
 	var systemPtr *System
 
 	switch typed := system.(type) {
+	case nil:
+		return nil, fmt.Errorf("nil system")
 	case int64:
-		systemId = EntityID(typed)
+		if systemId, err = checkSystemID(typed); err != nil {
+			return nil, err
+		}
+	case EntityID:
+		if systemId, err = checkSystemID(int64(typed)); err != nil {
+			return nil, err
+		}
+	case int:
+		if systemId, err = checkSystemID(int64(typed)); err != nil {
+			return nil, err
+		}
 	case *System:
 		systemPtr = typed
 		systemId = typed.Id
 	default:
-		log.Fatalf("invalid parameter for system passed to NewFacility: %#v", system)
+		return nil, fmt.Errorf("invalid parameter for system passed to NewFacility: %#v", system)
 	}
 
-	facility := &Facility{
+	facility = &Facility{
 		DbEntity: DbEntity{
 			Id:     EntityID(id),
 			DbName: strings.ToUpper(dbName),
@@ -107,7 +125,7 @@ func NewFacility(id int64, dbName string, system interface{}, features FacilityF
 		Features: features,
 	}
 
-	return facility, nil
+	return
 }
 
 func NewFacilityFromJson(json []gjson.Result) (*Facility, error) {

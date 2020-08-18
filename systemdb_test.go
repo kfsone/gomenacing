@@ -81,13 +81,30 @@ func TestSystemDatabase_registerFacility(t *testing.T) {
 	// Check that a missing system is validated.
 	err := sdb.registerFacility(&Facility{})
 	if assert.Error(t, err) {
-		assert.Equal(t, "attempted to register facility with nil system", err.Error())
+		assert.Equal(t, "attempted to register facility with invalid id: 0", err.Error())
+	}
+
+	err = sdb.registerFacility(&Facility{DbEntity: DbEntity{Id: 1}})
+	if assert.Error(t, err) {
+		assert.Equal(t, "attempted to register facility #1 without a name", err.Error())
+	}
+
+	err = sdb.registerFacility(&Facility{DbEntity: DbEntity{Id: 1, DbName: "first"}})
+	if assert.Error(t, err) {
+		assert.Equal(t, "first (#1): attempted to register facility without a system id", err.Error())
+	}
+
+	err = sdb.registerFacility(&Facility{DbEntity: DbEntity{Id: 1, DbName: "first"}, SystemId: 42})
+	if assert.Error(t, err) {
+		assert.Equal(t, "first (#1): system id: unknown: 42", err.Error())
 	}
 
 	facility1 := Facility{DbEntity: DbEntity{1, "first"}, System: &sys1}
 	require.Nil(t, sdb.registerFacility(&facility1))
 	assert.Len(t, sys1.Facilities, 1)
 	assert.Contains(t, sys1.Facilities, &facility1)
+	assert.Equal(t, sys1.Id, facility1.SystemId)
+	assert.Equal(t, &sys1, facility1.System)
 
 	// Registering the same id twice should fail.
 	err = sdb.registerFacility(&facility1)
@@ -96,6 +113,8 @@ func TestSystemDatabase_registerFacility(t *testing.T) {
 	}
 	assert.Equal(t, []*Facility{&facility1}, sys1.Facilities)
 	assert.Empty(t, sys2.Facilities)
+	assert.Equal(t, sys1.Id, facility1.SystemId)
+	assert.Equal(t, &sys1, facility1.System)
 
 	// Deliberately re-use id and name because they should be independent.
 	facility2 := Facility{DbEntity: DbEntity{2, "first"}, System: &sys1}
@@ -105,10 +124,15 @@ func TestSystemDatabase_registerFacility(t *testing.T) {
 	}
 	assert.Equal(t, []*Facility{&facility1}, sys1.Facilities)
 	assert.Empty(t, sys2.Facilities)
+	assert.EqualValues(t, 0, facility2.SystemId)
+	assert.Equal(t, &sys1, facility2.System)
 
-	// But registering it under system 2 should work.
-	facility2.System = &sys2
+	// But registering it under system 2 should work. Check that ID registration works.
+	facility2.System = nil
+	facility2.SystemId = sys2.Id
 	require.Nil(t, sdb.registerFacility(&facility2))
+	assert.Equal(t, &sys2, facility2.System)
+	assert.Equal(t, sys2.Id, facility2.SystemId)
 	assert.Equal(t, []*Facility{&facility1}, sys1.Facilities)
 	assert.Equal(t, []*Facility{&facility2}, sys2.Facilities)
 
@@ -118,25 +142,34 @@ func TestSystemDatabase_registerFacility(t *testing.T) {
 		assert.Equal(t, "first/first (#1): duplicate: facility id", err.Error())
 	}
 	err = sdb.registerFacility(&facility2)
+	facility2.System = nil
 	if assert.Error(t, err) {
 		assert.Equal(t, "second/first (#2): duplicate: facility id", err.Error())
 	}
+	assert.Nil(t, facility2.System)
+	assert.Equal(t, sys2.Id, facility2.SystemId)
 
-	facility3 := Facility{DbEntity: DbEntity{3, "second"}, System: &sys1}
+	facility3 := Facility{DbEntity: DbEntity{3, "second"}, System: &sys1, SystemId: sys1.Id}
 	require.Nil(t, sdb.registerFacility(&facility3))
 	assert.Equal(t, []*Facility{&facility1, &facility3}, sys1.Facilities)
 	assert.Equal(t, []*Facility{&facility2}, sys2.Facilities)
+	assert.Equal(t, &sys1, facility3.System)
+	assert.Equal(t, sys1.Id, facility3.SystemId)
 
 	err = sdb.registerFacility(&facility3)
 	if assert.Error(t, err) {
 		assert.Equal(t, "first/second (#3): duplicate: facility id", err.Error())
 	}
+	assert.Equal(t, &sys1, facility3.System)
+	assert.Equal(t, sys1.Id, facility3.SystemId)
 
 	facility4 := Facility{DbEntity: DbEntity{4, "second"}, System: &sys1}
 	err = sdb.registerFacility(&facility4)
 	if assert.Error(t, err) {
 		assert.Equal(t, "first/second (#4): duplicate: facility name in system", err.Error())
 	}
+	assert.Equal(t, &sys1, facility4.System)
+	assert.EqualValues(t, 0, facility4.SystemId)
 
 	facility4.System = &sys2
 	require.Nil(t, sdb.registerFacility(&facility4))
@@ -161,7 +194,6 @@ func TestSystemDatabase_registerFacility(t *testing.T) {
 
 func Test_countErrors(t *testing.T) {
 	var err error
-	const filename = "test.me"
 
 	// No errors, no count.
 	errorCh := make(chan error, 8)

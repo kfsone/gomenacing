@@ -89,7 +89,7 @@ func TestSystem_GetFacility(t *testing.T) {
 	})
 
 	t.Run("Facility lookup one facility", func(t *testing.T) {
-		facility, err := system.NewFacility(200, "facility 1", FacilityFeatureMask(0))
+		facility, err := NewFacility(200, "facility 1", system, FacilityFeatureMask(0))
 		assert.NotNil(t, facility)
 		assert.Nil(t, err)
 		system.Facilities = append(system.Facilities, facility)
@@ -100,7 +100,7 @@ func TestSystem_GetFacility(t *testing.T) {
 	})
 
 	t.Run("Facility lookup two facilities", func(t *testing.T) {
-		facility, err := system.NewFacility(201, "facility 2", FacilityFeatureMask(0))
+		facility, err := NewFacility(201, "facility 2", system, FacilityFeatureMask(0))
 		assert.NotNil(t, facility)
 		assert.Nil(t, err)
 		system.Facilities = append(system.Facilities, facility)
@@ -121,51 +121,6 @@ func TestSystem_Name(t *testing.T) {
 	assert.Equal(t, "SYSTEM1", system.Name(1))
 	assert.Equal(t, "SYSTEM1", system.Name(2))
 	assert.Equal(t, "SYSTEM1", system.Name(999))
-}
-
-func TestSystem_NewFacility(t *testing.T) {
-	system, err := NewSystem(100, "system", Coordinate{}, false)
-	require.Nil(t, err)
-	assert.Empty(t, system.Facilities)
-
-	t.Run("Reject bad values", func(t *testing.T) {
-		facility, err := system.NewFacility(0, "", 0)
-		assert.Nil(t, facility)
-		if assert.Error(t, err) {
-			assert.Equal(t, "invalid facility id: 0", err.Error())
-		}
-
-		facility, err = system.NewFacility(1<<32, "", 0)
-		assert.Nil(t, facility)
-		if assert.Error(t, err) {
-			assert.Equal(t, fmt.Errorf("invalid facility id: %d", 1<<32), err)
-		}
-
-		facility, err = system.NewFacility(1<<32-1, "", 0)
-		assert.Nil(t, facility)
-		if assert.Error(t, err) {
-			assert.Equal(t, "invalid (empty) facility name", err.Error())
-		}
-
-		facility, err = system.NewFacility(1, " \t ", 0)
-		assert.Nil(t, facility)
-		if assert.Error(t, err) {
-			assert.Equal(t, "invalid (empty) facility name", err.Error())
-		}
-	})
-
-	t.Run("Create genuine facility", func(t *testing.T) {
-		features := FeatBlackMarket | FeatSmallPad
-		facility, err := system.NewFacility(111, "first", features)
-		assert.Nil(t, err)
-		assert.NotNil(t, facility)
-		assert.Equal(t, EntityID(111), facility.Id)
-		assert.Equal(t, "FIRST", facility.DbName)
-		assert.Equal(t, system, facility.System)
-		assert.Equal(t, features, facility.Features)
-
-		assert.Empty(t, system.Facilities)
-	})
 }
 
 func TestSystem_String(t *testing.T) {
