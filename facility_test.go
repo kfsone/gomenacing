@@ -140,7 +140,35 @@ func TestFacility_SupportsPadSize(t *testing.T) {
 }
 
 func TestFacility_NewFacilityFromJson(t *testing.T) {
-	json := `{
+	t.Run("Bad json", func(t *testing.T) {
+		t.Run("Bad ID (0)", func(t *testing.T) {
+			results := gjson.GetMany(`[0,""]`, "0", "1")
+			facility, err := NewFacilityFromJson(results)
+			assert.Nil(t, facility)
+			assert.Error(t, err)
+		})
+		t.Run("Bad ID (2^32)", func(t *testing.T) {
+			results := gjson.GetMany(`[0,""]`, "0", "1")
+			facility, err := NewFacilityFromJson(results)
+			assert.Nil(t, facility)
+			assert.Error(t, err)
+		})
+		t.Run("Bad Name", func(t *testing.T) {
+			results := gjson.GetMany(`[1,""]`, "0", "1")
+			facility, err := NewFacilityFromJson(results)
+			assert.Nil(t, facility)
+			assert.Error(t, err)
+		})
+		t.Run("Missing System ID", func(t *testing.T) {
+			results := gjson.GetMany(`[1,"first",0]`, "0", "1", "2")
+			facility, err := NewFacilityFromJson(results)
+			assert.Nil(t, facility)
+			assert.Error(t, err)
+		})
+	})
+
+	t.Run("Good json", func(t *testing.T) {
+		json := `{
 		"id": 3, "name": "Luna","system_id": "1",
 		"max_landing_pad_size": "M",
 		"type_id": 8,
@@ -157,19 +185,20 @@ func TestFacility_NewFacilityFromJson(t *testing.T) {
 		"has_repair": false,
 		"has_shipyard": true,
 		"is_planetary": false
-	}`
-	results := gjson.GetMany(json, facilityFields...)
-	require.Len(t, facilityFields, len(results))
+		}`
+		results := gjson.GetMany(json, facilityFields...)
+		require.Len(t, facilityFields, len(results))
 
-	facility, err := NewFacilityFromJson(results)
-	require.Nil(t, err)
-	require.NotNil(t, facility)
-	assert.Equal(t, DbEntity{3, "Luna"}, facility.DbEntity)
-	assert.EqualValues(t, 1, facility.SystemId)
-	assert.Nil(t, facility.System)
-	assert.EqualValues(t, 8, facility.TypeId)
-	assert.EqualValues(t, 13, facility.GovernmentId)
-	assert.EqualValues(t, 27, facility.AllegianceId)
-	assert.Equal(t, 1.204, facility.LsFromStar)
-	assert.Equal(t, FeatMediumPad|FeatBlackMarket|FeatDocking|FeatOutfitting|FeatRefuel|FeatShipyard, facility.Features)
+		facility, err := NewFacilityFromJson(results)
+		require.Nil(t, err)
+		require.NotNil(t, facility)
+		assert.Equal(t, DbEntity{3, "Luna"}, facility.DbEntity)
+		assert.EqualValues(t, 1, facility.SystemId)
+		assert.Nil(t, facility.System)
+		assert.EqualValues(t, 8, facility.TypeId)
+		assert.EqualValues(t, 13, facility.GovernmentId)
+		assert.EqualValues(t, 27, facility.AllegianceId)
+		assert.Equal(t, 1.204, facility.LsFromStar)
+		assert.Equal(t, FeatMediumPad|FeatBlackMarket|FeatDocking|FeatOutfitting|FeatRefuel|FeatShipyard, facility.Features)
+	})
 }

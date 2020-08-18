@@ -121,19 +121,20 @@ func NewFacilityFromJson(json []gjson.Result) (*Facility, error) {
 		return nil, err
 	}
 	systemId := json[2].Int()
+	facility, err := NewFacility(entity, systemId, 0)
+	if err != nil {
+		return nil, err
+	}
 	var featureMask = stringToFeaturePad(json[3].String())
 	for i, mask := range featureMasks {
 		if json[8+i].Bool() {
 			featureMask |= mask
 		}
 	}
-	facility, err := NewFacility(entity, systemId, featureMask)
-	if err == nil {
-		facility.LsFromStar = json[4].Float()
-		facility.TypeId = int32(json[5].Int())
-		facility.GovernmentId = int32(json[6].Int())
-		facility.AllegianceId = int32(json[7].Int())
-	}
-
-	return facility, nil
+	facility.Features = featureMask
+	facility.LsFromStar = json[4].Float()
+	facility.TypeId = int32(json[5].Int())
+	facility.GovernmentId = int32(json[6].Int())
+	facility.AllegianceId = int32(json[7].Int())
+	return facility, err
 }

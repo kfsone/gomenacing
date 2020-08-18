@@ -207,3 +207,30 @@ func Test_countErrors(t *testing.T) {
 		assert.Contains(t, logged[1], "[world]")
 	}
 }
+
+func TestSystemDatabase_GetSystem(t *testing.T) {
+	sdb := NewSystemDatabase()
+	t.Run("Query v empty db", func(t *testing.T) {
+		assert.Nil(t, sdb.GetSystem(""))
+		assert.Nil(t, sdb.GetSystem("first"))
+	})
+
+	first := System{DbEntity:DbEntity{1, "first"}}
+	err := sdb.registerSystem(&first)
+	require.Nil(t, err)
+
+	second := System{DbEntity:DbEntity{2, "second"}}
+	err = sdb.registerSystem(&second)
+	require.Nil(t, err)
+
+	assert.Nil(t, sdb.GetSystem(""))
+	assert.Nil(t, sdb.GetSystem("invalid"))
+	assert.Equal(t, &first, sdb.GetSystem("first"))
+	assert.Equal(t, &first, sdb.GetSystem("fIrsT"))
+	assert.Equal(t, &first, sdb.GetSystem("FIRST"))
+	assert.Nil(t, sdb.GetSystem("third"))
+	assert.Equal(t, &second, sdb.GetSystem("second"))
+	assert.Equal(t, &second, sdb.GetSystem("SECOND"))
+	assert.Nil(t, sdb.GetSystem("Firsts"))
+	assert.Nil(t, sdb.GetSystem("Second."))
+}
