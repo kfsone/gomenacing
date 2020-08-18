@@ -10,8 +10,12 @@ import (
 )
 
 var EddbPath = flag.StringP("eddbdir", "e", "", "Path to EDDB json files to import.")
-var EddbSystems = "systems_populated.jsonl"
-var EddbFacilities = "stations.jsonl"
+
+const (
+	EddbSystems    string = "systems_populated.jsonl"
+	EddbFacilities string = "stations.jsonl"
+	//EddbCommodities string = "commodities.json"
+)
 
 type SystemDatabase struct {
 	systemsById    map[EntityID]*System
@@ -52,7 +56,7 @@ func NewSystemDatabase() *SystemDatabase {
 	return &SystemDatabase{make(map[EntityID]*System), make(map[string]EntityID), make(map[EntityID]*Facility)}
 }
 
-func ImportJsonFile(filename string, fields []string, callback func(JsonLine) error) (chan error, error) {
+func ImportJsonFile(filename string, fields []string, callback func(*JsonLine) error) (chan error, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -64,7 +68,7 @@ func ImportJsonFile(filename string, fields []string, callback func(JsonLine) er
 		defer close(errorsCh)
 		rows := GetJsonRowsFromFile(filename, file, fields, errorsCh)
 		for row := range rows {
-			if err := callback(row); err != nil {
+			if err := callback(&row); err != nil {
 				errorsCh <- err
 			}
 		}

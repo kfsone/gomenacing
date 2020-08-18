@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "name": "two",
+  "thing": 4.2
+}
+{
+  "ignored": "this",
+  "thing": 55,
+  "name": "three",
+  "id": 99
+}
+invalid

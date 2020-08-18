@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/tidwall/gjson"
 	"path/filepath"
 
 	"github.com/akrylysov/pogreb"
@@ -25,28 +26,23 @@ func GetDatabase(path string) (*Database, error) {
 	return &database, nil
 }
 
-func importSystems(db *Database) error {
-	store, err := db.Systems()
-	if err != nil {
-		return err
-	}
-	defer store.Close()
-
-	var system *System
-	var data []byte
+func importWrapper(store *pogreb.DB, source string, fields []string, convertFn func([]gjson.Result) (interface{}, error)) error {
+	defer failOnError(store.Close())
+	filename := DataFilePath(*EddbPath, source)
 	loaded := 0
-	filename := DataFilePath(*EddbPath, EddbSystems)
+	var data []byte
 
-	errorsCh, err := ImportJsonFile(filename, systemFields, func(jsonLine JsonLine) (err error) {
-		if system, err = NewSystemFromJson(jsonLine.Results); err == nil {
-			if data, err = json.Marshal(*system); err == nil {
+	errorsCh, err := ImportJsonFile(filename, fields, func(jsonLine *JsonLine) (err error) {
+		item, err := convertFn(jsonLine.Results)
+		if err == nil {
+			if data, err = json.Marshal(item); err == nil {
 				if err = store.Put([]byte(jsonLine.Results[0].Raw), data); err == nil {
 					loaded += 1
 					return nil
 				}
 			}
 		}
-		return fmt.Errorf("%s:%d: %w", filename, jsonLine.LineNo, err)
+		return fmt.Errorf("%s:%d: %w", source, jsonLine.LineNo, err)
 	})
 	if err == nil {
 		err = countErrors(errorsCh)
@@ -55,52 +51,28 @@ func importSystems(db *Database) error {
 		return err
 	}
 
-	fmt.Printf("Imported %d systems.\n", loaded)
-
+	fmt.Printf("%s: imported %d items\n", source, loaded)
 	return nil
+}
+
+func importSystems(db *Database) error {
+	store, err := db.Systems()
+	if err == nil {
+		err = importWrapper(store, EddbSystems, systemFields, func(results []gjson.Result) (interface{}, error) { return NewSystemFromJson(results) })
+	}
+	return err
 }
 
 func importFacilities(db *Database) error {
 	store, err := db.Facilities()
-	if err != nil {
-		return err
-	}
-	defer store.Close()
-
-	filename := DataFilePath(*EddbPath, EddbFacilities)
-	loaded := 0
-	var facility *Facility
-	var data []byte
-
-	errorsCh, err := ImportJsonFile(filename, facilityFields, func(jsonLine JsonLine) (err error) {
-		if facility, err = NewFacilityFromJson(jsonLine.Results); err == nil {
-			if data, err = json.Marshal(*facility); err == nil {
-				if err = store.Put([]byte(jsonLine.Results[0].Raw), data); err == nil {
-					loaded += 1
-					return nil
-				}
-			}
-		}
-		return fmt.Errorf("%s:%d: %w", filename, jsonLine.LineNo, err)
-	})
 	if err == nil {
-		err = countErrors(errorsCh)
+		err = importWrapper(store, EddbFacilities, facilityFields, func(results []gjson.Result) (interface{}, error) { return NewFacilityFromJson(results) })
 	}
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("Imported %d facilities.\n", loaded)
-
-	return nil
+	return err
 }
 
-func (db *Database) loadSystems(sdb *SystemDatabase) error {
-	store, err := db.Systems()
-	if err != nil {
-		return err
-	}
-	defer store.Close()
+func loadData(name string, store *pogreb.DB, handler func(val []byte) error) error {
+	defer failOnError(store.Close())
 
 	it := store.Items()
 	loaded := 0
@@ -112,53 +84,48 @@ func (db *Database) loadSystems(sdb *SystemDatabase) error {
 			}
 			return err
 		}
-		var system = &System{}
-		if err = json.Unmarshal(val, system); err != nil {
-			store.Delete(key)
-			return err
-		}
-		if err = sdb.registerSystem(system); err != nil {
-			store.Delete(key)
+		if err := handler(val); err != nil {
 			if FilterError(err) != nil {
+				failOnError(store.Delete(key))
 				return err
 			}
 		}
 		loaded += 1
 	}
-	fmt.Printf("Loaded %d systems\n", len(sdb.systemsById))
+
+	fmt.Printf("Loaded %d %s.\n", loaded, name)
 	return nil
+}
+
+func (db *Database) loadSystems(sdb *SystemDatabase) error {
+	store, err := db.Systems()
+	if err == nil {
+		sdb.systemIds = make(map[string]EntityID, store.Count())
+		sdb.systemsById = make(map[EntityID]*System, store.Count())
+		err = loadData("Systems", store, func(val []byte) error {
+			var system = &System{}
+			if err = json.Unmarshal(val, system); err == nil {
+				err = sdb.registerSystem(system)
+			}
+			return err
+		})
+	}
+	return err
 }
 
 func (db *Database) loadFacilities(sdb *SystemDatabase) error {
 	store, err := db.Facilities()
-	if err != nil {
-		return err
-	}
-	defer store.Close()
-
-	it := store.Items()
-	loaded := 0
-	for {
-		_, val, err := it.Next()
-		if err != nil {
-			if err == pogreb.ErrIterationDone {
-				break
+	if err == nil {
+		sdb.facilitiesById = make(map[EntityID]*Facility, store.Count())
+		err = loadData("Facilities", store, func(val []byte) error {
+			var facility = &Facility{}
+			if err = json.Unmarshal(val, facility); err == nil {
+				err = sdb.registerFacility(facility)
 			}
 			return err
-		}
-		var facility = &Facility{}
-		if err = json.Unmarshal(val, facility); err != nil {
-			return err
-		}
-		if err = FilterError(sdb.registerFacility(facility)); err != nil {
-			return err
-		}
-		loaded += 1
+		})
 	}
-
-	fmt.Printf("Loaded %d facilities\n", len(sdb.facilitiesById))
-
-	return nil
+	return err
 }
 
 func (db *Database) LoadData(sdb *SystemDatabase) (err error) {

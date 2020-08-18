@@ -6,9 +6,9 @@ import "errors"
 var MissingCategory = errors.New("called NewCommodity with nil category")
 
 // Fields used to describe commodity in eddb.
-var commodityFields = []string{"id", "name", "category.id", "category.name", "is_non_marketable", "average_price", "ed_id"}
+//var commodityFields = []string{"id", "name", "category.id", "category.name", "is_non_marketable", "average_price", "ed_id"}
 
-// Commodity is a representation of a tradable item.
+// Commodity is a representation of a tradeable item.
 type Commodity struct {
 	DbEntity
 	Category *Category // Which category the commodity is part of.
