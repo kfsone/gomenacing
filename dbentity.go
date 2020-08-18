@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/tidwall/gjson"
 	"strings"
 )
 
@@ -23,4 +24,8 @@ func NewDbEntity(id int64, name string) (entity DbEntity, err error) {
 		err = fmt.Errorf("invalid id: %d", id)
 	}
 	return
+}
+
+func NewDbEntityFromJson(json []gjson.Result) (entity DbEntity, err error) {
+	return NewDbEntity(json[0].Int(), json[1].String())
 }

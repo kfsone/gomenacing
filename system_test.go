@@ -11,36 +11,10 @@ import (
 )
 
 func TestNewSystem(t *testing.T) {
-	t.Run("Reject bad parameters", func(t *testing.T) {
-		system, err := NewSystem(0, "x", Coordinate{}, false)
-		assert.Nil(t, system)
-		if assert.Error(t, err) {
-			assert.Equal(t, "invalid id: 0", err.Error())
-		}
-
-		system, err = NewSystem(1<<32, "x", Coordinate{}, false)
-		assert.Nil(t, system)
-		if assert.Error(t, err) {
-			assert.Equal(t, fmt.Errorf("invalid id: %d", 1<<32), err)
-		}
-
-		system, err = NewSystem(1, "", Coordinate{}, false)
-		assert.Nil(t, system)
-		if assert.Error(t, err) {
-			assert.Equal(t, "invalid/empty name: \"\"", err.Error())
-		}
-
-		system, err = NewSystem((1<<32)-1, "  ", Coordinate{}, false)
-		assert.Nil(t, system)
-		if assert.Error(t, err) {
-			assert.Equal(t, "invalid/empty name: \"  \"", err.Error())
-		}
-	})
-
-	system, err := NewSystem(111, "system of a down", Coordinate{1.0, 2.0, 3.0}, true)
+	system, err := NewSystem(DbEntity{111, "system of a down"}, Coordinate{1.0, 2.0, 3.0}, true)
 	require.Nil(t, err)
 	assert.Equal(t, EntityID(111), system.Id)
-	assert.Equal(t, "SYSTEM OF A DOWN", system.DbName)
+	assert.Equal(t, "system of a down", system.DbName)
 	assert.Equal(t, 1.0, system.Position.X)
 	assert.Equal(t, 2.0, system.Position.Y)
 	assert.Equal(t, 3.0, system.Position.Z)
@@ -58,17 +32,17 @@ func TestSystem_NewSystemFromJson(t *testing.T) {
 	require.NotNil(t, system)
 
 	assert.Equal(t, EntityID(1), system.Id)
-	assert.Equal(t, "SOL", system.DbName)
+	assert.Equal(t, "sol", system.DbName)
 	assert.Equal(t, Coordinate{0, 0, 0}, system.Position)
 	assert.Equal(t, true, system.Permit)
 }
 
 func TestSystem_Distance(t *testing.T) {
-	first, err := NewSystem(123, "first", Coordinate{1.0, -2.0, 5.0}, false)
+	first, err := NewSystem(DbEntity{123, "first"}, Coordinate{1.0, -2.0, 5.0}, false)
 	require.Nil(t, err)
 	assert.Equal(t, Square(0), first.Distance(first))
 
-	second, err := NewSystem(201, "second", Coordinate{0, 3.3, 9.9}, false)
+	second, err := NewSystem(DbEntity{201, "second"}, Coordinate{0, 3.3, 9.9}, false)
 	require.Nil(t, err)
 	assert.Equal(t, Square(0), second.Distance(second))
 
@@ -81,7 +55,7 @@ func TestSystem_Distance(t *testing.T) {
 }
 
 func TestSystem_GetFacility(t *testing.T) {
-	system, err := NewSystem(100, "system", Coordinate{1.0, 2.0, 3.0}, false)
+	system, err := NewSystem(DbEntity{100, "SYSTEM"}, Coordinate{1.0, 2.0, 3.0}, false)
 	require.Nil(t, err)
 	t.Run("Facility lookup with no facilities", func(t *testing.T) {
 		assert.Nil(t, system.GetFacility(""))
@@ -89,7 +63,7 @@ func TestSystem_GetFacility(t *testing.T) {
 	})
 
 	t.Run("Facility lookup one facility", func(t *testing.T) {
-		facility, err := NewFacility(200, "facility 1", system, FacilityFeatureMask(0))
+		facility, err := NewFacility(DbEntity{200, "Facility 1"}, system, FacilityFeatureMask(0))
 		assert.NotNil(t, facility)
 		assert.Nil(t, err)
 		system.Facilities = append(system.Facilities, facility)
@@ -100,7 +74,7 @@ func TestSystem_GetFacility(t *testing.T) {
 	})
 
 	t.Run("Facility lookup two facilities", func(t *testing.T) {
-		facility, err := NewFacility(201, "facility 2", system, FacilityFeatureMask(0))
+		facility, err := NewFacility(DbEntity{201, "facility 2"}, system, FacilityFeatureMask(0))
 		assert.NotNil(t, facility)
 		assert.Nil(t, err)
 		system.Facilities = append(system.Facilities, facility)
@@ -114,14 +88,14 @@ func TestSystem_GetFacility(t *testing.T) {
 }
 
 func TestSystem_Name(t *testing.T) {
-	system, err := NewSystem(100, "system1", Coordinate{}, false)
+	system, err := NewSystem(DbEntity{100, "System1"}, Coordinate{}, false)
 	require.Nil(t, err)
-	assert.Equal(t, "SYSTEM1", system.Name())
+	assert.Equal(t, "System1", system.Name())
 }
 
 func TestSystem_String(t *testing.T) {
-	system, err := NewSystem(100, "system1", Coordinate{}, false)
+	system, err := NewSystem(DbEntity{100, "System1"}, Coordinate{}, false)
 	require.Nil(t, err)
-	assert.Equal(t, "SYSTEM1", system.String())
-	assert.Equal(t, "SYSTEM1", fmt.Sprintf("%s", system))
+	assert.Equal(t, "System1", system.String())
+	assert.Equal(t, "System1", fmt.Sprintf("%s", system))
 }

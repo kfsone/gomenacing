@@ -108,6 +108,13 @@ func (sdb *SystemDatabase) registerSystem(system *System) error {
 	return nil
 }
 
+func (sdb *SystemDatabase) GetSystem(name string) (system *System) {
+	if id, exists := sdb.systemIds[strings.ToLower(name)]; exists {
+		system = sdb.systemsById[id]
+	}
+	return
+}
+
 func (sdb *SystemDatabase) registerFacility(facility *Facility) error {
 	var exists bool
 	system, systemId := facility.System, facility.SystemId

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/tidwall/gjson"
-	"strings"
 	"time"
 )
 
@@ -80,12 +79,7 @@ func checkSystemID(systemId int64) (entityId EntityID, err error) {
 	return EntityID(systemId), nil
 }
 
-func NewFacility(id int64, dbName string, system interface{}, features FacilityFeatureMask) (facility *Facility, err error) {
-	entity, err := NewDbEntity(id, strings.ToUpper(dbName))
-	if err != nil {
-		return nil, err
-	}
-
+func NewFacility(entity DbEntity, system interface{}, features FacilityFeatureMask) (facility *Facility, err error) {
 	var systemId EntityID
 	var systemPtr *System
 
@@ -122,14 +116,18 @@ func NewFacility(id int64, dbName string, system interface{}, features FacilityF
 }
 
 func NewFacilityFromJson(json []gjson.Result) (*Facility, error) {
-	facilityId, facilityName, systemId := json[0].Int(), json[1].String(), json[2].Int()
+	entity, err := NewDbEntityFromJson(json)
+	if err != nil {
+		return nil, err
+	}
+	systemId := json[2].Int()
 	var featureMask = stringToFeaturePad(json[3].String())
 	for i, mask := range featureMasks {
 		if json[8+i].Bool() {
 			featureMask |= mask
 		}
 	}
-	facility, err := NewFacility(facilityId, facilityName, systemId, featureMask)
+	facility, err := NewFacility(entity, systemId, featureMask)
 	if err == nil {
 		facility.LsFromStar = json[4].Float()
 		facility.TypeId = int32(json[5].Int())

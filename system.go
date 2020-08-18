@@ -15,17 +15,16 @@ type System struct {
 	Updated    time.Time   `json:"updated"`
 }
 
-func NewSystem(id int64, dbName string, position Coordinate, permit bool) (*System, error) {
-	entity, err := NewDbEntity(id, strings.ToUpper(dbName))
-	if err != nil {
-		return nil, err
-	}
+func NewSystem(entity DbEntity, position Coordinate, permit bool) (*System, error) {
 	return &System{DbEntity: entity, Position: position, Permit: permit}, nil
 }
 
-func NewSystemFromJson(json []gjson.Result) (*System, error) {
-	position := Coordinate{json[2].Float(), json[3].Float(), json[4].Float()}
-	return NewSystem(json[0].Int(), json[1].String(), position, json[5].Bool())
+func NewSystemFromJson(json []gjson.Result) (system *System, err error) {
+	if entity, err := NewDbEntityFromJson(json); err == nil {
+		position := Coordinate{json[2].Float(), json[3].Float(), json[4].Float()}
+		system, err = NewSystem(entity, position, json[5].Bool())
+	}
+	return
 }
 
 func (s System) Distance(to *System) Square {
