@@ -77,12 +77,12 @@ func ImportJsonlFile(filename string, fields []string, callback func(*JsonEntry)
 	// GoRoutine to consume json rows and pass them to the callback
 	errorsCh := make(chan error, 4)
 	go func() {
-		defer func() { failOnError(file.Close()) }()
+		defer func () { failOnError(file.Close()) }()
 		defer close(errorsCh)
 		rows := GetJsonItemsFromFile(filename, file, fields, errorsCh)
 		for row := range rows {
 			if err := callback(&row); err != nil {
-				errorsCh <- err
+				errorsCh <- fmt.Errorf("%s:%d: %w", filename, row.LineNo, err)
 			}
 		}
 	}()

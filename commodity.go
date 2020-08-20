@@ -25,12 +25,13 @@ func NewCommodityFromJsonMap(json gjson.Result) (*Commodity, error) {
 		return nil, fmt.Errorf("unrecognized json value: %+v", json)
 	}
 	data := json.Map()
-	id, name, categoryId := data["id"].Int(), data["name"].String(), data["category_id"].Int()
-	nonMarketable, avgPrice, fdevId := data["is_non_marketable"].Bool(), data["average_price"].Int(), data["ed_id"].Int()
+	id, name := data["id"].Int(), data["name"].String()
 	entity, err := NewDbEntity(id, name)
 	if err != nil {
 		return nil, err
 	}
+	categoryId := data["category_id"].Int()
+	nonMarketable, avgPrice, fdevId := data["is_non_marketable"].Bool(), data["average_price"].Int(), data["ed_id"].Int()
 	item, err := NewCommodity(entity, categoryId, avgPrice, fdevId)
 	if item != nil {
 		item.Unsellable = nonMarketable

@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/tidwall/gjson"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -44,6 +46,21 @@ func ensureDirectory(path string) (created bool, err error) {
 	return
 }
 
+func GetTestDir(path ...string) TestDir {
+	pathname := filepath.Join(path...)
+	if dirname, err := ioutil.TempDir(pathname, "menace"); err != nil {
+		panic(err)
+	} else {
+		return TestDir(dirname)
+	}
+}
+
+func (td *TestDir) Close() {
+	if err := os.RemoveAll(string(*td)); err != nil {
+		panic(err)
+	}
+}
+
 func stringToFeaturePad(padSize string) FacilityFeatureMask {
 	if len(padSize) == 1 {
 		switch strings.ToUpper(padSize)[0] {
@@ -67,7 +84,7 @@ type JsonEntry struct {
 
 // Reads a file and invokes the specified callback for each line in it.
 // If an error occurs, the error will be decorated with the filename and line no.
-func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string, errorCh chan<- error) chan JsonEntry {
+func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string, errorsCh chan<- error) chan JsonEntry {
 	scanner := bufio.NewScanner(source)
 	lineNo := 0
 
@@ -88,7 +105,7 @@ func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string
 			}{lineNo, line}
 		}
 		if scanner.Err() != nil {
-			errorCh <- fmt.Errorf("%s:%d: parse error: %w", filename, lineNo, scanner.Err())
+			errorsCh <- fmt.Errorf("%s:%d: parse error: %w", filename, lineNo, scanner.Err())
 		}
 	}()
 
@@ -96,7 +113,7 @@ func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string
 		defer close(jsonsCh)
 		for line := range linesCh {
 			if !gjson.Valid(line.string) {
-				errorCh <- fmt.Errorf("%s:%d: invalid json: %s", filename, line.int, line.string)
+				errorsCh <- fmt.Errorf("%s:%d: invalid json: %s", filename, line.int, line.string)
 				continue
 			}
 			results := gjson.GetMany(line.string, fieldNames...)
@@ -109,7 +126,7 @@ func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string
 				}
 			}
 			if badData == true {
-				errorCh <- fmt.Errorf("%s:%d: bad entry: %s", filename, line.int, line.string)
+				errorsCh <- fmt.Errorf("%s:%d: bad entry: %s", filename, line.int, line.string)
 				continue
 			}
 			jsonsCh <- JsonEntry{line.int, results}

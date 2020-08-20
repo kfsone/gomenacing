@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/tidwall/gjson"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,5 +31,51 @@ func TestNewCommodity(t *testing.T) {
 		if assert.Nil(t, commodity) && assert.Error(t, err) {
 			assert.Equal(t, "invalid commodity category id: 0", err.Error())
 		}
+	})
+}
+
+func TestNewCommodityFromJsonMap(t *testing.T) {
+	t.Run("Rejects non-map", func(t *testing.T) {
+		json := gjson.Parse("[]")
+		c, err := NewCommodityFromJsonMap(json)
+		assert.Error(t, err)
+		assert.Nil(t, c)
+	})
+
+	t.Run("Rejects invalid id", func(t *testing.T) {
+		json := gjson.Parse(`{"id":0, "name":""}`)
+		c, err := NewCommodityFromJsonMap(json)
+		assert.Error(t, err)
+		assert.Nil(t, c)
+	})
+
+	t.Run("Rejects invalid name", func(t *testing.T) {
+		json := gjson.Parse(`{"id":1, "name":""}`)
+		c, err := NewCommodityFromJsonMap(json)
+		assert.Error(t, err)
+		assert.Nil(t, c)
+	})
+
+	t.Run("Rejects a bad category id", func(t *testing.T) {
+		json := gjson.Parse(`{"id":1, "name":"test", "category_id":0}`)
+		c, err := NewCommodityFromJsonMap(json)
+		assert.Error(t, err)
+		assert.Nil(t, c)
+	})
+
+	t.Run("Good defaulting", func(t *testing.T) {
+		json := gjson.Parse(`{"id":1, "name":"test", "category_id":3`)
+		c, err := NewCommodityFromJsonMap(json)
+		assert.Nil(t, err)
+		assert.NotNil(t, c)
+		assert.Equal(t, Commodity{DbEntity{1, "test"}, 3, 0, 0, false}, *c)
+	})
+
+	t.Run("Accepts good data", func(t *testing.T) {
+		json := gjson.Parse(`{"id":2, "name":"test2", "category_id":7, "average_price":64, "ed_id":234, "is_non_marketable":true}`)
+		c, err := NewCommodityFromJsonMap(json)
+		assert.Nil(t, err)
+		assert.NotNil(t, c)
+		assert.Equal(t, Commodity{DbEntity{2, "test2"}, 7, 64, 234, true}, *c)
 	})
 }

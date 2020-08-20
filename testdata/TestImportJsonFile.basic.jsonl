@@ -1,0 +1,6 @@
+{"int": 1, "str": "first", "e":"", "array": [1,2,3]}
+{"int": 2, "str": "two", "e":"", "ignored": "Missing array"}
+{"str": "second", "int": 2, "str": "second2", "e": "", "array": []}
+{"int": 3, "array": [], "ignored": "Missing str and e"}
+{"e": "expected error", "int": 3, "str": "third", "array": ["hello", {"a": "b"}]}
+invalid

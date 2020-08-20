@@ -94,12 +94,13 @@ func TestFacility_HasFeatures(t *testing.T) {
 }
 
 func TestFacility_IsTrading(t *testing.T) {
+	listings := []Listing{{}, {}}
 	assert.False(t, Facility{}.IsTrading())
 	assert.True(t, Facility{Features: FeatMarket}.IsTrading())
-	assert.True(t, Facility{CommodityCount: 1}.IsTrading())
+	assert.True(t, Facility{Listings: listings}.IsTrading())
 	assert.False(t, Facility{Features: FeatBlackMarket | FeatMediumPad | FeatPlanetary}.IsTrading())
 	assert.True(t, Facility{Features: FeatBlackMarket | FeatMarket}.IsTrading())
-	assert.True(t, Facility{Features: FeatBlackMarket, CommodityCount: 2}.IsTrading())
+	assert.True(t, Facility{Features: FeatBlackMarket, Listings: listings}.IsTrading())
 }
 
 func TestFacility_Name(t *testing.T) {

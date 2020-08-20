@@ -27,8 +27,11 @@ func importEddbData(db *Database) {
 	go func() {
 		errorsCh <- importCommodities(db)
 	}()
+	go func() {
+		errorsCh <- importListings(db)
+	}()
 	errorCount := 0
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 4; i++ {
 		if err := <-errorsCh; err != nil {
 			log.Print(err)
 			errorCount += 1

@@ -5,7 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -36,14 +35,9 @@ func Test_captureLog(t *testing.T) {
 
 func Test_ensureDirectory(t *testing.T) {
 	// Create a temporary directory for testing
-	tmpPath, err := ioutil.TempDir("", "go-dangerous-test")
-	require.Nil(t, err)
-	assert.NotEmpty(t, tmpPath)
-	defer func() {
-		if err := os.RemoveAll(tmpPath); err != nil {
-			log.Fatal(err)
-		}
-	}()
+	testDir := GetTestDir()
+	defer testDir.Close()
+	tmpPath := testDir.Path()
 
 	path := filepath.Join(tmpPath, "data")
 
@@ -180,4 +174,33 @@ func TestGetJsonRowsFromFile(t *testing.T) {
 	assert.Contains(t, errorList, "jsonl.jsonl:3: invalid json: intentional error")
 	assert.Contains(t, errorList, "jsonl.jsonl:5: bad entry: {\"a\":1}")
 	assert.Contains(t, errorList, "jsonl.jsonl:5: parse error: scan error")
+}
+
+func TestTestDir(t *testing.T) {
+	t.Run("Panic on illegal path", func(t *testing.T) {
+		require.Panics(t, func() {
+			GetTestDir("/c:/invalid/\\never")
+		})
+	})
+
+	testDir := GetTestDir()
+	defer testDir.Close()
+	t.Run("Validate GetTestDir", func(t *testing.T) {
+		if assert.True(t, strings.HasPrefix(testDir.Path(), filepath.Join(os.TempDir(), "menace"))) {
+			if assert.DirExists(t, testDir.Path()) {
+				assert.NotPanics(t, func() { testDir.Close() })
+				assert.NoDirExists(t, testDir.Path())
+				assert.NotPanics(t, func() { testDir.Close() })
+			}
+		}
+	})
+
+	t.Run("Validate Close error handling", func(t *testing.T) {
+		// Create a file and try to remove it while it's open.
+		file, err := os.Create(testDir.Path())
+		require.Nil(t, err)
+		assert.Panics(t, func() { testDir.Close() })
+		assert.Nil(t, file.Close())
+		assert.NotPanics(t, func() { testDir.Close() })
+	})
 }

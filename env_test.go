@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -24,18 +23,15 @@ func TestSetupEnv(t *testing.T) {
 	assert.Equal(t, ".", *DefaultPath)
 	assert.Equal(t, "menace.db", *DefaultDbFile)
 
-	// Verify that we can create an env for an existing directory.
-	tempDir, err := ioutil.TempDir("", "menacing-test")
-	assert.Nil(t, err)
-	assert.NotEmpty(t, tempDir)
-	defer os.RemoveAll(tempDir)
+	testDir := GetTestDir()
+	defer testDir.Close()
 
 	oldDefault := *DefaultPath
 	defer func() { *DefaultPath = oldDefault }()
 
-	*DefaultPath = filepath.Join(tempDir, "upper", "lower", "dir")
+	*DefaultPath = filepath.Join(testDir.Path(), "upper", "lower", "dir")
 
-	err = SetupEnv()
+	err := SetupEnv()
 	assert.Nil(t, err)
 	_, err = os.Stat(*DefaultPath)
 	assert.Nil(t, err)
@@ -45,7 +41,7 @@ func TestSetupEnv(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Check for an error if the specified data directory is a file.
-	*DefaultPath = filepath.Join(tempDir, "collide.file")
+	*DefaultPath = filepath.Join(testDir.Path(), "collide.file")
 	file, err := os.Create(*DefaultPath)
 	require.Nil(t, err)
 	assert.Nil(t, file.Close())

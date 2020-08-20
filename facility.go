@@ -29,15 +29,15 @@ const (
 // Facility represents any orbital or planetary facility, where trade could happen.
 type Facility struct {
 	DbEntity
-	SystemId       EntityID            `json:"system_id"` // The system housing this facility.
-	System         *System             `json:"-"`
-	Features       FacilityFeatureMask `json:"features"` // Features it has.
-	LsFromStar     float64             `json:"ls"`       // Distance from star.
-	TypeId         int32               `json:"type"`     // Frontier facility type.
-	GovernmentId   int32               `json:"govt"`     // Government operating the facility.
-	AllegianceId   int32               `json:"alleg"`    // Group to which the facility is allied.
-	CommodityCount uint64              `json:"-"`        // How many commodities have been seen here.
-	Updated        time.Time           `json:"updated"`  // When the facility was last updated.
+	SystemId     EntityID            `json:"system_id"` // The system housing this facility.
+	System       *System             `json:"-"`
+	Features     FacilityFeatureMask `json:"features"` // Features it has.
+	LsFromStar   float64             `json:"ls"`       // Distance from star.
+	TypeId       int32               `json:"type"`     // Frontier facility type.
+	GovernmentId int32               `json:"govt"`     // Government operating the facility.
+	AllegianceId int32               `json:"alleg"`    // Group to which the facility is allied.
+	Updated      time.Time           `json:"updated"`  // When the facility was last updated.
+	Listings     []Listing           `json:"-"`        // List of items sold
 }
 
 func (f Facility) Name() string {
@@ -55,7 +55,7 @@ func (f Facility) HasFeatures(featureMask FacilityFeatureMask) bool {
 }
 
 func (f Facility) IsTrading() bool {
-	return f.HasFeatures(FeatMarket) || f.CommodityCount > 0
+	return f.HasFeatures(FeatMarket) || len(f.Listings) > 0
 }
 
 // SupportsPadSize returns true if the Facility has a pad of known size >= size.

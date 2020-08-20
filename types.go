@@ -11,3 +11,13 @@ type FDevID uint32
 type SectorKey struct {
 	X, Y, Z int
 }
+
+// Test helper: Create a temporary directory to operate in.
+type TestDir string
+
+func (td TestDir) String() string {
+	return string(td)
+}
+func (td TestDir) Path() string {
+	return string(td)
+}

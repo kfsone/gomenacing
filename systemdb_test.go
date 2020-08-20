@@ -4,7 +4,10 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/tidwall/gjson"
+	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestNewSystemDatabase(t *testing.T) {
@@ -273,4 +276,87 @@ func TestSystemDatabase_GetSystem(t *testing.T) {
 	assert.Equal(t, &second, sdb.GetSystem("SECOND"))
 	assert.Nil(t, sdb.GetSystem("Firsts"))
 	assert.Nil(t, sdb.GetSystem("Second."))
+}
+
+func TestImportJsonlFile(t *testing.T) {
+	t.Run("Error on invalid file", func(t *testing.T) {
+		c, err := ImportJsonlFile("testdata/DOESNOTEXIST", nil, nil)
+		assert.Error(t, err)
+		assert.Nil(t, c)
+	})
+
+	basename := filepath.Join("testdata", "TestImportJsonFile")
+	fields := []string{"int", "str", "array", "e"}
+
+	t.Run("Handle empty file", func(t *testing.T) {
+		c, err := ImportJsonlFile(basename+".empty.jsonl", fields, func(entry *JsonEntry) error {
+			return errors.New("unexpected row")
+		})
+		if assert.Nil(t, err) {
+			assert.NotNil(t, c)
+			// Check we see the channel close without sending anything
+			assert.Eventually(t, func() bool {
+				select {
+				case _, ok := <-c:
+					return !ok
+				default:
+					return false
+				}
+			}, time.Millisecond*20, time.Microsecond*10)
+		}
+	})
+
+	t.Run("Basic parsing", func(t *testing.T) {
+		var results = make([][]gjson.Result, 0, 4)
+		c, err := ImportJsonlFile(basename+".basic.jsonl", fields, func(entry *JsonEntry) error {
+			results = append(results, entry.Results)
+			if entry.Results[3].Str != "" {
+				return errors.New(entry.Results[3].String())
+			}
+			return nil
+		})
+		// Consume the errors channel
+		errorsDrained := false
+		var errs = make([]string, 0, 8)
+
+		go func() {
+			for {
+				select {
+				case err, ok := <-c:
+					if ok {
+						errs = append(errs, err.Error())
+					} else {
+						errorsDrained = true
+						break
+					}
+				}
+			}
+		}()
+		assert.Eventually(t, func() bool { return errorsDrained }, time.Millisecond*100, time.Microsecond*20)
+
+		error1 := basename + `.basic.jsonl:2: bad entry: {"int": 2, "str": "two", "e":"", "ignored": "Missing array"}`
+		error2 := basename + `.basic.jsonl:4: bad entry: {"int": 3, "array": [], "ignored": "Missing str and e"}`
+		error3 := basename + `.basic.jsonl:5: expected error`
+		error4 := basename + `.basic.jsonl:6: invalid json: invalid`
+		assert.Len(t, errs, 4)
+		assert.Contains(t, errs, error1)
+		assert.Contains(t, errs, error2)
+		assert.Contains(t, errs, error3)
+		assert.Contains(t, errs, error4)
+
+		if assert.Nil(t, err) {
+			assert.NotNil(t, c)
+			assert.Len(t, results, 3)
+			// Check the types
+			ints := []int64{1, 2, 3}
+			strs := []string{"first", "second", "third"}
+			for lineNo, result := range results {
+				for idx, typeNo := range []int{2, 3, 5, 3} {
+					assert.EqualValues(t, typeNo, result[idx].Type)
+				}
+				assert.Equal(t, ints[lineNo], result[0].Int())
+				assert.Equal(t, strs[lineNo], result[1].String())
+			}
+		}
+	})
 }
