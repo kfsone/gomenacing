@@ -183,9 +183,9 @@ func TestTestDir(t *testing.T) {
 		})
 	})
 
-	testDir := GetTestDir()
-	defer testDir.Close()
 	t.Run("Validate GetTestDir", func(t *testing.T) {
+		testDir := GetTestDir()
+		defer testDir.Close()
 		if assert.True(t, strings.HasPrefix(testDir.Path(), filepath.Join(os.TempDir(), "menace"))) {
 			if assert.DirExists(t, testDir.Path()) {
 				assert.NotPanics(t, func() { testDir.Close() })
@@ -196,11 +196,13 @@ func TestTestDir(t *testing.T) {
 	})
 
 	t.Run("Validate Close error handling", func(t *testing.T) {
-		// Create a file and try to remove it while it's open.
-		file, err := os.Create(testDir.Path())
+		testDir := GetTestDir()
+		defer testDir.Close()
+
+		// RemoveAll has a rule against deleting files that end with a .
+		file, err := os.Create(filepath.Join(testDir.Path(), "removeall.hates.me."))
+		defer file.Close()
 		require.Nil(t, err)
 		assert.Panics(t, func() { testDir.Close() })
-		assert.Nil(t, file.Close())
-		assert.NotPanics(t, func() { testDir.Close() })
 	})
 }
