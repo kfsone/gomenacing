@@ -11,7 +11,9 @@ import (
 )
 
 func TestNewSystemDatabase(t *testing.T) {
-	sdb := NewSystemDatabase()
+	db := Database{}
+	sdb := NewSystemDatabase(&db)
+	assert.Equal(t, &db, sdb.db)
 	assert.NotNil(t, sdb.systemsById)
 	assert.NotNil(t, sdb.systemIds)
 	assert.NotNil(t, sdb.facilitiesById)
@@ -20,7 +22,7 @@ func TestNewSystemDatabase(t *testing.T) {
 }
 
 func TestSystemDatabase_registerCommodity(t *testing.T) {
-	sdb := NewSystemDatabase()
+	sdb := NewSystemDatabase(nil)
 	assert.Len(t, sdb.commoditiesById, 0)
 	assert.Len(t, sdb.commodityIds, 0)
 
@@ -64,7 +66,7 @@ func TestSystemDatabase_registerSystem(t *testing.T) {
 		lookup *System
 		ok     bool
 	)
-	sdb := NewSystemDatabase()
+	sdb := NewSystemDatabase(nil)
 	first := System{DbEntity: DbEntity{1, "first"}}
 	second := System{DbEntity: DbEntity{2, "second"}}
 
@@ -113,7 +115,7 @@ func TestSystemDatabase_registerSystem(t *testing.T) {
 }
 
 func TestSystemDatabase_registerFacility(t *testing.T) {
-	sdb := NewSystemDatabase()
+	sdb := NewSystemDatabase(nil)
 
 	// Register two star systems.
 	sys1 := System{DbEntity: DbEntity{1, "first"}}
@@ -252,7 +254,7 @@ func Test_countErrors(t *testing.T) {
 }
 
 func TestSystemDatabase_GetSystem(t *testing.T) {
-	sdb := NewSystemDatabase()
+	sdb := NewSystemDatabase(nil)
 	t.Run("Query v empty db", func(t *testing.T) {
 		assert.Nil(t, sdb.GetSystem(""))
 		assert.Nil(t, sdb.GetSystem("first"))

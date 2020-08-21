@@ -18,6 +18,7 @@ const (
 )
 
 type SystemDatabase struct {
+	db *Database
 	// Index of Systems by their database ids.
 	systemsById map[EntityID]*System
 	// Look-up a system's EntityID by it's name.
@@ -59,8 +60,9 @@ var facilityFields = []string{
 	"is_planetary",
 }
 
-func NewSystemDatabase() *SystemDatabase {
+func NewSystemDatabase(db *Database) *SystemDatabase {
 	return &SystemDatabase{
+		db:              db,
 		systemsById:     make(map[EntityID]*System),
 		systemIds:       make(map[string]EntityID),
 		facilitiesById:  make(map[EntityID]*Facility),

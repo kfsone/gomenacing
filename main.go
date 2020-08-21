@@ -45,6 +45,7 @@ func importEddbData(db *Database) {
 func main() {
 	flag.Parse()
 	failOnError(SetupEnv())
+	doImports := *EddbPath != ""
 
 	fmt.Println("GoMenacing v0.01 (C) Oliver 'kfsone' Smith, 2020")
 
@@ -54,17 +55,17 @@ func main() {
 	var db *Database
 	db, err := GetDatabase(*DefaultPath)
 	failOnError(err)
+	defer db.Close()
 
-	if *EddbPath != "" {
+	sdb := NewSystemDatabase(db)
+	if doImports {
 		importEddbData(db)
 	}
-
-	sdb := NewSystemDatabase()
 	failOnError(db.LoadData(sdb))
 
 	reader := bufio.NewReader(os.Stdin)
 
-	repl, err := NewRepl(db, bufio.NewScanner(reader), os.Stdout)
+	repl, err := NewRepl(db, sdb, bufio.NewScanner(reader), os.Stdout)
 	failOnError(err)
 
 	if db != nil {
