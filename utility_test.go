@@ -196,13 +196,30 @@ func TestTestDir(t *testing.T) {
 	})
 
 	t.Run("Validate Close error handling", func(t *testing.T) {
+		// In order to test the handling of removeall throwing an error, we need to
+		// get underhanded. On Windows, having a file open in a directory will help
+		// us block deletion. On Linux we need to mess with permissions. This is a
+		// combination of both.
 		testDir := GetTestDir()
 		defer testDir.Close()
 
-		// RemoveAll has a rule against deleting files that end with a .
-		file, err := os.Create(filepath.Join(testDir.Path(), "removeall.hates.me."))
-		defer file.Close()
+		innerName := filepath.Join(testDir.Path(), "block")
+		file, err := os.OpenFile(innerName, os.O_RDONLY | os.O_CREATE | os.O_EXCL, 0400)
 		require.Nil(t, err)
+
+		assert.Nil(t, os.Chmod(testDir.Path(), 0400))
+		savedPath := testDir.Path()
+		testDir = TestDir(filepath.Join(savedPath, "."))
 		assert.Panics(t, func() { testDir.Close() })
+		testDir = TestDir(savedPath)
+
+		file.Close()
+
+		assert.Nil(t, os.Chmod(savedPath, 0700))
+		assert.Nil(t, os.Chmod(innerName, 0700))
+
+		assert.NotPanics(t, func() { testDir.Close() })
+
+		assert.NoDirExists(t, testDir.Path())
 	})
 }

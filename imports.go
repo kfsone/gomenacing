@@ -171,7 +171,7 @@ func importListings(db *Database) error {
 		listing     string
 	}
 
-	listingCh := make(chan *StationListing, 4)
+	listingCh := make(chan *StationListing, 32)
 	go func() {
 		defer close(listingCh)
 		for line := range lineCh {
@@ -211,26 +211,13 @@ func importListings(db *Database) error {
 		if exists {
 			listings[listing.commodityId] = listing.listing
 		} else {
-			stationData[listing.stationId] = make(map[EntityID]string, 100)
+			stationData[listing.stationId] = make(map[EntityID]string, 32)
 			stationData[listing.stationId][listing.commodityId] = listing.listing
 		}
 		loaded += 1
 	}
-	// Consolidate and write
-	fmt.Printf("%s: imported %d items for %d stations\n", EddbListings, loaded, len(stationData))
-	go func() {
-		file, err := os.Create("listings.json")
-		if err != nil {
-			panic(err)
-		}
-		data, err := json.Marshal(stationData)
-		if err != nil {
-			panic(err)
-		}
-		_, err = file.Write(data)
-		failOnError(err)
-		failOnError(file.Close())
-	}()
+
+	// Consolidate and save
 	for stationId, listingMap := range stationData {
 		values := ""
 		for _, value := range listingMap {
@@ -239,12 +226,12 @@ func importListings(db *Database) error {
 		}
 		key := fmt.Sprintf("%d", stationId)
 		err := schema.Put([]byte(key), []byte(values))
-		fmt.Fprintf(file, "key:[%s], value:[%s]\n", key, values)
 		if err != nil {
 			panic(err)
 		}
 	}
-	fmt.Printf("%s: wrote %d stations\n", EddbListings, len(stationData))
+
+	fmt.Printf("%s: imported %d items for %d stations\n", EddbListings, loaded, len(stationData))
 
 	return nil
 }

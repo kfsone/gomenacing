@@ -27,9 +27,7 @@ func TestSchema_Close(t *testing.T) {
 		require.Nil(t, err)
 		require.NotNil(t, schema)
 		assert.NotNil(t, schema.store)
-		// Since this is open, we should be unable to delete it.
-		err = os.RemoveAll(filepath.Join(schema.db.Path(), "nominal", "main.pix"))
-		assert.Error(t, err)
+		assert.FileExists(t, filepath.Join(schema.db.Path(), "nominal", "main.pix"))
 		err = schema.Close()
 		assert.Nil(t, err)
 		assert.Nil(t, schema.store)
