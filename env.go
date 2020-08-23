@@ -11,8 +11,8 @@ import (
 // DefaultPath is the directory data files will be stored in unless overridden.
 var DefaultPath = flag.StringP("path", "p", ".", "Top-level directory to operate from.")
 
-// DefaultDbFile is the default filename for the database.
-var DefaultDbFile = flag.StringP("db", "d", "menace.db", "Name of the gomenace database.")
+// DefaultDbName is the default filename for the database.
+var DefaultDbName = flag.StringP("db", "d", "menace.db", "Name of the gomenace database.")
 
 // ShowWarnings enables noisy warnings about json parsing and loading during imports.
 var ShowWarnings = flag.BoolP("warnings", "W", false, "Show warnings about data imports (can be noisy).")
@@ -37,11 +37,6 @@ func SetupEnv() error {
 // DataPath is the runtime location for data files.
 func DataPath() string {
 	return *DefaultPath
-}
-
-// DataFile is the runtime path and filename of the database file.
-func DbFile() string {
-	return DataFilePath(*DefaultDbFile)
 }
 
 // FilterError checks if the input error should be demoted to a warning, based on

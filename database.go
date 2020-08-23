@@ -13,20 +13,20 @@ type Database struct {
 	storePath string
 }
 
-func (db Database) Path() string {
-	return db.storePath
+func OpenDatabase(path string, dbName string) (*Database, error) {
+	database := Database{storePath: filepath.Join(path, dbName)}
+	if _, err := ensureDirectory(database.Path()); err != nil {
+		return nil, err
+	}
+	return &database, nil
 }
 
 func (db Database) Close() {
 	// noop
 }
 
-func GetDatabase(path string) (*Database, error) {
-	database := Database{storePath: filepath.Join(path, "database")}
-	if _, err := ensureDirectory(database.Path()); err != nil {
-		return nil, err
-	}
-	return &database, nil
+func (db Database) Path() string {
+	return db.storePath
 }
 
 func (db *Database) GetSchema(name string) (schema *Schema, err error) {

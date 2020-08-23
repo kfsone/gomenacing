@@ -18,7 +18,7 @@ func TestSchema_Close(t *testing.T) {
 
 	testDir := GetTestDir()
 	defer testDir.Close()
-	database, err := GetDatabase(testDir.Path())
+	database, err := OpenDatabase(testDir.Path(), "schemas.db")
 	require.Nil(t, err)
 	defer database.Close()
 
@@ -52,7 +52,7 @@ func TestSchema_PutAndCount(t *testing.T) {
 	testDir := GetTestDir()
 	defer testDir.Close()
 
-	db, err := GetDatabase(testDir.Path())
+	db, err := OpenDatabase(testDir.Path(), "put.db")
 	require.Nil(t, err)
 	defer db.Close()
 
@@ -76,7 +76,7 @@ func TestSchema_LoadData(t *testing.T) {
 	testDir := GetTestDir()
 	defer testDir.Close()
 
-	db, err := GetDatabase(testDir.Path())
+	db, err := OpenDatabase(testDir.Path(), "load.db")
 	require.Nil(t, err)
 	defer db.Close()
 

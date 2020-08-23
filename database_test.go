@@ -8,12 +8,12 @@ import (
 	"testing"
 )
 
-func TestGetDatabase(t *testing.T) {
+func TestOpenDatabase(t *testing.T) {
 	testDir := GetTestDir()
 	defer testDir.Close()
 
 	t.Run("Nominal functionality", func(t *testing.T) {
-		db, err := GetDatabase(testDir.Path())
+		db, err := OpenDatabase(testDir.Path(), "database")
 		assert.Nil(t, err)
 		assert.NotNil(t, db)
 		defer db.Close()
@@ -29,7 +29,7 @@ func TestGetDatabase(t *testing.T) {
 		assert.NotNil(t, file)
 		failOnError(file.Close())
 
-		db, err := GetDatabase(filePath)
+		db, err := OpenDatabase(testDir.Path(), "file")
 		if assert.Error(t, err) {
 			assert.Nil(t, db)
 		}
@@ -40,7 +40,7 @@ func TestDatabase_GetSchema(t *testing.T) {
 	testDir := GetTestDir()
 	defer testDir.Close()
 
-	db, err := GetDatabase(testDir.Path())
+	db, err := OpenDatabase(testDir.Path(), "database")
 	assert.Nil(t, err)
 	assert.NotNil(t, db)
 	assert.DirExists(t, db.Path())
@@ -61,7 +61,7 @@ func TestDatabase_GetSchema(t *testing.T) {
 	failOnError(schema.Close())
 
 	// Now try opening the schema using a filename to cause an error
-	schema, err = db.GetSchema("schema/main.pix")
+	schema, err = db.GetSchema(filepath.Join("schema", "main.pix"))
 	assert.Error(t, err)
 	assert.Nil(t, schema)
 }
@@ -70,7 +70,7 @@ func TestDatabase_Schemas(t *testing.T) {
 	testDir := GetTestDir()
 	defer testDir.Close()
 
-	db, err := GetDatabase(testDir.Path())
+	db, err := OpenDatabase(testDir.Path(), "schemas.db")
 	assert.Nil(t, err)
 	assert.NotNil(t, db)
 	assert.DirExists(t, db.Path())
@@ -104,7 +104,7 @@ func TestDatabase_Schemas(t *testing.T) {
 func TestDatabase_Close(t *testing.T) {
 	testDir := GetTestDir()
 	defer testDir.Close()
-	db, err := GetDatabase(testDir.Path())
+	db, err := OpenDatabase(testDir.Path(), "close.db")
 	require.Nil(t, err)
 	db.Close()
 	// Shouldn't have deleted it.

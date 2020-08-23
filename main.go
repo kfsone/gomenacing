@@ -53,7 +53,7 @@ func main() {
 	/// TODO: Parse arguments
 
 	var db *Database
-	db, err := GetDatabase(*DefaultPath)
+	db, err := OpenDatabase(*DefaultPath, *DefaultDbName)
 	failOnError(err)
 	defer db.Close()
 

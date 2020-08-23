@@ -11,17 +11,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDataFile(t *testing.T) {
-	assert.Equal(t, "menace.db", DbFile())
-}
-
 func TestDataPath(t *testing.T) {
 	assert.Equal(t, ".", DataPath())
 }
 
 func TestSetupEnv(t *testing.T) {
 	assert.Equal(t, ".", *DefaultPath)
-	assert.Equal(t, "menace.db", *DefaultDbFile)
+	assert.Equal(t, "menace.db", *DefaultDbName)
 
 	testDir := GetTestDir()
 	defer testDir.Close()
