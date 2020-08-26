@@ -14,6 +14,7 @@ type Listing struct {
 }
 
 const (
+	// EddbListings is the default name for the file with EDDB's item listings.
 	EddbListings = "listings.csv"
 )
 
