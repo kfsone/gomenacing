@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"io"
 	"log"
 	"os"
@@ -11,6 +9,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_captureLog(t *testing.T) {
@@ -133,7 +134,7 @@ func TestGetJsonRowsFromFile(t *testing.T) {
 	jsonReader := &MockReader{*strings.NewReader(jsonl), fmt.Errorf("scan error")}
 	errorCh := make(chan error, 2)
 
-	jsonLines := GetJsonItemsFromFile("jsonl.jsonl", jsonReader, fieldNames, errorCh)
+	jsonLines := GetJSONItemsFromFile("jsonl.jsonl", jsonReader, fieldNames, errorCh)
 	require.NotNil(t, jsonLines)
 	// We should get 3 lines total.
 	var allLines bool
@@ -204,7 +205,7 @@ func TestTestDir(t *testing.T) {
 		defer testDir.Close()
 
 		innerName := filepath.Join(testDir.Path(), "block")
-		file, err := os.OpenFile(innerName, os.O_RDONLY | os.O_CREATE | os.O_EXCL, 0400)
+		file, err := os.OpenFile(innerName, os.O_RDONLY|os.O_CREATE|os.O_EXCL, 0400)
 		require.Nil(t, err)
 
 		assert.Nil(t, os.Chmod(testDir.Path(), 0400))

@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"path/filepath"
+
 	"github.com/akrylysov/pogreb"
 	"golang.org/x/sync/errgroup"
-	"path/filepath"
 )
 
 type Database struct {
@@ -61,8 +62,8 @@ func (db *Database) Systems() (*Schema, error) {
 func (db *Database) loadSystems(sdb *SystemDatabase) error {
 	schema, err := db.Systems()
 	if err == nil {
-		sdb.systemIds = make(map[string]EntityID, schema.Count())
-		sdb.systemsById = make(map[EntityID]*System, schema.Count())
+		sdb.systemIDs = make(map[string]EntityID, schema.Count())
+		sdb.systemsByID = make(map[EntityID]*System, schema.Count())
 		err = schema.LoadData("Systems", func(val []byte) error {
 			var system = &System{}
 			if err = json.Unmarshal(val, system); err == nil {
@@ -77,7 +78,7 @@ func (db *Database) loadSystems(sdb *SystemDatabase) error {
 func (db *Database) loadFacilities(sdb *SystemDatabase) error {
 	schema, err := db.Facilities()
 	if err == nil {
-		sdb.facilitiesById = make(map[EntityID]*Facility, schema.Count())
+		sdb.facilitiesByID = make(map[EntityID]*Facility, schema.Count())
 		err = schema.LoadData("Facilities", func(val []byte) error {
 			var facility = &Facility{}
 			if err = json.Unmarshal(val, facility); err == nil {
@@ -92,8 +93,8 @@ func (db *Database) loadFacilities(sdb *SystemDatabase) error {
 func (db *Database) loadCommodities(sdb *SystemDatabase) error {
 	schema, err := db.Commodities()
 	if err == nil {
-		sdb.commodityIds = make(map[string]EntityID, schema.Count())
-		sdb.commoditiesById = make(map[EntityID]*Commodity, schema.Count())
+		sdb.commodityIDs = make(map[string]EntityID, schema.Count())
+		sdb.commoditiesByID = make(map[EntityID]*Commodity, schema.Count())
 		err = schema.LoadData("Commodities", func(val []byte) error {
 			var item = &Commodity{}
 			if err = json.Unmarshal(val, item); err == nil {
@@ -127,7 +128,7 @@ func (db *Database) LoadData(sdb *SystemDatabase) (err error) {
 
 	// Systems and facilities need to be loaded synchronously for now.
 	///TODO: Evaluate making loadFacilities not associate facility->system
-	/// Make sdb.facilitiesById be map[EntityID]*Facility
+	/// Make sdb.facilitiesByID be map[EntityID]*Facility
 	eg.Go(func() error {
 		if err = db.loadSystems(sdb); err == nil {
 			err = db.loadFacilities(sdb)

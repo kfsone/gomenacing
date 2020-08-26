@@ -4,8 +4,9 @@ package main
 // role in abstracting away database operations.
 
 import (
-	"github.com/akrylysov/pogreb"
 	"log"
+
+	"github.com/akrylysov/pogreb"
 )
 
 type Schema struct {
@@ -56,7 +57,7 @@ func (s *Schema) LoadData(name string, handler func(val []byte) error) error {
 				return err
 			}
 		}
-		loaded += 1
+		loaded++
 	}
 
 	log.Printf("Loaded %d %s.\n", loaded, name)

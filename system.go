@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/tidwall/gjson"
 	"strings"
 	"time"
+
+	"github.com/tidwall/gjson"
 )
 
 type System struct {
@@ -20,7 +21,7 @@ func NewSystem(entity DbEntity, position Coordinate, permit bool) (*System, erro
 }
 
 func NewSystemFromJson(json []gjson.Result) (system *System, err error) {
-	if entity, err := NewDbEntityFromJson(json); err == nil {
+	if entity, err := NewDbEntityFromJSON(json); err == nil {
 		position := Coordinate{json[2].Float(), json[3].Float(), json[4].Float()}
 		system, err = NewSystem(entity, position, json[5].Bool())
 	}

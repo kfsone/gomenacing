@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	"github.com/tidwall/gjson"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -144,25 +145,25 @@ func TestFacility_NewFacilityFromJson(t *testing.T) {
 	t.Run("Bad json", func(t *testing.T) {
 		t.Run("Bad ID (0)", func(t *testing.T) {
 			results := gjson.GetMany(`[0,""]`, "0", "1")
-			facility, err := NewFacilityFromJson(results)
+			facility, err := NewFacilityFromJSON(results)
 			assert.Nil(t, facility)
 			assert.Error(t, err)
 		})
 		t.Run("Bad ID (2^32)", func(t *testing.T) {
 			results := gjson.GetMany(`[0,""]`, "0", "1")
-			facility, err := NewFacilityFromJson(results)
+			facility, err := NewFacilityFromJSON(results)
 			assert.Nil(t, facility)
 			assert.Error(t, err)
 		})
 		t.Run("Bad Name", func(t *testing.T) {
 			results := gjson.GetMany(`[1,""]`, "0", "1")
-			facility, err := NewFacilityFromJson(results)
+			facility, err := NewFacilityFromJSON(results)
 			assert.Nil(t, facility)
 			assert.Error(t, err)
 		})
 		t.Run("Missing System ID", func(t *testing.T) {
 			results := gjson.GetMany(`[1,"first",0]`, "0", "1", "2")
-			facility, err := NewFacilityFromJson(results)
+			facility, err := NewFacilityFromJSON(results)
 			assert.Nil(t, facility)
 			assert.Error(t, err)
 		})
@@ -190,15 +191,15 @@ func TestFacility_NewFacilityFromJson(t *testing.T) {
 		results := gjson.GetMany(json, facilityFields...)
 		require.Len(t, facilityFields, len(results))
 
-		facility, err := NewFacilityFromJson(results)
+		facility, err := NewFacilityFromJSON(results)
 		require.Nil(t, err)
 		require.NotNil(t, facility)
 		assert.Equal(t, DbEntity{3, "Luna"}, facility.DbEntity)
-		assert.EqualValues(t, 1, facility.SystemId)
+		assert.EqualValues(t, 1, facility.SystemID)
 		assert.Nil(t, facility.System)
-		assert.EqualValues(t, 8, facility.TypeId)
-		assert.EqualValues(t, 13, facility.GovernmentId)
-		assert.EqualValues(t, 27, facility.AllegianceId)
+		assert.EqualValues(t, 8, facility.TypeID)
+		assert.EqualValues(t, 13, facility.GovernmentID)
+		assert.EqualValues(t, 27, facility.AllegianceID)
 		assert.Equal(t, 1.204, facility.LsFromStar)
 		assert.Equal(t, FeatMediumPad|FeatBlackMarket|FeatDocking|FeatOutfitting|FeatRefuel|FeatShipyard, facility.Features)
 	})

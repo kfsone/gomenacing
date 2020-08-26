@@ -3,24 +3,27 @@ package main
 import (
 	"errors"
 	"fmt"
+
 	"github.com/tidwall/gjson"
 )
 
 // Commodity is a representation of a tradeable item.
 type Commodity struct {
 	DbEntity
-	CategoryId EntityID // Which category the commodity is part of.
+	CategoryID EntityID // Which category the commodity is part of.
 	AvgPrice   int64    // Average market price.
-	FDevId     FDevID   // FrontierDev internal ID.
+	FDevID     FDevID   // FrontierDev internal ID.
 	Unsellable bool     // Can we sell this?
 }
 
-// MissingCategory is an error raised when attempting to create a commodity without a category.
-var MissingCategory = errors.New("called NewCommodity with nil category")
+// ErrMissingCategory is an error raised when attempting to create a commodity without a category.
+var ErrMissingCategory = errors.New("called NewCommodity with nil category")
 
 // Fields used to describe commodity in eddb.
 //var commodityFields = []string{"id", "name", "category.id", "is_non_marketable", "average_price", "ed_id"}
-func NewCommodityFromJsonMap(json gjson.Result) (*Commodity, error) {
+
+// NewCommodityFromJSONMap creates a Commodity instance from a json map.
+func NewCommodityFromJSONMap(json gjson.Result) (*Commodity, error) {
 	if !json.IsObject() {
 		return nil, fmt.Errorf("unrecognized json value: %+v", json)
 	}
@@ -30,9 +33,9 @@ func NewCommodityFromJsonMap(json gjson.Result) (*Commodity, error) {
 	if err != nil {
 		return nil, err
 	}
-	categoryId := data["category_id"].Int()
-	nonMarketable, avgPrice, fdevId := data["is_non_marketable"].Bool(), data["average_price"].Int(), data["ed_id"].Int()
-	item, err := NewCommodity(entity, categoryId, avgPrice, fdevId)
+	categoryID := data["category_id"].Int()
+	nonMarketable, avgPrice, fdevID := data["is_non_marketable"].Bool(), data["average_price"].Int(), data["ed_id"].Int()
+	item, err := NewCommodity(entity, categoryID, avgPrice, fdevID)
 	if item != nil {
 		item.Unsellable = nonMarketable
 	}
@@ -40,15 +43,15 @@ func NewCommodityFromJsonMap(json gjson.Result) (*Commodity, error) {
 }
 
 // NewCommodity constructs a Commodity instance based on the input parameters.
-func NewCommodity(entity DbEntity, categoryId int64, avgPrice int64, fdevId int64) (*Commodity, error) {
-	if categoryId <= 0 || categoryId >= 1<<32 {
-		return nil, fmt.Errorf("invalid commodity category id: %d", categoryId)
+func NewCommodity(entity DbEntity, categoryID int64, avgPrice int64, fdevID int64) (*Commodity, error) {
+	if categoryID <= 0 || categoryID >= 1<<32 {
+		return nil, fmt.Errorf("invalid commodity category id: %d", categoryID)
 	}
 	return &Commodity{
 		DbEntity:   entity,
-		CategoryId: EntityID(categoryId),
+		CategoryID: EntityID(categoryID),
 		AvgPrice:   avgPrice,
-		FDevId:     FDevID(fdevId),
+		FDevID:     FDevID(fdevID),
 	}, nil
 }
 

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/tidwall/gjson"
 )
 
 // Miscellaneous utility functions.
@@ -77,14 +78,14 @@ func stringToFeaturePad(padSize string) FacilityFeatureMask {
 	return FacilityFeatureMask(0)
 }
 
-type JsonEntry struct {
+type JSONEntry struct {
 	LineNo  int
 	Results []gjson.Result
 }
 
-// Reads a file and invokes the specified callback for each line in it.
+// GetJSONItemsFromFile reads a file and invokes the specified callback for each line in it.
 // If an error occurs, the error will be decorated with the filename and line no.
-func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string, errorsCh chan<- error) chan JsonEntry {
+func GetJSONItemsFromFile(filename string, source io.Reader, fieldNames []string, errorsCh chan<- error) chan JSONEntry {
 	scanner := bufio.NewScanner(source)
 	lineNo := 0
 
@@ -92,13 +93,13 @@ func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string
 		int
 		string
 	}, 8)
-	jsonsCh := make(chan JsonEntry, 8)
+	jsonsCh := make(chan JSONEntry, 8)
 
 	go func() {
 		defer close(linesCh)
 		for scanner.Scan() {
 			line := scanner.Text()
-			lineNo += 1
+			lineNo++
 			linesCh <- struct {
 				int
 				string
@@ -129,7 +130,7 @@ func GetJsonItemsFromFile(filename string, source io.Reader, fieldNames []string
 				errorsCh <- fmt.Errorf("%s:%d: bad entry: %s", filename, line.int, line.string)
 				continue
 			}
-			jsonsCh <- JsonEntry{line.int, results}
+			jsonsCh <- JSONEntry{line.int, results}
 		}
 	}()
 

@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/tidwall/gjson"
 	"testing"
+
+	"github.com/tidwall/gjson"
 
 	"github.com/stretchr/testify/require"
 
@@ -13,7 +14,7 @@ import (
 func TestNewSystem(t *testing.T) {
 	system, err := NewSystem(DbEntity{111, "system of a down"}, Coordinate{1.0, 2.0, 3.0}, true)
 	require.Nil(t, err)
-	assert.Equal(t, EntityID(111), system.Id)
+	assert.Equal(t, EntityID(111), system.ID)
 	assert.Equal(t, "system of a down", system.DbName)
 	assert.Equal(t, 1.0, system.Position.X)
 	assert.Equal(t, 2.0, system.Position.Y)
@@ -31,7 +32,7 @@ func TestSystem_NewSystemFromJson(t *testing.T) {
 	require.Nil(t, err)
 	require.NotNil(t, system)
 
-	assert.Equal(t, EntityID(1), system.Id)
+	assert.Equal(t, EntityID(1), system.ID)
 	assert.Equal(t, "sol", system.DbName)
 	assert.Equal(t, Coordinate{0, 0, 0}, system.Position)
 	assert.Equal(t, true, system.Permit)

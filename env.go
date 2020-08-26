@@ -17,10 +17,10 @@ var DefaultDbName = flag.StringP("db", "d", "menace.db", "Name of the gomenace d
 // ShowWarnings enables noisy warnings about json parsing and loading during imports.
 var ShowWarnings = flag.BoolP("warnings", "W", false, "Show warnings about data imports (can be noisy).")
 
-// Should it be an error when a duplicate system is encountered?
+// ErrorOnDuplicate determines if it is an error when a duplicate system is encountered?
 var ErrorOnDuplicate = flag.Bool("erronduplicate", false, "Turn duplicates in json files into errors.")
 
-// Should it be an error when something references an unknown parent.
+// ErrorOnUnknown determines if it is an error when something references an unknown parent.
 var ErrorOnUnknown = flag.Bool("erronunknown", false, "Make unknown system/station references in json files into errors.")
 
 // SetupEnv prepares the environment options/flags, after
@@ -61,7 +61,7 @@ func FilterError(err error) error {
 	return nil
 }
 
-/// Returns the path to a file under the data directory.
+// DataFilePath returns the path to a file under the data directory.
 func DataFilePath(pathToFile ...string) string {
 	return filepath.Join(*DefaultPath, filepath.Join(pathToFile...))
 }

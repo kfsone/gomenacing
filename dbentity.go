@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/tidwall/gjson"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
-// Anything that can go into the database is a DbEntity.
+// DbEntity normalizes the id/name identification of any database storable.
 type DbEntity struct {
-	Id     EntityID `json:"id"`
+	ID     EntityID `json:"id"`
 	DbName string   `json:"name"`
 }
 
@@ -26,6 +27,6 @@ func NewDbEntity(id int64, name string) (entity DbEntity, err error) {
 	return
 }
 
-func NewDbEntityFromJson(json []gjson.Result) (entity DbEntity, err error) {
+func NewDbEntityFromJSON(json []gjson.Result) (entity DbEntity, err error) {
 	return NewDbEntity(json[0].Int(), json[1].String())
 }

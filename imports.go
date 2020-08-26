@@ -5,27 +5,28 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/tidwall/gjson"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
 func jsonImportWrapper(schema *Schema, source string, fields []string, convertFn func([]gjson.Result) (interface{}, error)) error {
 	defer func() { failOnError(schema.Close()) }()
-	filename := DataFilePath(*EddbPath, source)
+	filename := DataFilePath(*eddbPath, source)
 	loaded := 0
 	var data []byte
 
-	errorsCh, err := ImportJsonlFile(filename, fields, func(jsonLine *JsonEntry) (err error) {
+	errorsCh, err := ImportJsonlFile(filename, fields, func(jsonLine *JSONEntry) (err error) {
 		item, err := convertFn(jsonLine.Results)
 		if err == nil {
 			if data, err = json.Marshal(item); err == nil {
 				if err = schema.Put([]byte(jsonLine.Results[0].Raw), data); err == nil {
-					loaded += 1
+					loaded++
 					return nil
 				}
 			}
@@ -54,14 +55,14 @@ func importSystems(db *Database) error {
 func importFacilities(db *Database) error {
 	schema, err := db.Facilities()
 	if err == nil {
-		err = jsonImportWrapper(schema, EddbFacilities, facilityFields, func(results []gjson.Result) (interface{}, error) { return NewFacilityFromJson(results) })
+		err = jsonImportWrapper(schema, EddbFacilities, facilityFields, func(results []gjson.Result) (interface{}, error) { return NewFacilityFromJSON(results) })
 	}
 	return err
 }
 
 func importCommodities(db *Database) error {
 	// Read the json.
-	filename := DataFilePath(*EddbPath, EddbCommodities)
+	filename := DataFilePath(*eddbPath, EddbCommodities)
 	text, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
@@ -82,7 +83,7 @@ func importCommodities(db *Database) error {
 	var hadError bool
 	var loaded int64
 	result.ForEach(func(_, value gjson.Result) bool {
-		item, err := NewCommodityFromJsonMap(value)
+		item, err := NewCommodityFromJSONMap(value)
 		if err != nil {
 			if FilterError(err) != nil {
 				log.Print(err)
@@ -92,7 +93,7 @@ func importCommodities(db *Database) error {
 		}
 		if data, err := json.Marshal(item); err == nil {
 			if err = schema.Put([]byte(value.Map()["id"].Raw), data); err == nil {
-				loaded += 1
+				loaded++
 				return true
 			}
 		}
@@ -136,7 +137,7 @@ func getIndexes(fieldNames []string, headers []string) ([]int, error) {
 
 func importListings(db *Database) error {
 	lineCh := make(chan []string)
-	filename := DataFilePath(*EddbPath, EddbListings)
+	filename := DataFilePath(*eddbPath, EddbListings)
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -166,8 +167,8 @@ func importListings(db *Database) error {
 	}
 
 	type StationListing struct {
-		stationId   EntityID
-		commodityId EntityID
+		stationID   EntityID
+		commodityID EntityID
 		listing     string
 	}
 
@@ -180,51 +181,51 @@ func importListings(db *Database) error {
 			for fieldIdx, rowIdx := range fieldIndexes {
 				row[fieldIdx] = line[rowIdx]
 			}
-			stationId, err := strconv.ParseInt(row[0], 10, 64)
+			stationID, err := strconv.ParseInt(row[0], 10, 64)
 			if err != nil {
 				if err = FilterError(err); err != nil {
 					FilterError(fmt.Errorf("bad station id: %w", err))
 				}
 				continue
 			}
-			if stationId <= 0 || stationId >= 1<<32 {
+			if stationID <= 0 || stationID >= 1<<32 {
 				FilterError(fmt.Errorf("%w: invalid station id: %s", ErrUnknownEntity, row[0]))
 				continue
 			}
-			commodityId, err := strconv.ParseInt(row[1], 10, 64)
+			commodityID, err := strconv.ParseInt(row[1], 10, 64)
 			if err != nil {
 				FilterError(err)
 				continue
 			}
-			if commodityId <= 0 || commodityId >= 1<<32 {
+			if commodityID <= 0 || commodityID >= 1<<32 {
 				FilterError(fmt.Errorf("%w: invalid commodity id: %s", ErrUnknownEntity, row[1]))
 				continue
 			}
-			listingCh <- &StationListing{EntityID(stationId), EntityID(commodityId), strings.Join(row, ",")}
+			listingCh <- &StationListing{EntityID(stationID), EntityID(commodityID), strings.Join(row, ",")}
 		}
 	}()
 
 	loaded := 0
 	stationData := make(map[EntityID]map[EntityID]string, 80000)
 	for listing := range listingCh {
-		listings, exists := stationData[listing.stationId]
+		listings, exists := stationData[listing.stationID]
 		if exists {
-			listings[listing.commodityId] = listing.listing
+			listings[listing.commodityID] = listing.listing
 		} else {
-			stationData[listing.stationId] = make(map[EntityID]string, 32)
-			stationData[listing.stationId][listing.commodityId] = listing.listing
+			stationData[listing.stationID] = make(map[EntityID]string, 32)
+			stationData[listing.stationID][listing.commodityID] = listing.listing
 		}
-		loaded += 1
+		loaded++
 	}
 
 	// Consolidate and save
-	for stationId, listingMap := range stationData {
+	for stationID, listingMap := range stationData {
 		values := ""
 		for _, value := range listingMap {
 			values += value
 			values += " "
 		}
-		key := fmt.Sprintf("%d", stationId)
+		key := fmt.Sprintf("%d", stationID)
 		err := schema.Put([]byte(key), []byte(values))
 		if err != nil {
 			panic(err)

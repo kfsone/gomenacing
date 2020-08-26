@@ -57,7 +57,7 @@ func TestFilterError(t *testing.T) {
 
 	// MissingCategory shouldn't be filtered.
 	result = captureLog(t, func(t *testing.T) {
-		assert.Equal(t, MissingCategory, FilterError(MissingCategory))
+		assert.Equal(t, ErrMissingCategory, FilterError(ErrMissingCategory))
 	})
 	assert.Empty(t, result)
 

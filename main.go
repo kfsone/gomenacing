@@ -34,7 +34,7 @@ func importEddbData(db *Database) {
 	for i := 0; i < 4; i++ {
 		if err := <-errorsCh; err != nil {
 			log.Print(err)
-			errorCount += 1
+			errorCount++
 		}
 	}
 	if errorCount > 0 {
@@ -45,7 +45,7 @@ func importEddbData(db *Database) {
 func main() {
 	flag.Parse()
 	failOnError(SetupEnv())
-	doImports := *EddbPath != ""
+	doImports := *eddbPath != ""
 
 	fmt.Println("GoMenacing v0.01 (C) Oliver 'kfsone' Smith, 2020")
 
