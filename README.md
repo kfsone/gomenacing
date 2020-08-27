@@ -13,3 +13,15 @@ Status
 
 . Pre-Alpha, Unstable,
 
+
+Data Import
+===========
+
+Instead of making Menacing capable of importing data from many sites, it instead uses a
+standard method for declaring a compact, efficient format it wants the data in (protobufs).
+
+This will provide an easy path for implementing "translators" that convert, say, EDDB data
+into Menacing. It will also be a huge boon to import and startup times.
+
+https://github.com/kfsone/eddbtrans
+
