@@ -101,6 +101,9 @@ message System {
   // Law-enforcement aggressiveness.
   Security security = 7;
 
+  // Current power state.
+  Power power = 8;
+
   // What is the government for the system.
   Government government = 9;
 
@@ -108,7 +111,7 @@ message System {
   Allegiance allegiance = 10;
 
   // Something something id.
-  uint64 edsmID = 11;
+  uint64 edsmId = 11;
 
   // Something something id - I think this is the elite-dangerous internal id?
   uint64 edSystemAddress = 12;
@@ -183,7 +186,7 @@ message Facility {
   // Unix timestamp of last update.
   uint64 updated = 3;
   // The database-ID of the system this facility belongs to.
-  uint64 systemID = 4;
+  uint64 systemId = 4;
 
   // What type of facility this is.
   Type type = 5;
@@ -201,7 +204,7 @@ message Facility {
   // The allegiance of this station. If not present, assume system's allegiance.
   Allegiance allegiance = 9;
 
-  uint64 edMarketID = 10;
+  uint64 edMarketId = 10;
 };
 
 // Commodity is a type of item that can be traded within the game. At the moment,
@@ -241,7 +244,7 @@ message Commodity {
   // Do we know (or care?) what the average galactic price is?
   uint64 averagePrice = 6;
   // Do we know elite's internal ID for it?
-  uint64 edID = 7;
+  uint64 edId = 7;
 };
 
 // Listing is a discrete entry for a Commodity that is being sold at a
@@ -266,7 +269,7 @@ message Listing {
   };
 
   // Local database ID of the commodity being listed.
-  uint32 commodityID = 1;
+  uint32 commodityId = 1;
   // A description of availability and cost here if the item is sold.
   Capacity supply = 2;
   // A description of units required and the price offered for them here.
@@ -278,7 +281,7 @@ message Listing {
 // FacilityListing represents the trade available at a given facility.
 message FacilityListing {
   // Local database Unique ID of this facility.
-  uint64 facilityID = 1;
+  uint64 facilityId = 1;
   // List of commodities being traded here.
   repeated Listing listings = 2;
 };
