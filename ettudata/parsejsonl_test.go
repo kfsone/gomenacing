@@ -3,6 +3,7 @@ package ettudata
 import (
 	"bytes"
 	"log"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -39,7 +40,7 @@ func Test_getJSONLines(t *testing.T) {
 
 	// Should generate a log line, but only once.
 	t.Run("Invalid input", func(t *testing.T) {
-		var channel <-chan []byte
+		var channel <-chan string
 		var ok bool
 		logged := captureLogOutput(func() {
 			channel = getJSONLines(strings.NewReader("xyz\nabc\n"))
@@ -60,9 +61,9 @@ func Test_getJSONLines(t *testing.T) {
 			"[2,    3, [], \"\", true,false]",
 			"{\"a\":[1]  ,  \"b\": [2,3,{}]}",
 		}
-		var channel <-chan []byte
+		var channel <-chan string
 		var closed = false
-		var lines = make([][]byte, 0, len(sources))
+		var lines = make([]string, 0, len(sources))
 		var logged [][]byte
 		go func() {
 			logged = captureLogOutput(func() {
@@ -79,12 +80,12 @@ func Test_getJSONLines(t *testing.T) {
 
 		assert.Len(t, logged, 0)
 		assert.Len(t, lines, len(sources))
-		assert.Equal(t, strings.Join(sources, "\n"), string(bytes.Join(lines, []byte("\n"))))
+		assert.Equal(t, strings.Join(sources, "\n"), strings.Join(lines, "\n"))
 	})
 }
 
-func tryParseJSONLines(input [][]byte, fields []string) (results [][]*gjson.Result, logged [][]byte) {
-	lines := make(chan []byte, len(input)+1)
+func tryParseJSONLines(input []string, fields []string) (results [][]*gjson.Result, logged [][]byte) {
+	lines := make(chan string, len(input)+1)
 	for i := range input {
 		lines <- input[i]
 	}
@@ -104,24 +105,24 @@ func tryParseJSONLines(input [][]byte, fields []string) (results [][]*gjson.Resu
 
 func Test_parseJSONLines(t *testing.T) {
 	t.Run("Empty input", func(t *testing.T) {
-		results, logged := tryParseJSONLines([][]byte{}, []string{})
+		results, logged := tryParseJSONLines([]string{}, []string{})
 		assert.Len(t, results, 0)
 		assert.Len(t, logged, 0)
 	})
 
 	t.Run("Empty fields", func(t *testing.T) {
-		results, logged := tryParseJSONLines([][]byte{[]byte("[1]")}, []string{})
+		results, logged := tryParseJSONLines([]string{"[1]"}, []string{})
 		assert.Len(t, results, 0)
 		assert.Len(t, logged, 1)
 		assert.True(t, bytes.HasSuffix(logged[0], []byte("malformed jsonl: [1]")))
 	})
 
 	t.Run("Data", func(t *testing.T) {
-		inputs := [][]byte{
-			[]byte("{\"a\":1, \"b\":2, \"c\":[3,4,5]}"),
-			[]byte("[2]"),
-			[]byte("{\"a\":2}"),
-			[]byte("{\"c\":47,\"a\":320}"),
+		inputs := []string{
+			"{\"a\":1, \"b\":2, \"c\":[3,4,5]}",
+			"[2]",
+			"{\"a\":2}",
+			"{\"c\":47,\"a\":320}",
 		}
 		results, logged := tryParseJSONLines(inputs, []string{"a", "c"})
 		assert.Len(t, results, 2)
@@ -183,4 +184,22 @@ func TestParseJSONLines(t *testing.T) {
 			assert.Equal(t, uint64(2), lines[1][1].Uint())
 		}
 	}
+}
+
+// Check that we can actually parse some sample data.
+func Test_ParseSystemsJSONL(t *testing.T) {
+	file, err := os.Open("testdata/systems_populated.jsonl")
+	require.Nil(t, err)
+	defer file.Close()
+
+	var results = make([][]*gjson.Result, 0, 10)
+	logged := captureLogOutput(func() {
+		channel := ParseJSONLines(file, []string{"id", "name", "ed_system_address"})
+		for result := range channel {
+			results = append(results, result)
+		}
+	})
+
+	assert.Len(t, logged, 0)
+	assert.Len(t, results, 10)
 }

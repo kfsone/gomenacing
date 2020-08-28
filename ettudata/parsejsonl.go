@@ -12,8 +12,8 @@ import (
 
 // First worker identifies valid JSONL lines - that is lines which
 // contain well-formed JSON.
-func getJSONLines(source io.Reader) <-chan []byte {
-	channel := make(chan []byte, 1)
+func getJSONLines(source io.Reader) <-chan string {
+	channel := make(chan string, 1)
 	go func() {
 		defer close(channel)
 
@@ -21,10 +21,13 @@ func getJSONLines(source io.Reader) <-chan []byte {
 		scanner := bufio.NewScanner(source)
 
 		for scanner.Scan() {
-			line := scanner.Bytes()
-			if !gjson.ValidBytes(line) {
+			if scanner.Err() != nil {
+				panic(scanner.Err())
+			}
+			line := scanner.Text()
+			if !gjson.Valid(line) {
 				if !badLines {
-					log.Printf("bad json: %s", string(line))
+					log.Printf("bad json: %s", line)
 					badLines = true
 				}
 				continue
@@ -38,16 +41,16 @@ func getJSONLines(source io.Reader) <-chan []byte {
 
 // Second worker consumes valid JSON lines and maps them into the desired
 // ordered array list.
-func parseJSONLines(lines <-chan []byte, fields []string) <-chan []*gjson.Result {
+func parseJSONLines(lines <-chan string, fields []string) <-chan []*gjson.Result {
 	channel := make(chan []*gjson.Result, 1)
 	go func() {
 		defer close(channel)
 		badLines := false
 		for line := range lines {
-			result := gjson.ParseBytes(line)
+			result := gjson.Parse(line)
 			if !result.IsObject() {
 				if !badLines {
-					log.Printf("malformed jsonl: %s", string(line))
+					log.Printf("malformed jsonl: %s", line)
 					badLines = true
 				}
 				continue
