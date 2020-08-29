@@ -8,3 +8,8 @@
 data
 go.sum
 *.exe
+
+# Python
+*.ipynb
+*.pyc
+__pycache__
