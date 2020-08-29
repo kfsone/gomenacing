@@ -1,4 +1,4 @@
-package ettudata
+package parsing
 
 import (
 	"io"

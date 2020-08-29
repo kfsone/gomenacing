@@ -1,4 +1,4 @@
-package ettudata
+package parsing
 
 // EntityPacket is a small wrapper for passing opaque entities around, and
 // specifically for storage.

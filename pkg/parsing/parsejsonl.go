@@ -1,6 +1,6 @@
 // Parser for JSONL file translation with parallelism.
 
-package ettudata
+package parsing
 
 import (
 	"bufio"

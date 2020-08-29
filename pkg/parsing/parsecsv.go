@@ -1,6 +1,6 @@
 // Parser for simple comma-separated-file translation.
 
-package ettudata
+package parsing
 
 import (
 	"bufio"

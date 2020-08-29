@@ -1,0 +1,83 @@
+namespace gomschema;
+
+/// Government is an enumeration of government types reduced to a single field.
+enum Government : byte {
+    None = 0,
+    Anarchy,
+    Communism,
+    Confederacy,
+    ooperative,
+    Corporate,
+    emocracy,
+    Dictatorship,
+    Feudal,
+    Patronage,
+    Prison,
+    PrisonColony,
+    Theocracy,
+}
+
+/// Allegiance is an enumeration of allegiance types reduced to a single field.
+enum Allegiance : byte {
+    None = 0,
+	Alliance,
+	Empire,
+	Federation,
+	Independent,
+	PilotsFederation,
+}
+
+/// Security level is system-specific and determines how aggressive law enforcement is.
+enum SecurityLevel : byte {
+	None = 0,
+	Anarchy,
+	Low,
+	Medium,
+	High
+}
+
+enum FacilityType : byte {
+	None = 0,
+	CivilianOutpost,
+	CommercialOutpost,
+	CoriolisStarport,
+	IndustrialOutpost,
+	MilitaryOutpost,
+	MiningOutpost,
+	OcellusStarport,
+	OrbisStarport,
+	ScientificOutpost,
+	PlanetaryOutpost,
+	PlanetaryPort,
+	PlanetarySettlement,
+	Megaship,
+	AsteroidBase,
+	FleetCarrier,
+}
+
+enum LandingPad : byte {
+    None = 0, 
+	Small, 
+	Medium, 
+	Large,
+}
+
+enum CommodityType : byte {
+	None = 0,
+	Chemicals,
+	ConsumerItems,
+	LegalDrugs,
+	Foods,
+	IndustrialMaterials,
+	Machinery,
+	Medicines,
+	Metals,
+	Minerals,
+	Slavery,
+	Technology,
+	Textiles,
+	Waste,
+	Weapons,
+	Unknown,
+	Salvage,
+}

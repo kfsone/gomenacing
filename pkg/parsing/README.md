@@ -5,5 +5,3 @@ This module describes the message format used for GoMenacing data, and provides 
 helper functions for translating CSV and JSONL data into this format.
 
 I should write some documentation here.
-
-ettudata := "Et tu, Data?"
