@@ -12,6 +12,8 @@ require (
 )
 
 replace (
+	github.com/kfsone/gomenacing/api/gomschema => ./pkg/gomschema
+	github.com/kfsone/gomenacing/api/parsing => ./pkg/parsing
 	github.com/kfsone/gomenacing/pkg/gomschema => ./pkg/gomschema
 	github.com/kfsone/gomenacing/pkg/parsing => ./pkg/parsing
 )
