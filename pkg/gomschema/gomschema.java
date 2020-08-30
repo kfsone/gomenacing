@@ -239,7 +239,7 @@ public final class Trade extends Struct {
   public Trade __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
-   * Which commodity this descrbes.
+   * Which commodity this describes.
    */
   public long commodityId() { return bb.getLong(bb_pos + 0); }
   public void mutateCommodityId(long commodity_id) { bb.putLong(bb_pos + 0, commodity_id); }
@@ -277,71 +277,35 @@ public final class FacilityListing extends Table {
   public FacilityListing __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   /**
-   * Identifies the facility presenting these trades.
-   */
-  public long facilityId() { int o = __offset(4); return o != 0 ? (long)bb.getInt(o + bb_pos) & 0xFFFFFFFFL : 0L; }
-  public boolean mutateFacilityId(long facility_id) { int o = __offset(4); if (o != 0) { bb.putInt(o + bb_pos, (int)facility_id); return true; } else { return false; } }
-  /**
    * Commodities this facility sells.
    */
   public  @Nullable Trade supply(int j) { return supply(new Trade(), j); }
-  public  @Nullable Trade supply(Trade obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o) + j * 24, bb) : null; }
-  public int supplyLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
+  public  @Nullable Trade supply(Trade obj, int j) { int o = __offset(4); return o != 0 ? obj.__assign(__vector(o) + j * 24, bb) : null; }
+  public int supplyLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
   /**
    * Commodities this facility buys.
    */
   public  @Nullable Trade demand(int j) { return demand(new Trade(), j); }
-  public  @Nullable Trade demand(Trade obj, int j) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o) + j * 24, bb) : null; }
-  public int demandLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
+  public  @Nullable Trade demand(Trade obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o) + j * 24, bb) : null; }
+  public int demandLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
 
   public static int createFacilityListing(FlatBufferBuilder builder,
-      long facility_id,
       int supplyOffset,
       int demandOffset) {
-    builder.startObject(3);
+    builder.startObject(2);
     FacilityListing.addDemand(builder, demandOffset);
     FacilityListing.addSupply(builder, supplyOffset);
-    FacilityListing.addFacilityId(builder, facility_id);
     return FacilityListing.endFacilityListing(builder);
   }
 
-  public static void startFacilityListing(FlatBufferBuilder builder) { builder.startObject(3); }
-  public static void addFacilityId(FlatBufferBuilder builder, long facilityId) { builder.addInt(0, (int)facilityId, (int)0L); }
-  public static void addSupply(FlatBufferBuilder builder, int supplyOffset) { builder.addOffset(1, supplyOffset, 0); }
+  public static void startFacilityListing(FlatBufferBuilder builder) { builder.startObject(2); }
+  public static void addSupply(FlatBufferBuilder builder, int supplyOffset) { builder.addOffset(0, supplyOffset, 0); }
   public static void startSupplyVector(FlatBufferBuilder builder, int numElems) { builder.startVector(24, numElems, 8); }
-  public static void addDemand(FlatBufferBuilder builder, int demandOffset) { builder.addOffset(2, demandOffset, 0); }
+  public static void addDemand(FlatBufferBuilder builder, int demandOffset) { builder.addOffset(1, demandOffset, 0); }
   public static void startDemandVector(FlatBufferBuilder builder, int numElems) { builder.startVector(24, numElems, 8); }
   public static int endFacilityListing(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
-  }
-
-  @Override
-  protected int keysCompare(Integer o1, Integer o2, ByteBuffer _bb) {
-    long val_1 = (long)_bb.getInt(__offset(4, o1, _bb)) & 0xFFFFFFFFL;
-    long val_2 = (long)_bb.getInt(__offset(4, o2, _bb)) & 0xFFFFFFFFL;
-    return val_1 > val_2 ? 1 : val_1 < val_2 ? -1 : 0;
-  }
-
-  public static FacilityListing __lookup_by_key(FacilityListing obj, int vectorLocation, long key, ByteBuffer bb) {
-    int span = bb.getInt(vectorLocation - 4);
-    int start = 0;
-    while (span != 0) {
-      int middle = span / 2;
-      int tableOffset = __indirect(vectorLocation + 4 * (start + middle), bb);
-      long val = (long)bb.getInt(__offset(4, bb.capacity() - tableOffset, bb)) & 0xFFFFFFFFL;
-      int comp = val > key ? 1 : val < key ? -1 : 0;
-      if (comp > 0) {
-        span = middle;
-      } else if (comp < 0) {
-        middle++;
-        start += middle;
-        span -= middle;
-      } else {
-        return (obj == null ? new FacilityListing() : obj).__assign(tableOffset, bb);
-      }
-    }
-    return null;
   }
 }
 
@@ -452,6 +416,12 @@ public final class Facility extends Table {
    */
   public long edMarketId() { int o = __offset(40); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
   public boolean mutateEdMarketId(long ed_market_id) { int o = __offset(40); if (o != 0) { bb.putLong(o + bb_pos, ed_market_id); return true; } else { return false; } }
+  /**
+   * Items available for sale/purchase.
+   */
+  public  @Nullable FacilityListing trades(int j) { return trades(new FacilityListing(), j); }
+  public  @Nullable FacilityListing trades(FacilityListing obj, int j) { int o = __offset(42); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int tradesLength() { int o = __offset(42); return o != 0 ? __vector_len(o) : 0; }
 
   public static int createFacility(FlatBufferBuilder builder,
       long facility_id,
@@ -472,10 +442,12 @@ public final class Facility extends Table {
       long ls_to_star,
       byte government,
       byte allegiance,
-      long ed_market_id) {
-    builder.startObject(19);
+      long ed_market_id,
+      int tradesOffset) {
+    builder.startObject(20);
     Facility.addEdMarketId(builder, ed_market_id);
     Facility.addTimestampUtc(builder, timestamp_utc);
+    Facility.addTrades(builder, tradesOffset);
     Facility.addLsToStar(builder, ls_to_star);
     Facility.addName(builder, nameOffset);
     Facility.addSystemId(builder, system_id);
@@ -496,7 +468,7 @@ public final class Facility extends Table {
     return Facility.endFacility(builder);
   }
 
-  public static void startFacility(FlatBufferBuilder builder) { builder.startObject(19); }
+  public static void startFacility(FlatBufferBuilder builder) { builder.startObject(20); }
   public static void addFacilityId(FlatBufferBuilder builder, long facilityId) { builder.addInt(0, (int)facilityId, (int)0L); }
   public static void addSystemId(FlatBufferBuilder builder, long systemId) { builder.addInt(1, (int)systemId, (int)0L); }
   public static void addName(FlatBufferBuilder builder, int nameOffset) { builder.addOffset(2, nameOffset, 0); }
@@ -516,6 +488,9 @@ public final class Facility extends Table {
   public static void addGovernment(FlatBufferBuilder builder, byte government) { builder.addByte(16, government, 5); }
   public static void addAllegiance(FlatBufferBuilder builder, byte allegiance) { builder.addByte(17, allegiance, 4); }
   public static void addEdMarketId(FlatBufferBuilder builder, long edMarketId) { builder.addLong(18, edMarketId, 0L); }
+  public static void addTrades(FlatBufferBuilder builder, int tradesOffset) { builder.addOffset(19, tradesOffset, 0); }
+  public static int createTradesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startTradesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endFacility(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;

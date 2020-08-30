@@ -197,7 +197,7 @@ public struct Trade : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
   public Trade __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  /// Which commodity this descrbes.
+  /// Which commodity this describes.
   public ulong CommodityId { get { return __p.bb.GetUlong(__p.bb_pos + 0); } }
   public void MutateCommodityId(ulong commodity_id) { __p.bb.PutUlong(__p.bb_pos + 0, commodity_id); }
   /// How many units
@@ -230,61 +230,30 @@ public struct FacilityListing : IFlatbufferObject
   public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
   public FacilityListing __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  /// Identifies the facility presenting these trades.
-  public uint FacilityId { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
-  public bool MutateFacilityId(uint facility_id) { int o = __p.__offset(4); if (o != 0) { __p.bb.PutUint(o + __p.bb_pos, facility_id); return true; } else { return false; } }
   /// Commodities this facility sells.
-  public Trade? Supply(int j) { int o = __p.__offset(6); return o != 0 ? (Trade?)(new Trade()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
-  public int SupplyLength { get { int o = __p.__offset(6); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public Trade? Supply(int j) { int o = __p.__offset(4); return o != 0 ? (Trade?)(new Trade()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
+  public int SupplyLength { get { int o = __p.__offset(4); return o != 0 ? __p.__vector_len(o) : 0; } }
   /// Commodities this facility buys.
-  public Trade? Demand(int j) { int o = __p.__offset(8); return o != 0 ? (Trade?)(new Trade()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
-  public int DemandLength { get { int o = __p.__offset(8); return o != 0 ? __p.__vector_len(o) : 0; } }
+  public Trade? Demand(int j) { int o = __p.__offset(6); return o != 0 ? (Trade?)(new Trade()).__assign(__p.__vector(o) + j * 24, __p.bb) : null; }
+  public int DemandLength { get { int o = __p.__offset(6); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<FacilityListing> CreateFacilityListing(FlatBufferBuilder builder,
-      uint facility_id = 0,
       VectorOffset supplyOffset = default(VectorOffset),
       VectorOffset demandOffset = default(VectorOffset)) {
-    builder.StartObject(3);
+    builder.StartObject(2);
     FacilityListing.AddDemand(builder, demandOffset);
     FacilityListing.AddSupply(builder, supplyOffset);
-    FacilityListing.AddFacilityId(builder, facility_id);
     return FacilityListing.EndFacilityListing(builder);
   }
 
-  public static void StartFacilityListing(FlatBufferBuilder builder) { builder.StartObject(3); }
-  public static void AddFacilityId(FlatBufferBuilder builder, uint facilityId) { builder.AddUint(0, facilityId, 0); }
-  public static void AddSupply(FlatBufferBuilder builder, VectorOffset supplyOffset) { builder.AddOffset(1, supplyOffset.Value, 0); }
+  public static void StartFacilityListing(FlatBufferBuilder builder) { builder.StartObject(2); }
+  public static void AddSupply(FlatBufferBuilder builder, VectorOffset supplyOffset) { builder.AddOffset(0, supplyOffset.Value, 0); }
   public static void StartSupplyVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(24, numElems, 8); }
-  public static void AddDemand(FlatBufferBuilder builder, VectorOffset demandOffset) { builder.AddOffset(2, demandOffset.Value, 0); }
+  public static void AddDemand(FlatBufferBuilder builder, VectorOffset demandOffset) { builder.AddOffset(1, demandOffset.Value, 0); }
   public static void StartDemandVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(24, numElems, 8); }
   public static Offset<FacilityListing> EndFacilityListing(FlatBufferBuilder builder) {
     int o = builder.EndObject();
     return new Offset<FacilityListing>(o);
-  }
-
-  public static VectorOffset CreateSortedVectorOfFacilityListing(FlatBufferBuilder builder, Offset<FacilityListing>[] offsets) {
-    Array.Sort(offsets, (Offset<FacilityListing> o1, Offset<FacilityListing> o2) => builder.DataBuffer.GetUint(Table.__offset(4, o1.Value, builder.DataBuffer)).CompareTo(builder.DataBuffer.GetUint(Table.__offset(4, o2.Value, builder.DataBuffer))));
-    return builder.CreateVectorOfTables(offsets);
-  }
-
-  public static FacilityListing? __lookup_by_key(int vectorLocation, uint key, ByteBuffer bb) {
-    int span = bb.GetInt(vectorLocation - 4);
-    int start = 0;
-    while (span != 0) {
-      int middle = span / 2;
-      int tableOffset = Table.__indirect(vectorLocation + 4 * (start + middle), bb);
-      int comp = bb.GetUint(Table.__offset(4, bb.Length - tableOffset, bb)).CompareTo(key);
-      if (comp > 0) {
-        span = middle;
-      } else if (comp < 0) {
-        middle++;
-        start += middle;
-        span -= middle;
-      } else {
-        return new FacilityListing().__assign(tableOffset, bb);
-      }
-    }
-    return null;
   }
 };
 
@@ -362,6 +331,9 @@ public struct Facility : IFlatbufferObject
   /// Presumably the internal ED identifier for the market here.
   public ulong EdMarketId { get { int o = __p.__offset(40); return o != 0 ? __p.bb.GetUlong(o + __p.bb_pos) : (ulong)0; } }
   public bool MutateEdMarketId(ulong ed_market_id) { int o = __p.__offset(40); if (o != 0) { __p.bb.PutUlong(o + __p.bb_pos, ed_market_id); return true; } else { return false; } }
+  /// Items available for sale/purchase.
+  public FacilityListing? Trades(int j) { int o = __p.__offset(42); return o != 0 ? (FacilityListing?)(new FacilityListing()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int TradesLength { get { int o = __p.__offset(42); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<Facility> CreateFacility(FlatBufferBuilder builder,
       uint facility_id = 0,
@@ -382,10 +354,12 @@ public struct Facility : IFlatbufferObject
       uint ls_to_star = 0,
       Government government = Government.Corporate,
       Allegiance allegiance = Allegiance.Independent,
-      ulong ed_market_id = 0) {
-    builder.StartObject(19);
+      ulong ed_market_id = 0,
+      VectorOffset tradesOffset = default(VectorOffset)) {
+    builder.StartObject(20);
     Facility.AddEdMarketId(builder, ed_market_id);
     Facility.AddTimestampUtc(builder, timestamp_utc);
+    Facility.AddTrades(builder, tradesOffset);
     Facility.AddLsToStar(builder, ls_to_star);
     Facility.AddName(builder, nameOffset);
     Facility.AddSystemId(builder, system_id);
@@ -406,7 +380,7 @@ public struct Facility : IFlatbufferObject
     return Facility.EndFacility(builder);
   }
 
-  public static void StartFacility(FlatBufferBuilder builder) { builder.StartObject(19); }
+  public static void StartFacility(FlatBufferBuilder builder) { builder.StartObject(20); }
   public static void AddFacilityId(FlatBufferBuilder builder, uint facilityId) { builder.AddUint(0, facilityId, 0); }
   public static void AddSystemId(FlatBufferBuilder builder, uint systemId) { builder.AddUint(1, systemId, 0); }
   public static void AddName(FlatBufferBuilder builder, StringOffset nameOffset) { builder.AddOffset(2, nameOffset.Value, 0); }
@@ -426,6 +400,10 @@ public struct Facility : IFlatbufferObject
   public static void AddGovernment(FlatBufferBuilder builder, Government government) { builder.AddSbyte(16, (sbyte)government, 5); }
   public static void AddAllegiance(FlatBufferBuilder builder, Allegiance allegiance) { builder.AddSbyte(17, (sbyte)allegiance, 4); }
   public static void AddEdMarketId(FlatBufferBuilder builder, ulong edMarketId) { builder.AddUlong(18, edMarketId, 0); }
+  public static void AddTrades(FlatBufferBuilder builder, VectorOffset tradesOffset) { builder.AddOffset(19, tradesOffset.Value, 0); }
+  public static VectorOffset CreateTradesVector(FlatBufferBuilder builder, Offset<FacilityListing>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static VectorOffset CreateTradesVectorBlock(FlatBufferBuilder builder, Offset<FacilityListing>[] data) { builder.StartVector(4, data.Length, 4); builder.Add(data); return builder.EndVector(); }
+  public static void StartTradesVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<Facility> EndFacility(FlatBufferBuilder builder) {
     int o = builder.EndObject();
     return new Offset<Facility>(o);

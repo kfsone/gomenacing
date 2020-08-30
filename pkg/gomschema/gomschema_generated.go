@@ -314,11 +314,11 @@ func (rcv *Trade) Table() flatbuffers.Table {
 	return rcv._tab.Table
 }
 
-/// Which commodity this descrbes.
+/// Which commodity this describes.
 func (rcv *Trade) CommodityId() uint64 {
 	return rcv._tab.GetUint64(rcv._tab.Pos + flatbuffers.UOffsetT(0))
 }
-/// Which commodity this descrbes.
+/// Which commodity this describes.
 func (rcv *Trade) MutateCommodityId(n uint64) bool {
 	return rcv._tab.MutateUint64(rcv._tab.Pos+flatbuffers.UOffsetT(0), n)
 }
@@ -379,23 +379,9 @@ func (rcv *FacilityListing) Table() flatbuffers.Table {
 	return rcv._tab
 }
 
-/// Identifies the facility presenting these trades.
-func (rcv *FacilityListing) FacilityId() uint32 {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
-	if o != 0 {
-		return rcv._tab.GetUint32(o + rcv._tab.Pos)
-	}
-	return 0
-}
-
-/// Identifies the facility presenting these trades.
-func (rcv *FacilityListing) MutateFacilityId(n uint32) bool {
-	return rcv._tab.MutateUint32Slot(4, n)
-}
-
 /// Commodities this facility sells.
 func (rcv *FacilityListing) Supply(obj *Trade, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 24
@@ -406,7 +392,7 @@ func (rcv *FacilityListing) Supply(obj *Trade, j int) bool {
 }
 
 func (rcv *FacilityListing) SupplyLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(4))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -416,7 +402,7 @@ func (rcv *FacilityListing) SupplyLength() int {
 /// Commodities this facility sells.
 /// Commodities this facility buys.
 func (rcv *FacilityListing) Demand(obj *Trade, j int) bool {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		x := rcv._tab.Vector(o)
 		x += flatbuffers.UOffsetT(j) * 24
@@ -427,7 +413,7 @@ func (rcv *FacilityListing) Demand(obj *Trade, j int) bool {
 }
 
 func (rcv *FacilityListing) DemandLength() int {
-	o := flatbuffers.UOffsetT(rcv._tab.Offset(8))
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(6))
 	if o != 0 {
 		return rcv._tab.VectorLen(o)
 	}
@@ -436,19 +422,16 @@ func (rcv *FacilityListing) DemandLength() int {
 
 /// Commodities this facility buys.
 func FacilityListingStart(builder *flatbuffers.Builder) {
-	builder.StartObject(3)
-}
-func FacilityListingAddFacilityId(builder *flatbuffers.Builder, facilityId uint32) {
-	builder.PrependUint32Slot(0, facilityId, 0)
+	builder.StartObject(2)
 }
 func FacilityListingAddSupply(builder *flatbuffers.Builder, supply flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(supply), 0)
+	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(supply), 0)
 }
 func FacilityListingStartSupplyVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(24, numElems, 8)
 }
 func FacilityListingAddDemand(builder *flatbuffers.Builder, demand flatbuffers.UOffsetT) {
-	builder.PrependUOffsetTSlot(2, flatbuffers.UOffsetT(demand), 0)
+	builder.PrependUOffsetTSlot(1, flatbuffers.UOffsetT(demand), 0)
 }
 func FacilityListingStartDemandVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(24, numElems, 8)
@@ -741,8 +724,30 @@ func (rcv *Facility) MutateEdMarketId(n uint64) bool {
 	return rcv._tab.MutateUint64Slot(40, n)
 }
 
+/// Items available for sale/purchase.
+func (rcv *Facility) Trades(obj *FacilityListing, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(42))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *Facility) TradesLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(42))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
+/// Items available for sale/purchase.
 func FacilityStart(builder *flatbuffers.Builder) {
-	builder.StartObject(19)
+	builder.StartObject(20)
 }
 func FacilityAddFacilityId(builder *flatbuffers.Builder, facilityId uint32) {
 	builder.PrependUint32Slot(0, facilityId, 0)
@@ -800,6 +805,12 @@ func FacilityAddAllegiance(builder *flatbuffers.Builder, allegiance int8) {
 }
 func FacilityAddEdMarketId(builder *flatbuffers.Builder, edMarketId uint64) {
 	builder.PrependUint64Slot(18, edMarketId, 0)
+}
+func FacilityAddTrades(builder *flatbuffers.Builder, trades flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(19, flatbuffers.UOffsetT(trades), 0)
+}
+func FacilityStartTradesVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
 }
 func FacilityEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

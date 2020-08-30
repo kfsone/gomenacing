@@ -588,7 +588,7 @@ impl Trade {
       padding0__: 0,
     }
   }
-  /// Which commodity this descrbes.
+  /// Which commodity this describes.
   pub fn commodity_id<'a>(&'a self) -> u64 {
     self.commodity_id_.from_little_endian()
   }
@@ -858,29 +858,12 @@ impl<'a> FacilityListing<'a> {
       let mut builder = FacilityListingBuilder::new(_fbb);
       if let Some(x) = args.demand { builder.add_demand(x); }
       if let Some(x) = args.supply { builder.add_supply(x); }
-      builder.add_facility_id(args.facility_id);
       builder.finish()
     }
 
-    pub const VT_FACILITY_ID: flatbuffers::VOffsetT = 4;
-    pub const VT_SUPPLY: flatbuffers::VOffsetT = 6;
-    pub const VT_DEMAND: flatbuffers::VOffsetT = 8;
+    pub const VT_SUPPLY: flatbuffers::VOffsetT = 4;
+    pub const VT_DEMAND: flatbuffers::VOffsetT = 6;
 
-  /// Identifies the facility presenting these trades.
-  #[inline]
-  pub fn facility_id(&self) -> u32 {
-    self._tab.get::<u32>(FacilityListing::VT_FACILITY_ID, Some(0)).unwrap()
-  }
-  #[inline]
-  pub fn key_compare_less_than(&self, o: &FacilityListing) ->  bool {
-    self.facility_id() < o.facility_id()
-  }
-
-  #[inline]
-  pub fn key_compare_with_value(&self, val: u32) ->  ::std::cmp::Ordering {
-    let key = self.facility_id();
-    key.cmp(&val)
-  }
   /// Commodities this facility sells.
   #[inline]
   pub fn supply(&self) -> Option<&'a [Trade]> {
@@ -894,7 +877,6 @@ impl<'a> FacilityListing<'a> {
 }
 
 pub struct FacilityListingArgs<'a> {
-    pub facility_id: u32,
     pub supply: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , Trade>>>,
     pub demand: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , Trade>>>,
 }
@@ -902,7 +884,6 @@ impl<'a> Default for FacilityListingArgs<'a> {
     #[inline]
     fn default() -> Self {
         FacilityListingArgs {
-            facility_id: 0,
             supply: None,
             demand: None,
         }
@@ -913,10 +894,6 @@ pub struct FacilityListingBuilder<'a: 'b, 'b> {
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
 impl<'a: 'b, 'b> FacilityListingBuilder<'a, 'b> {
-  #[inline]
-  pub fn add_facility_id(&mut self, facility_id: u32) {
-    self.fbb_.push_slot::<u32>(FacilityListing::VT_FACILITY_ID, facility_id, 0);
-  }
   #[inline]
   pub fn add_supply(&mut self, supply: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Trade>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FacilityListing::VT_SUPPLY, supply);
@@ -974,6 +951,7 @@ impl<'a> Facility<'a> {
       let mut builder = FacilityBuilder::new(_fbb);
       builder.add_ed_market_id(args.ed_market_id);
       builder.add_timestamp_utc(args.timestamp_utc);
+      if let Some(x) = args.trades { builder.add_trades(x); }
       builder.add_ls_to_star(args.ls_to_star);
       if let Some(x) = args.name { builder.add_name(x); }
       builder.add_system_id(args.system_id);
@@ -1013,6 +991,7 @@ impl<'a> Facility<'a> {
     pub const VT_GOVERNMENT: flatbuffers::VOffsetT = 36;
     pub const VT_ALLEGIANCE: flatbuffers::VOffsetT = 38;
     pub const VT_ED_MARKET_ID: flatbuffers::VOffsetT = 40;
+    pub const VT_TRADES: flatbuffers::VOffsetT = 42;
 
   /// "{upper system name}@{facility name upper}"
   #[inline]
@@ -1119,6 +1098,11 @@ impl<'a> Facility<'a> {
   pub fn ed_market_id(&self) -> u64 {
     self._tab.get::<u64>(Facility::VT_ED_MARKET_ID, Some(0)).unwrap()
   }
+  /// Items available for sale/purchase.
+  #[inline]
+  pub fn trades(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FacilityListing<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<flatbuffers::ForwardsUOffset<FacilityListing<'a>>>>>(Facility::VT_TRADES, None)
+  }
 }
 
 pub struct FacilityArgs<'a> {
@@ -1141,6 +1125,7 @@ pub struct FacilityArgs<'a> {
     pub government: Government,
     pub allegiance: Allegiance,
     pub ed_market_id: u64,
+    pub trades: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FacilityListing<'a >>>>>,
 }
 impl<'a> Default for FacilityArgs<'a> {
     #[inline]
@@ -1165,6 +1150,7 @@ impl<'a> Default for FacilityArgs<'a> {
             government: Government::Corporate,
             allegiance: Allegiance::Independent,
             ed_market_id: 0,
+            trades: None,
         }
     }
 }
@@ -1248,6 +1234,10 @@ impl<'a: 'b, 'b> FacilityBuilder<'a, 'b> {
   #[inline]
   pub fn add_ed_market_id(&mut self, ed_market_id: u64) {
     self.fbb_.push_slot::<u64>(Facility::VT_ED_MARKET_ID, ed_market_id, 0);
+  }
+  #[inline]
+  pub fn add_trades(&mut self, trades: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FacilityListing<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Facility::VT_TRADES, trades);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FacilityBuilder<'a, 'b> {

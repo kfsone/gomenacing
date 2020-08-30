@@ -31,7 +31,7 @@ table Commodity {
 /// Trade is a discrete entry for a Commodity that is or can be traded at with
 /// a number of units and a value.
 struct Trade {
-	/// Which commodity this descrbes.
+	/// Which commodity this describes.
 	commodity_id: uint64;
 	/// How many units
 	units: uint32;
@@ -43,8 +43,6 @@ struct Trade {
 
 // FacilityListing represents the trade available at a given facility.
 table FacilityListing {
-	/// Identifies the facility presenting these trades.
-	facility_id: uint32 (key);
 	/// Commodities this facility sells.
 	supply: [Trade];
 	/// Commodities this facility buys.
@@ -102,6 +100,9 @@ table Facility {
 
 	/// Presumably the internal ED identifier for the market here.
 	ed_market_id: uint64 = 0;
+
+	/// Items available for sale/purchase.
+	trades: [FacilityListing];
 }
 
 /// Galactic coordinate for a system.
@@ -147,6 +148,8 @@ table System {
 
 	/// Facilities in this system.
 	facilities: [Facility];
+
+	///
 }
 
 /// Encapsulation of all the data.

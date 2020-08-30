@@ -18,18 +18,10 @@ class FacilityListing(object):
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
 
-# /// Identifies the facility presenting these trades.
-    # FacilityListing
-    def FacilityId(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
-        if o != 0:
-            return self._tab.Get(flatbuffers.number_types.Uint32Flags, o + self._tab.Pos)
-        return 0
-
 # /// Commodities this facility sells.
     # FacilityListing
     def Supply(self, j):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 24
@@ -41,7 +33,7 @@ class FacilityListing(object):
 
     # FacilityListing
     def SupplyLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(4))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
@@ -49,7 +41,7 @@ class FacilityListing(object):
 # /// Commodities this facility buys.
     # FacilityListing
     def Demand(self, j):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 24
@@ -61,15 +53,14 @@ class FacilityListing(object):
 
     # FacilityListing
     def DemandLength(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
-def FacilityListingStart(builder): builder.StartObject(3)
-def FacilityListingAddFacilityId(builder, facilityId): builder.PrependUint32Slot(0, facilityId, 0)
-def FacilityListingAddSupply(builder, supply): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(supply), 0)
+def FacilityListingStart(builder): builder.StartObject(2)
+def FacilityListingAddSupply(builder, supply): builder.PrependUOffsetTRelativeSlot(0, flatbuffers.number_types.UOffsetTFlags.py_type(supply), 0)
 def FacilityListingStartSupplyVector(builder, numElems): return builder.StartVector(24, numElems, 8)
-def FacilityListingAddDemand(builder, demand): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(demand), 0)
+def FacilityListingAddDemand(builder, demand): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(demand), 0)
 def FacilityListingStartDemandVector(builder, numElems): return builder.StartVector(24, numElems, 8)
 def FacilityListingEnd(builder): return builder.EndObject()

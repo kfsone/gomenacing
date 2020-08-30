@@ -173,7 +173,28 @@ class Facility(object):
             return self._tab.Get(flatbuffers.number_types.Uint64Flags, o + self._tab.Pos)
         return 0
 
-def FacilityStart(builder): builder.StartObject(19)
+# /// Items available for sale/purchase.
+    # Facility
+    def Trades(self, j):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(42))
+        if o != 0:
+            x = self._tab.Vector(o)
+            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
+            x = self._tab.Indirect(x)
+            from .FacilityListing import FacilityListing
+            obj = FacilityListing()
+            obj.Init(self._tab.Bytes, x)
+            return obj
+        return None
+
+    # Facility
+    def TradesLength(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(42))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+def FacilityStart(builder): builder.StartObject(20)
 def FacilityAddFacilityId(builder, facilityId): builder.PrependUint32Slot(0, facilityId, 0)
 def FacilityAddSystemId(builder, systemId): builder.PrependUint32Slot(1, systemId, 0)
 def FacilityAddName(builder, name): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(name), 0)
@@ -193,4 +214,6 @@ def FacilityAddLsToStar(builder, lsToStar): builder.PrependUint32Slot(15, lsToSt
 def FacilityAddGovernment(builder, government): builder.PrependInt8Slot(16, government, 5)
 def FacilityAddAllegiance(builder, allegiance): builder.PrependInt8Slot(17, allegiance, 4)
 def FacilityAddEdMarketId(builder, edMarketId): builder.PrependUint64Slot(18, edMarketId, 0)
+def FacilityAddTrades(builder, trades): builder.PrependUOffsetTRelativeSlot(19, flatbuffers.number_types.UOffsetTFlags.py_type(trades), 0)
+def FacilityStartTradesVector(builder, numElems): return builder.StartVector(4, numElems, 4)
 def FacilityEnd(builder): return builder.EndObject()

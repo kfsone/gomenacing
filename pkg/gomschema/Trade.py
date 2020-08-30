@@ -13,7 +13,7 @@ class Trade(object):
     def Init(self, buf, pos):
         self._tab = flatbuffers.table.Table(buf, pos)
 
-# /// Which commodity this descrbes.
+# /// Which commodity this describes.
     # Trade
     def CommodityId(self): return self._tab.Get(flatbuffers.number_types.Uint64Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
 # /// How many units

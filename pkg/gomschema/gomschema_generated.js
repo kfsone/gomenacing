@@ -501,7 +501,7 @@ gomschema.Trade.prototype.__init = function(i, bb) {
 };
 
 /**
- * Which commodity this descrbes.
+ * Which commodity this describes.
  *
  * @returns {flatbuffers.Long}
  */
@@ -650,31 +650,6 @@ gomschema.FacilityListing.getRootAsFacilityListing = function(bb, obj) {
 };
 
 /**
- * Identifies the facility presenting these trades.
- *
- * @returns {number}
- */
-gomschema.FacilityListing.prototype.facilityId = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
-};
-
-/**
- * @param {number} value
- * @returns {boolean}
- */
-gomschema.FacilityListing.prototype.mutate_facility_id = function(value) {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-
-  if (offset === 0) {
-    return false;
-  }
-
-  this.bb.writeUint32(this.bb_pos + offset, value);
-  return true;
-};
-
-/**
  * Commodities this facility sells.
  *
  * @param {number} index
@@ -682,7 +657,7 @@ gomschema.FacilityListing.prototype.mutate_facility_id = function(value) {
  * @returns {gomschema.Trade}
  */
 gomschema.FacilityListing.prototype.supply = function(index, obj) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? (obj || new gomschema.Trade).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
 };
 
@@ -690,7 +665,7 @@ gomschema.FacilityListing.prototype.supply = function(index, obj) {
  * @returns {number}
  */
 gomschema.FacilityListing.prototype.supplyLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -702,7 +677,7 @@ gomschema.FacilityListing.prototype.supplyLength = function() {
  * @returns {gomschema.Trade}
  */
 gomschema.FacilityListing.prototype.demand = function(index, obj) {
-  var offset = this.bb.__offset(this.bb_pos, 8);
+  var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? (obj || new gomschema.Trade).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
 };
 
@@ -710,7 +685,7 @@ gomschema.FacilityListing.prototype.demand = function(index, obj) {
  * @returns {number}
  */
 gomschema.FacilityListing.prototype.demandLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
+  var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
@@ -718,15 +693,7 @@ gomschema.FacilityListing.prototype.demandLength = function() {
  * @param {flatbuffers.Builder} builder
  */
 gomschema.FacilityListing.startFacilityListing = function(builder) {
-  builder.startObject(3);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} facilityId
- */
-gomschema.FacilityListing.addFacilityId = function(builder, facilityId) {
-  builder.addFieldInt32(0, facilityId, 0);
+  builder.startObject(2);
 };
 
 /**
@@ -734,7 +701,7 @@ gomschema.FacilityListing.addFacilityId = function(builder, facilityId) {
  * @param {flatbuffers.Offset} supplyOffset
  */
 gomschema.FacilityListing.addSupply = function(builder, supplyOffset) {
-  builder.addFieldOffset(1, supplyOffset, 0);
+  builder.addFieldOffset(0, supplyOffset, 0);
 };
 
 /**
@@ -750,7 +717,7 @@ gomschema.FacilityListing.startSupplyVector = function(builder, numElems) {
  * @param {flatbuffers.Offset} demandOffset
  */
 gomschema.FacilityListing.addDemand = function(builder, demandOffset) {
-  builder.addFieldOffset(2, demandOffset, 0);
+  builder.addFieldOffset(1, demandOffset, 0);
 };
 
 /**
@@ -772,14 +739,12 @@ gomschema.FacilityListing.endFacilityListing = function(builder) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} facilityId
  * @param {flatbuffers.Offset} supplyOffset
  * @param {flatbuffers.Offset} demandOffset
  * @returns {flatbuffers.Offset}
  */
-gomschema.FacilityListing.createFacilityListing = function(builder, facilityId, supplyOffset, demandOffset) {
+gomschema.FacilityListing.createFacilityListing = function(builder, supplyOffset, demandOffset) {
   gomschema.FacilityListing.startFacilityListing(builder);
-  gomschema.FacilityListing.addFacilityId(builder, facilityId);
   gomschema.FacilityListing.addSupply(builder, supplyOffset);
   gomschema.FacilityListing.addDemand(builder, demandOffset);
   return gomschema.FacilityListing.endFacilityListing(builder);
@@ -1286,10 +1251,30 @@ gomschema.Facility.prototype.mutate_ed_market_id = function(value) {
 };
 
 /**
+ * Items available for sale/purchase.
+ *
+ * @param {number} index
+ * @param {gomschema.FacilityListing=} obj
+ * @returns {gomschema.FacilityListing}
+ */
+gomschema.Facility.prototype.trades = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 42);
+  return offset ? (obj || new gomschema.FacilityListing).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+gomschema.Facility.prototype.tradesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 42);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 gomschema.Facility.startFacility = function(builder) {
-  builder.startObject(19);
+  builder.startObject(20);
 };
 
 /**
@@ -1446,6 +1431,35 @@ gomschema.Facility.addEdMarketId = function(builder, edMarketId) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} tradesOffset
+ */
+gomschema.Facility.addTrades = function(builder, tradesOffset) {
+  builder.addFieldOffset(19, tradesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+gomschema.Facility.createTradesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+gomschema.Facility.startTradesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 gomschema.Facility.endFacility = function(builder) {
@@ -1474,9 +1488,10 @@ gomschema.Facility.endFacility = function(builder) {
  * @param {gomschema.Government} government
  * @param {gomschema.Allegiance} allegiance
  * @param {flatbuffers.Long} edMarketId
+ * @param {flatbuffers.Offset} tradesOffset
  * @returns {flatbuffers.Offset}
  */
-gomschema.Facility.createFacility = function(builder, facilityId, systemId, nameOffset, timestampUtc, facilityType, hasMarket, hasBlackMarket, hasRefuel, hasRepair, hasRearm, hasOutfitting, hasShipyard, hasDocking, hasCommodities, isPlanetary, lsToStar, government, allegiance, edMarketId) {
+gomschema.Facility.createFacility = function(builder, facilityId, systemId, nameOffset, timestampUtc, facilityType, hasMarket, hasBlackMarket, hasRefuel, hasRepair, hasRearm, hasOutfitting, hasShipyard, hasDocking, hasCommodities, isPlanetary, lsToStar, government, allegiance, edMarketId, tradesOffset) {
   gomschema.Facility.startFacility(builder);
   gomschema.Facility.addFacilityId(builder, facilityId);
   gomschema.Facility.addSystemId(builder, systemId);
@@ -1497,6 +1512,7 @@ gomschema.Facility.createFacility = function(builder, facilityId, systemId, name
   gomschema.Facility.addGovernment(builder, government);
   gomschema.Facility.addAllegiance(builder, allegiance);
   gomschema.Facility.addEdMarketId(builder, edMarketId);
+  gomschema.Facility.addTrades(builder, tradesOffset);
   return gomschema.Facility.endFacility(builder);
 }
 
