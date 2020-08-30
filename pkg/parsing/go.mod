@@ -1,4 +1,4 @@
-module github.com/kfsone/gomenacing/gomschema/parsing
+module github.com/kfsone/gomenacing/pkg/parsing
 
 go 1.14
 
