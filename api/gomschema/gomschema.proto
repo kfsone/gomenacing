@@ -50,7 +50,7 @@ message Header {
 /// Commodity is a type of item that can be traded within the game. At the moment,
 /// the categories are small enough I decided to just enumerate them right here.
 message Commodity {
-	enum CommodityCategory {
+	enum Category {
 		CatNone = 0;
 		CatChemicals = 1;
 		CatConsumerItems = 2;
@@ -80,7 +80,7 @@ message Commodity {
 	optional uint64 timestamp_utc = 3 [default=0];
 
 	/// What type of item is this.
-	required CommodityCategory category_id = 4;
+	required Category category_id = 4;
 
 	/// Whether the item is known to be rare.
 	optional bool is_rare = 5 [default=false];
