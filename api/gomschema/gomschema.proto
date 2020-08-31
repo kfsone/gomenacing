@@ -71,7 +71,7 @@ message Commodity {
 	};
 
 	/// Elite Dangerous' internal ID for the commodity acts as the key.
-	required uint64 commodity_id = 1;
+	required uint64 id = 1;
 
 	/// Name can be localized as long as the English name is preserved for hashing.
 	required string name = 2;
