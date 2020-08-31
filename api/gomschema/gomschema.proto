@@ -7,11 +7,16 @@ option go_package=".;gomschema";
 option java_package=".";
 
 ///////////////////////////////////////////////////////////////////////////////
-// Protobuf doesn't like really huge messages, so if you want to stream GOM data,
-// you'll need to provide details. For this, the Header type is provided which identifies
-// what data follows.
+// Protobuf doesn't like really huge messages, so we need to provide indexes
+// of messages for streaming.
+//
+// A GoMenacing dump comprises a header stream and an index stream. These can
+// either be in the form of a ".gomi" index file and a ".gomd" data file, or
+// they can be interleaved in the same stream/file. See the Header.source
+// property.
 
-/// Header tracks the size of a following protobuf message, or 0 for the end of a sequence.
+/// Header provides size listings for a stream of protobuf messages of a given
+/// type.
 message Header {
 	enum Class {
 		CCategory = 0;
@@ -25,8 +30,20 @@ message Header {
 	/// Enumerates the number and size of messages to follow.
 	repeated uint32 sizes = 2 [packed=true];
 
+	/// Identifies the path/source/uri of the messages described.
+  ///  "." means explicitly the same source as the headers,
+  ///  "-" means "same as previous" which is initially the header source,
+  ///  "/" means "the .gomd corresponding to this source",
+  ///  any non-uri string will be presumed to be a file path which is expanded as:
+  ///  first to: ${header source path}/{source}.gomd
+  ///  then    : ${header source path}/{source}
+  ///  then    : {source}.gomd
+  ///  then    : {source}
+  /// URI must be complete and absolute, e.g file://./commodities.gomd, https://data.ed/facility.gomd
+  optional string source = 3 [default="-"];
+
 	/// Any application-specific, user-purposed data. Key identifies the purpose, value is the data.
-	map<string, bytes> userdata = 3;
+	map<string, bytes> userdata = 4;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

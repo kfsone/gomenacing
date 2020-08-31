@@ -1,9 +1,10 @@
 # Automation of building the GoMenacing protobuf schema.
 #
-PROTOC_OUTDIR ?= ./pkg/gomschema
+GO_OUTDIR     ?= ./pkg/gomschema
+PY_OUTDIR     ?= ./pkg/gomschema
 PROTOC_INCDIR ?= ./api/gomschema
 PROTOC_ARGS   ?= -I "$(PROTOC_INCDIR)"
-PROTOC_LANGS  ?= --go_out=$(PROTOC_OUTDIR) --python_out=$(PROTOC_OUTDIR) --java_out=$(PROTOC_OUTDIR) --cpp_out=$(PROTOC_OUTDIR)
+PROTOC_LANGS  ?= --go_out=$(GO_OUTDIR) --python_out=$(PY_OUTDIR)
 PROTOC_SCHEMA ?= ./api/gomschema/gomschema.proto
 
 GOPATH        ?= ${HOME}/go
