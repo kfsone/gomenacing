@@ -1,0 +1,293 @@
+syntax = "proto2";
+
+package gomschema;
+
+// For some reason, for some languages, the output directory isn't good enough.
+option go_package=".;gomschema";
+option java_package=".";
+
+///////////////////////////////////////////////////////////////////////////////
+// Protobuf doesn't like really huge messages, so if you want to stream GOM data,
+// you'll need to provide details. For this, the Header type is provided which identifies
+// what data follows.
+
+/// Header tracks the size of a following protobuf message, or 0 for the end of a sequence.
+message Header {
+	enum Class {
+		CCategory = 0;
+		CSystem = 1;
+		CFacility = 2;
+		CListing = 3;
+	};
+	/// Identify the type of objects that follow.
+	required Class class = 1;
+
+	/// Enumerates the number and size of messages to follow.
+	repeated uint32 sizes = 2 [packed=true];
+
+	/// Any application-specific, user-purposed data. Key identifies the purpose, value is the data.
+	map<string, bytes> userdata = 3;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Commodity is a type of item that can be traded within the game. At the moment,
+/// the categories are small enough I decided to just enumerate them right here.
+message Commodity {
+	enum CommodityCategory {
+		CatNone = 0;
+		CatChemicals = 1;
+		CatConsumerItems = 2;
+		CatLegalDrugs = 3;
+		CatFoods = 4;
+		CatIndustrialMaterials = 5;
+		CatMachinery = 6;
+		CatMedicines = 7;
+		CatMetals = 8;
+		CatMinerals = 9;
+		CatSlavery = 10;
+		CatTechnology = 11;
+		CatTextiles = 12;
+		CatWaste = 13;
+		CatWeapons = 14;
+		CatUnknown = 15;
+		CatSalvage = 16;
+	};
+
+	/// Elite Dangerous' internal ID for the commodity acts as the key.
+	required uint64 commodity_id = 1;
+
+	/// Name can be localized as long as the English name is preserved for hashing.
+	required string name = 2;
+
+	/// Timestamp of when this was captured.
+	optional uint64 timestamp_utc = 3 [default=0];
+
+	/// What type of item is this.
+	required CommodityCategory category_id = 4;
+
+	/// Whether the item is known to be rare.
+	optional bool is_rare = 5 [default=false];
+
+	/// Whether the item is known to be marketable.
+	optional bool is_non_marketable = 6 [default=false];
+
+	/// The average galactic market price in credits.
+	optional uint32 average_cr = 7;
+
+	/// Any app/user-purposed data. Key is app/meaning, value is data.
+	map<string, bytes> userdata = 8;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Common enums for system/facility.
+
+/// GovernmentType enumerates the different governments available in-game.
+enum GovernmentType {
+  GovNone = 0;
+  GovAnarchy = 1;
+  GovCommunism = 2;
+  GovConfederacy = 3;
+  GovCooperative = 4;
+  GovCorporate = 5;
+  GovDemocracy = 6;
+  GovDictatorship = 7;
+  GovFeudal = 8;
+  GovPatronage = 9;
+  GovPrison = 10;
+  GovPrisonColony = 11;
+  GovTheocracy = 12;
+};
+
+/// AllegianceType enumerates the allegiances that systems/stations can have.
+enum AllegianceType {
+  AllegNone = 0;
+  AllegAlliance = 1;
+  AllegEmpire = 2;
+  AllegFederation = 3;
+  AllegIndependent = 4;
+  AllegPilotsFederation = 5;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Galactic coordinate for a system.
+message Coordinate {
+  required double x = 1;
+  required double y = 2;
+  required double z = 3;
+};
+
+/// SecurityLevel enumerates the law enforcement strength in a system.
+enum SecurityLevel {
+  SecurityNone = 0;
+  SecurityAnarchy = 1;
+  SecurityLow = 2;
+  SecurityMedium = 3;
+  SecurityHigh = 4;
+};
+
+/// System corresponds to an individual Elite-Dangerous star system, akin to a map.
+message System {
+  /// System ID is it's upper-cased name hashed via fnv1a/32.
+  required uint32 id = 1;
+
+  /// Unique name of the system.
+  required string name = 2;
+
+  /// Timestamp of the last update to this entry UTC.
+  optional uint64 timestamp_utc = 3 [default=0];
+
+  /// Position in the galaxy.
+  required Coordinate position = 4;
+
+  /// If we know whether or not the system is populated.
+  optional bool populated = 5 [default=true];
+
+  /// If we know whether or not the system needs a permit for entry.
+  optional bool needs_permit = 6 [default=false];
+
+  /// Law-Enforcement level of the system.
+  optional SecurityLevel security_level = 7 [default=SecurityMedium];
+
+  /// Current governance of the system.
+  optional GovernmentType government = 8 [default=GovCorporate];
+
+  /// Which faction is the system allied to.
+  optional AllegianceType allegiance = 9 [default=AllegIndependent];
+
+  /// Guess: Elite Dangerous Internal ID
+  optional uint64 ed_address = 10 [default=0];
+
+  /// User/app purposed data. Key=app/purpose, value=data.
+  map<string, bytes> userdata = 11;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Facilities (stations, planetary bases, etc).
+
+/// Enumeration of facility kinds.
+enum FacilityType {
+  FTNone = 0;
+  FTCivilianOutpost = 1;
+  FTCommercialOutpost = 2;
+  FTCoriolisStarport = 3;
+  FTIndustrialOutpost = 4;
+  FTMilitaryOutpost = 5;
+  FTMiningOutpost = 6;
+  FTOcellusStarport = 7;
+  FTOrbisStarport = 8;
+  FTScientificOutpost = 9;
+  FTPlanetaryOutpost = 10;
+  FTPlanetaryPort = 11;
+  FTPlanetarySettlement = 12;
+  FTMegaship = 13;
+  FTAsteroidBase = 14;
+  FTFleetCarrier = 15;
+};
+
+/// Enumeration of pad sizes.
+enum PadSize {
+  PadNone = 0;
+  PadSmall = 1;
+  PadMedium = 2;
+  PadLarge = 3;
+};
+
+/// List of the services present at a facility, encapsulated to reduce field count.
+message Services {
+  /// Does it have an accessible trade market.
+  optional bool has_market = 1 [default=true];
+
+  /// Does it have a black market.
+  required bool has_black_market = 2;
+
+  /// Can it refuel.
+  optional bool has_refuel = 3 [default=true];
+
+  /// Can it repair.
+  optional bool has_repair = 4 [default=true];
+
+  /// Can it re-arm.
+  optional bool has_rearm = 5 [default=true];
+
+  /// Does it sell/upgrade ship components.
+  required bool has_outfitting = 6;
+
+  /// Can you buy ships here.
+  required bool has_shipyard = 7;
+
+  /// Can you dock here (this is taken from EDDB and might be redundant).
+  optional bool has_docking = 8 [default=true];
+
+  /// Does the market have regular trading commodities available.
+  optional bool has_commodities = 9 [default=true];
+
+  /// True if the facility is associated with a planet.
+  required bool is_planetary = 10 [default=true];
+};
+
+
+/// Facility describes a station/planetary base, anything you can dock/trade with in-game.
+message Facility {
+  /// Facility ID is the fnv1a/32 hash of upper "{facility name}@{system name}"
+  required uint32 id = 1;
+
+  /// fnv1a/32 hash of the uppercase system name.
+  required uint32 system_id = 2;
+
+  /// Name of the facility (minus system name)
+  required string name = 3;
+
+  /// Timestamp of the last update to this entry UTC.
+  optional uint64 timestamp_utc = 4 [default=0];
+
+  optional FacilityType facility_type = 5 [default=FTPlanetaryOutpost];
+
+  /// Identify which services are available at this facility.
+  required Services services = 6;
+
+  /// Maximum ship size the landing pad supports.
+  optional PadSize pad_size = 7 [default=PadMedium];
+
+  /// Distance in light seconds from system entry point.
+  optional uint32 ls_from_star = 8;
+
+  /// Type of government running this station.
+  optional GovernmentType government = 9 [default=GovCorporate];
+
+  /// Type of allegiance this station holds.
+  optional AllegianceType allegiance = 10 [default=AllegIndependent];
+
+  /// Guess: the internal Elite Dangerous id for the market here.
+  optional uint64 ed_market_id = 11 [default=0];
+
+  /// App/user-purposed custom data. Key is app/purpose, value is data.
+  map<string, bytes> userdata = 12;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Trading
+
+/// A docket describing a quantity of units and a price for a given commodity.
+message Trade {
+  /// What product is represented.
+  required uint32 commodity_id = 1;
+  /// How much of this product is involved.
+  required uint32 units = 2;
+  /// The credit value associated.
+  required int32 credits = 3;
+  /// Optional time recorded.
+  optional uint64 timestamp_utc = 4 [default=0];
+};
+
+/// All of the available supply and demand for a designated facility.
+message FacilityListing {
+  /// fnv1a/32 hash of upper{facility name "@" system name}
+  required uint32 facility_id = 1;
+
+  /// Items the station is selling.
+  repeated Trade supply = 2;
+
+  /// Items the station is looking to buy.
+  repeated Trade demand = 3;
+};
+

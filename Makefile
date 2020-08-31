@@ -1,36 +1,43 @@
-# This is an awful but obvious place to record how to generate the pb.go file.
+# Automation of building the GoMenacing protobuf schema.
 #
-FLATC_OUTDIR ?= ./pkg/gomschema
-FLATC_INCDIR ?= ./api/gomschema
-FLATC_ARGS   ?= --natural-utf8 --scoped-enums --size-prefixed --go-namespace gomschema
-FLATC_GENS   ?= --gen-mutable --gen-nullable --gen-generated --gen-all --gen-onefile
-FLATC_LANGS  ?= --go --python --csharp --java --rust --js --ts
-FLATC_SCHEMA ?= ./api/gomschema/gomschema.fbs
+PROTOC_OUTDIR ?= ./pkg/gomschema
+PROTOC_INCDIR ?= ./api/gomschema
+PROTOC_ARGS   ?= -I "$(PROTOC_INCDIR)"
+PROTOC_LANGS  ?= --go_out=$(PROTOC_OUTDIR) --python_out=$(PROTOC_OUTDIR) --java_out=$(PROTOC_OUTDIR) --cpp_out=$(PROTOC_OUTDIR)
+PROTOC_SCHEMA ?= ./api/gomschema/gomschema.proto
 
-FLATC_CMD    ?= flatc
+GOPATH        ?= ${HOME}/go
 
-DOCKER_IMAGE ?= kfsone/gomflatc
+PROTOC_CMD    ?= protoc
+
+DOCKER_IMAGE ?= kfsone/gomprotoc
 IMAGE_VER    ?= latest
 
 all:
-	@echo "Compile gomschema flatbuffers schema."
+	@echo "Compile gomschema protobuffers schema."
 	@echo ""
 	@echo "Use:"
 	@echo "  make clean    -- remove the existing output."
-	@echo "  make flatc    -- use the flatc compiler directly."
+	@echo "  make protoc   -- use the (installed) protoc compiler directly."
 	@echo "  make wsl      -- use Windows Subsystem for Linux (win only)."
+	@echo "  make inwsl    -- you're inside WSL already (win only)."
+	@echo "  make deb      -- run from a debian install/wsl."
 	@echo "  make docker   -- use a Docker container to compile with."
 	@echo ""
-	@echo "Use FLATC_LANGS to override the default languages ($FLATC_LANGS)"
+	@echo "Use PROTOC_LANGS to override the default languages ($PROTOC_LANGS)"
 
 .PHONY: wsl
 wsl:
-	wsl -- bash -c "make inwsl"
+	wsl -- bash -c "$(MAKE) deb"
 
-.PHONY: inwsl
-inwsl:
-	sudo apt update && apt install --upgrade flatbuffers-compiler
-	$(MAKE) flatc
+.PHONY: deb
+deb:
+	sudo apt update && sudo apt install --upgrade git golang protobuf-compiler && \
+		mkdir -p "${GOPATH}/bin" && \
+		export PATH="${PATH}:${GOPATH}/bin" && \
+		go get -u google.golang.org/protobuf/cmd/protoc-gen-go && \
+		go install google.golang.org/protobuf/cmd/protoc-gen-go && \
+		$(MAKE) protoc
 
 docker-image: Dockerfile
 	docker build --tag "$(DOCKER_IMAGE):$(IMAGE_VER)" .
@@ -42,14 +49,11 @@ docker-publish: docker-image
 docker:
 	docker run --rm -v $(PWD):/gom $(DOCKER_IMAGE)
 
-.PHONY: flatc
-flatc:
-	"$(FLATC_CMD)" \
-			-o "$(FLATC_OUTDIR)" \
-			-I "$(FLATC_INCDIR)" \
-			$(FLATC_ARGS) \
-			$(FLATC_GENS) \
-			$(FLATC_LANGS) \
-			$(FLATC_SCHEMA) && \
+.PHONY: protoc
+protoc:
+	"$(PROTOC_CMD)" \
+			$(PROTOC_ARGS) \
+			$(PROTOC_LANGS) \
+			$(PROTOC_SCHEMA) && \
 		echo "Done."
 
