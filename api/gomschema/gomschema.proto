@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package gomschema;
 
@@ -11,39 +11,34 @@ option java_package=".";
 // of messages for streaming.
 //
 // A GoMenacing dump comprises a header stream and an index stream. These can
-// either be in the form of a ".gomi" index file and a ".gomd" data file, or
+// either be in the form of a ".gmix" index file and a ".gmdt" data file, or
 // they can be interleaved in the same stream/file. See the Header.source
 // property.
 
 /// Header provides size listings for a stream of protobuf messages of a given
 /// type.
 message Header {
-	enum Class {
-		CCategory = 0;
-		CSystem = 1;
-		CFacility = 2;
-		CListing = 3;
+	enum Type {
+    CInvalid = 0;
+    CHeader = 1;
+    CCommodity = 10;
+		CSystem = 20;
+		CFacility = 30;
+		CListing = 40;
 	};
 	/// Identify the type of objects that follow.
-	required Class class = 1;
+	Type header_type = 1;
 
 	/// Enumerates the number and size of messages to follow.
 	repeated uint32 sizes = 2 [packed=true];
 
-	/// Identifies the path/source/uri of the messages described.
-  ///  "." means explicitly the same source as the headers,
-  ///  "-" means "same as previous" which is initially the header source,
-  ///  "/" means "the .gomd corresponding to this source",
-  ///  any non-uri string will be presumed to be a file path which is expanded as:
-  ///  first to: ${header source path}/{source}.gomd
-  ///  then    : ${header source path}/{source}
-  ///  then    : {source}.gomd
-  ///  then    : {source}
-  /// URI must be complete and absolute, e.g file://./commodities.gomd, https://data.ed/facility.gomd
-  optional string source = 3 [default="-"];
+  reserved 3;
+
+  /// Optional description of where this came from.
+  string source = 4;
 
 	/// Any application-specific, user-purposed data. Key identifies the purpose, value is the data.
-	map<string, bytes> userdata = 4;
+	map<string, bytes> userdata = 5;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,26 +65,26 @@ message Commodity {
 		CatSalvage = 16;
 	};
 
-	/// Elite Dangerous' internal ID for the commodity acts as the key.
-	required uint64 id = 1;
+  /// Locally sourced identifier across this import.
+	uint32 id = 1;
 
 	/// Name can be localized as long as the English name is preserved for hashing.
-	required string name = 2;
+	string name = 2;
 
 	/// Timestamp of when this was captured.
-	optional uint64 timestamp_utc = 3 [default=0];
+	uint64 timestamp_utc = 3;
 
 	/// What type of item is this.
-	required Category category_id = 4;
+	Category category_id = 4;
 
 	/// Whether the item is known to be rare.
-	optional bool is_rare = 5 [default=false];
+	bool is_rare = 5;
 
 	/// Whether the item is known to be marketable.
-	optional bool is_non_marketable = 6 [default=false];
+	bool is_non_marketable = 6;
 
 	/// The average galactic market price in credits.
-	optional uint32 average_cr = 7;
+	uint32 average_cr = 7;
 
 	/// Any app/user-purposed data. Key is app/meaning, value is data.
 	map<string, bytes> userdata = 8;
@@ -128,9 +123,9 @@ enum AllegianceType {
 ///////////////////////////////////////////////////////////////////////////////
 /// Galactic coordinate for a system.
 message Coordinate {
-  required double x = 1;
-  required double y = 2;
-  required double z = 3;
+  double x = 1;
+  double y = 2;
+  double z = 3;
 };
 
 /// SecurityLevel enumerates the law enforcement strength in a system.
@@ -144,35 +139,35 @@ enum SecurityLevel {
 
 /// System corresponds to an individual Elite-Dangerous star system, akin to a map.
 message System {
-  /// System ID is it's upper-cased name hashed via fnv1a/32.
-  required uint32 id = 1;
+  /// Locally sourced id for this system across this import.
+  uint32 id = 1;
 
   /// Unique name of the system.
-  required string name = 2;
+  string name = 2;
 
   /// Timestamp of the last update to this entry UTC.
-  optional uint64 timestamp_utc = 3 [default=0];
+  uint64 timestamp_utc = 3;
 
   /// Position in the galaxy.
-  required Coordinate position = 4;
+  Coordinate position = 4;
 
   /// If we know whether or not the system is populated.
-  optional bool populated = 5 [default=true];
+  bool populated = 5;
 
   /// If we know whether or not the system needs a permit for entry.
-  optional bool needs_permit = 6 [default=false];
+  bool needs_permit = 6;
 
   /// Law-Enforcement level of the system.
-  optional SecurityLevel security_level = 7 [default=SecurityMedium];
+  SecurityLevel security_level = 7;
 
   /// Current governance of the system.
-  optional GovernmentType government = 8 [default=GovCorporate];
+  GovernmentType government = 8;
 
   /// Which faction is the system allied to.
-  optional AllegianceType allegiance = 9 [default=AllegIndependent];
+  AllegianceType allegiance = 9;
 
   /// Guess: Elite Dangerous Internal ID
-  optional uint64 ed_address = 10 [default=0];
+  uint64 ed_address = 10;
 
   /// User/app purposed data. Key=app/purpose, value=data.
   map<string, bytes> userdata = 11;
@@ -212,70 +207,71 @@ enum PadSize {
 /// List of the services present at a facility, encapsulated to reduce field count.
 message Services {
   /// Does it have an accessible trade market.
-  optional bool has_market = 1 [default=true];
+  bool has_market = 1;
 
   /// Does it have a black market.
-  required bool has_black_market = 2;
+  bool has_black_market = 2;
 
   /// Can it refuel.
-  optional bool has_refuel = 3 [default=true];
+  bool has_refuel = 3;
 
   /// Can it repair.
-  optional bool has_repair = 4 [default=true];
+  bool has_repair = 4;
 
   /// Can it re-arm.
-  optional bool has_rearm = 5 [default=true];
+  bool has_rearm = 5;
 
   /// Does it sell/upgrade ship components.
-  required bool has_outfitting = 6;
+  bool has_outfitting = 6;
 
   /// Can you buy ships here.
-  required bool has_shipyard = 7;
+  bool has_shipyard = 7;
 
   /// Can you dock here (this is taken from EDDB and might be redundant).
-  optional bool has_docking = 8 [default=true];
+  bool has_docking = 8;
 
   /// Does the market have regular trading commodities available.
-  optional bool has_commodities = 9 [default=true];
+  bool has_commodities = 9;
 
   /// True if the facility is associated with a planet.
-  required bool is_planetary = 10 [default=true];
+  bool is_planetary = 10;
 };
 
 
 /// Facility describes a station/planetary base, anything you can dock/trade with in-game.
 message Facility {
-  /// Facility ID is the fnv1a/32 hash of upper "{facility name}@{system name}"
-  required uint32 id = 1;
+  /// Locally sourced id for this facility across this import.
+  uint32 id = 1;
 
-  /// fnv1a/32 hash of the uppercase system name.
-  required uint32 system_id = 2;
+  /// Locally sourced id for the facility's system.
+  uint32 system_id = 2;
 
   /// Name of the facility (minus system name)
-  required string name = 3;
+  string name = 3;
 
   /// Timestamp of the last update to this entry UTC.
-  optional uint64 timestamp_utc = 4 [default=0];
+  uint64 timestamp_utc = 4;
 
-  optional FacilityType facility_type = 5 [default=FTPlanetaryOutpost];
+  /// Identifies the type of facility (e.g station, planetary outpost) this is.
+  FacilityType facility_type = 5;
 
   /// Identify which services are available at this facility.
-  required Services services = 6;
+  Services services = 6;
 
   /// Maximum ship size the landing pad supports.
-  optional PadSize pad_size = 7 [default=PadMedium];
+  PadSize pad_size = 7;
 
   /// Distance in light seconds from system entry point.
-  optional uint32 ls_from_star = 8;
+  uint32 ls_from_star = 8;
 
   /// Type of government running this station.
-  optional GovernmentType government = 9 [default=GovCorporate];
+  GovernmentType government = 9;
 
   /// Type of allegiance this station holds.
-  optional AllegianceType allegiance = 10 [default=AllegIndependent];
+  AllegianceType allegiance = 10;
 
   /// Guess: the internal Elite Dangerous id for the market here.
-  optional uint64 ed_market_id = 11 [default=0];
+  uint64 ed_market_id = 11;
 
   /// App/user-purposed custom data. Key is app/purpose, value is data.
   map<string, bytes> userdata = 12;
@@ -284,27 +280,27 @@ message Facility {
 ///////////////////////////////////////////////////////////////////////////////
 /// Trading
 
-/// A docket describing a quantity of units and a price for a given commodity.
-message Trade {
+/// The supply/demand levels and cost for an individual commodity at a facility.
+message CommodityListing {
   /// What product is represented.
-  required uint32 commodity_id = 1;
-  /// How much of this product is involved.
-  required uint32 units = 2;
-  /// The credit value associated.
-  required int32 credits = 3;
-  /// Optional time recorded.
-  optional uint64 timestamp_utc = 4 [default=0];
+  uint32 commodity_id = 1;
+  /// Units of the commodity available at this facility.
+  uint32 supply_units = 2;
+  /// What the station is charging.
+  uint32 supply_credits = 3;
+  /// How many units the facility is seeking to buy.
+  uint32 demand_units = 4;
+  /// How much the station is paying.
+  uint32 demand_credits = 5;
+  /// Unix timestamp of when this was collected.
+  uint64 timestamp_utc = 6;
 };
 
 /// All of the available supply and demand for a designated facility.
 message FacilityListing {
-  /// fnv1a/32 hash of upper{facility name "@" system name}
-  required uint32 facility_id = 1;
+  /// Locally sourced id for the facility this listing is for.
+  uint32 id = 1;
 
-  /// Items the station is selling.
-  repeated Trade supply = 2;
-
-  /// Items the station is looking to buy.
-  repeated Trade demand = 3;
+  /// What the station is selling/buying.
+  repeated CommodityListing listings = 2;
 };
-

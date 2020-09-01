@@ -17,10 +17,10 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='gomschema.proto',
   package='gomschema',
-  syntax='proto2',
+  syntax='proto3',
   serialized_options=b'\n\001.Z\013.;gomschema',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fgomschema.proto\x12\tgomschema\"\xfc\x01\n\x06Header\x12&\n\x05\x63lass\x18\x01 \x02(\x0e\x32\x17.gomschema.Header.Class\x12\x11\n\x05sizes\x18\x02 \x03(\rB\x02\x10\x01\x12\x11\n\x06source\x18\x03 \x01(\t:\x01-\x12\x31\n\x08userdata\x18\x04 \x03(\x0b\x32\x1f.gomschema.Header.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"@\n\x05\x43lass\x12\r\n\tCCategory\x10\x00\x12\x0b\n\x07\x43System\x10\x01\x12\r\n\tCFacility\x10\x02\x12\x0c\n\x08\x43Listing\x10\x03\"\xdd\x04\n\tCommodity\x12\n\n\x02id\x18\x01 \x02(\x04\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x18\n\rtimestamp_utc\x18\x03 \x01(\x04:\x01\x30\x12\x32\n\x0b\x63\x61tegory_id\x18\x04 \x02(\x0e\x32\x1d.gomschema.Commodity.Category\x12\x16\n\x07is_rare\x18\x05 \x01(\x08:\x05\x66\x61lse\x12 \n\x11is_non_marketable\x18\x06 \x01(\x08:\x05\x66\x61lse\x12\x12\n\naverage_cr\x18\x07 \x01(\r\x12\x34\n\x08userdata\x18\x08 \x03(\x0b\x32\".gomschema.Commodity.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\xb2\x02\n\x08\x43\x61tegory\x12\x0b\n\x07\x43\x61tNone\x10\x00\x12\x10\n\x0c\x43\x61tChemicals\x10\x01\x12\x14\n\x10\x43\x61tConsumerItems\x10\x02\x12\x11\n\rCatLegalDrugs\x10\x03\x12\x0c\n\x08\x43\x61tFoods\x10\x04\x12\x1a\n\x16\x43\x61tIndustrialMaterials\x10\x05\x12\x10\n\x0c\x43\x61tMachinery\x10\x06\x12\x10\n\x0c\x43\x61tMedicines\x10\x07\x12\r\n\tCatMetals\x10\x08\x12\x0f\n\x0b\x43\x61tMinerals\x10\t\x12\x0e\n\nCatSlavery\x10\n\x12\x11\n\rCatTechnology\x10\x0b\x12\x0f\n\x0b\x43\x61tTextiles\x10\x0c\x12\x0c\n\x08\x43\x61tWaste\x10\r\x12\x0e\n\nCatWeapons\x10\x0e\x12\x0e\n\nCatUnknown\x10\x0f\x12\x0e\n\nCatSalvage\x10\x10\"-\n\nCoordinate\x12\t\n\x01x\x18\x01 \x02(\x01\x12\t\n\x01y\x18\x02 \x02(\x01\x12\t\n\x01z\x18\x03 \x02(\x01\"\xd6\x03\n\x06System\x12\n\n\x02id\x18\x01 \x02(\r\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x18\n\rtimestamp_utc\x18\x03 \x01(\x04:\x01\x30\x12\'\n\x08position\x18\x04 \x02(\x0b\x32\x15.gomschema.Coordinate\x12\x17\n\tpopulated\x18\x05 \x01(\x08:\x04true\x12\x1b\n\x0cneeds_permit\x18\x06 \x01(\x08:\x05\x66\x61lse\x12@\n\x0esecurity_level\x18\x07 \x01(\x0e\x32\x18.gomschema.SecurityLevel:\x0eSecurityMedium\x12;\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType:\x0cGovCorporate\x12?\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType:\x10\x41llegIndependent\x12\x15\n\ned_address\x18\n \x01(\x04:\x01\x30\x12\x31\n\x08userdata\x18\x0b \x03(\x0b\x32\x1f.gomschema.System.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\x8f\x02\n\x08Services\x12\x18\n\nhas_market\x18\x01 \x01(\x08:\x04true\x12\x18\n\x10has_black_market\x18\x02 \x02(\x08\x12\x18\n\nhas_refuel\x18\x03 \x01(\x08:\x04true\x12\x18\n\nhas_repair\x18\x04 \x01(\x08:\x04true\x12\x17\n\thas_rearm\x18\x05 \x01(\x08:\x04true\x12\x16\n\x0ehas_outfitting\x18\x06 \x02(\x08\x12\x14\n\x0chas_shipyard\x18\x07 \x02(\x08\x12\x19\n\x0bhas_docking\x18\x08 \x01(\x08:\x04true\x12\x1d\n\x0fhas_commodities\x18\t \x01(\x08:\x04true\x12\x1a\n\x0cis_planetary\x18\n \x02(\x08:\x04true\"\x80\x04\n\x08\x46\x61\x63ility\x12\n\n\x02id\x18\x01 \x02(\r\x12\x11\n\tsystem_id\x18\x02 \x02(\r\x12\x0c\n\x04name\x18\x03 \x02(\t\x12\x18\n\rtimestamp_utc\x18\x04 \x01(\x04:\x01\x30\x12\x42\n\rfacility_type\x18\x05 \x01(\x0e\x32\x17.gomschema.FacilityType:\x12\x46TPlanetaryOutpost\x12%\n\x08services\x18\x06 \x02(\x0b\x32\x13.gomschema.Services\x12/\n\x08pad_size\x18\x07 \x01(\x0e\x32\x12.gomschema.PadSize:\tPadMedium\x12\x14\n\x0cls_from_star\x18\x08 \x01(\r\x12;\n\ngovernment\x18\t \x01(\x0e\x32\x19.gomschema.GovernmentType:\x0cGovCorporate\x12?\n\nallegiance\x18\n \x01(\x0e\x32\x19.gomschema.AllegianceType:\x10\x41llegIndependent\x12\x17\n\x0c\x65\x64_market_id\x18\x0b \x01(\x04:\x01\x30\x12\x33\n\x08userdata\x18\x0c \x03(\x0b\x32!.gomschema.Facility.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"W\n\x05Trade\x12\x14\n\x0c\x63ommodity_id\x18\x01 \x02(\r\x12\r\n\x05units\x18\x02 \x02(\r\x12\x0f\n\x07\x63redits\x18\x03 \x02(\x05\x12\x18\n\rtimestamp_utc\x18\x04 \x01(\x04:\x01\x30\"j\n\x0f\x46\x61\x63ilityListing\x12\x13\n\x0b\x66\x61\x63ility_id\x18\x01 \x02(\r\x12 \n\x06supply\x18\x02 \x03(\x0b\x32\x10.gomschema.Trade\x12 \n\x06\x64\x65mand\x18\x03 \x03(\x0b\x32\x10.gomschema.Trade*\xf7\x01\n\x0eGovernmentType\x12\x0b\n\x07GovNone\x10\x00\x12\x0e\n\nGovAnarchy\x10\x01\x12\x10\n\x0cGovCommunism\x10\x02\x12\x12\n\x0eGovConfederacy\x10\x03\x12\x12\n\x0eGovCooperative\x10\x04\x12\x10\n\x0cGovCorporate\x10\x05\x12\x10\n\x0cGovDemocracy\x10\x06\x12\x13\n\x0fGovDictatorship\x10\x07\x12\r\n\tGovFeudal\x10\x08\x12\x10\n\x0cGovPatronage\x10\t\x12\r\n\tGovPrison\x10\n\x12\x13\n\x0fGovPrisonColony\x10\x0b\x12\x10\n\x0cGovTheocracy\x10\x0c*\x89\x01\n\x0e\x41llegianceType\x12\r\n\tAllegNone\x10\x00\x12\x11\n\rAllegAlliance\x10\x01\x12\x0f\n\x0b\x41llegEmpire\x10\x02\x12\x13\n\x0f\x41llegFederation\x10\x03\x12\x14\n\x10\x41llegIndependent\x10\x04\x12\x19\n\x15\x41llegPilotsFederation\x10\x05*m\n\rSecurityLevel\x12\x10\n\x0cSecurityNone\x10\x00\x12\x13\n\x0fSecurityAnarchy\x10\x01\x12\x0f\n\x0bSecurityLow\x10\x02\x12\x12\n\x0eSecurityMedium\x10\x03\x12\x10\n\x0cSecurityHigh\x10\x04*\xec\x02\n\x0c\x46\x61\x63ilityType\x12\n\n\x06\x46TNone\x10\x00\x12\x15\n\x11\x46TCivilianOutpost\x10\x01\x12\x17\n\x13\x46TCommercialOutpost\x10\x02\x12\x16\n\x12\x46TCoriolisStarport\x10\x03\x12\x17\n\x13\x46TIndustrialOutpost\x10\x04\x12\x15\n\x11\x46TMilitaryOutpost\x10\x05\x12\x13\n\x0f\x46TMiningOutpost\x10\x06\x12\x15\n\x11\x46TOcellusStarport\x10\x07\x12\x13\n\x0f\x46TOrbisStarport\x10\x08\x12\x17\n\x13\x46TScientificOutpost\x10\t\x12\x16\n\x12\x46TPlanetaryOutpost\x10\n\x12\x13\n\x0f\x46TPlanetaryPort\x10\x0b\x12\x19\n\x15\x46TPlanetarySettlement\x10\x0c\x12\x0e\n\nFTMegaship\x10\r\x12\x12\n\x0e\x46TAsteroidBase\x10\x0e\x12\x12\n\x0e\x46TFleetCarrier\x10\x0f*A\n\x07PadSize\x12\x0b\n\x07PadNone\x10\x00\x12\x0c\n\x08PadSmall\x10\x01\x12\r\n\tPadMedium\x10\x02\x12\x0c\n\x08PadLarge\x10\x03\x42\x10\n\x01.Z\x0b.;gomschema'
+  serialized_pb=b'\n\x0fgomschema.proto\x12\tgomschema\"\x9f\x02\n\x06Header\x12+\n\x0bheader_type\x18\x01 \x01(\x0e\x32\x16.gomschema.Header.Type\x12\x11\n\x05sizes\x18\x02 \x03(\rB\x02\x10\x01\x12\x0e\n\x06source\x18\x04 \x01(\t\x12\x31\n\x08userdata\x18\x05 \x03(\x0b\x32\x1f.gomschema.Header.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"[\n\x04Type\x12\x0c\n\x08\x43Invalid\x10\x00\x12\x0b\n\x07\x43Header\x10\x01\x12\x0e\n\nCCommodity\x10\n\x12\x0b\n\x07\x43System\x10\x14\x12\r\n\tCFacility\x10\x1e\x12\x0c\n\x08\x43Listing\x10(J\x04\x08\x03\x10\x04\"\xcc\x04\n\tCommodity\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\x32\n\x0b\x63\x61tegory_id\x18\x04 \x01(\x0e\x32\x1d.gomschema.Commodity.Category\x12\x0f\n\x07is_rare\x18\x05 \x01(\x08\x12\x19\n\x11is_non_marketable\x18\x06 \x01(\x08\x12\x12\n\naverage_cr\x18\x07 \x01(\r\x12\x34\n\x08userdata\x18\x08 \x03(\x0b\x32\".gomschema.Commodity.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\xb2\x02\n\x08\x43\x61tegory\x12\x0b\n\x07\x43\x61tNone\x10\x00\x12\x10\n\x0c\x43\x61tChemicals\x10\x01\x12\x14\n\x10\x43\x61tConsumerItems\x10\x02\x12\x11\n\rCatLegalDrugs\x10\x03\x12\x0c\n\x08\x43\x61tFoods\x10\x04\x12\x1a\n\x16\x43\x61tIndustrialMaterials\x10\x05\x12\x10\n\x0c\x43\x61tMachinery\x10\x06\x12\x10\n\x0c\x43\x61tMedicines\x10\x07\x12\r\n\tCatMetals\x10\x08\x12\x0f\n\x0b\x43\x61tMinerals\x10\t\x12\x0e\n\nCatSlavery\x10\n\x12\x11\n\rCatTechnology\x10\x0b\x12\x0f\n\x0b\x43\x61tTextiles\x10\x0c\x12\x0c\n\x08\x43\x61tWaste\x10\r\x12\x0e\n\nCatWeapons\x10\x0e\x12\x0e\n\nCatUnknown\x10\x0f\x12\x0e\n\nCatSalvage\x10\x10\"-\n\nCoordinate\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"\x93\x03\n\x06System\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\'\n\x08position\x18\x04 \x01(\x0b\x32\x15.gomschema.Coordinate\x12\x11\n\tpopulated\x18\x05 \x01(\x08\x12\x14\n\x0cneeds_permit\x18\x06 \x01(\x08\x12\x30\n\x0esecurity_level\x18\x07 \x01(\x0e\x32\x18.gomschema.SecurityLevel\x12-\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType\x12\x12\n\ned_address\x18\n \x01(\x04\x12\x31\n\x08userdata\x18\x0b \x03(\x0b\x32\x1f.gomschema.System.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\xe5\x01\n\x08Services\x12\x12\n\nhas_market\x18\x01 \x01(\x08\x12\x18\n\x10has_black_market\x18\x02 \x01(\x08\x12\x12\n\nhas_refuel\x18\x03 \x01(\x08\x12\x12\n\nhas_repair\x18\x04 \x01(\x08\x12\x11\n\thas_rearm\x18\x05 \x01(\x08\x12\x16\n\x0ehas_outfitting\x18\x06 \x01(\x08\x12\x14\n\x0chas_shipyard\x18\x07 \x01(\x08\x12\x13\n\x0bhas_docking\x18\x08 \x01(\x08\x12\x17\n\x0fhas_commodities\x18\t \x01(\x08\x12\x14\n\x0cis_planetary\x18\n \x01(\x08\"\xbb\x03\n\x08\x46\x61\x63ility\x12\n\n\x02id\x18\x01 \x01(\r\x12\x11\n\tsystem_id\x18\x02 \x01(\r\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x04 \x01(\x04\x12.\n\rfacility_type\x18\x05 \x01(\x0e\x32\x17.gomschema.FacilityType\x12%\n\x08services\x18\x06 \x01(\x0b\x32\x13.gomschema.Services\x12$\n\x08pad_size\x18\x07 \x01(\x0e\x32\x12.gomschema.PadSize\x12\x14\n\x0cls_from_star\x18\x08 \x01(\r\x12-\n\ngovernment\x18\t \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\n \x01(\x0e\x32\x19.gomschema.AllegianceType\x12\x14\n\x0c\x65\x64_market_id\x18\x0b \x01(\x04\x12\x33\n\x08userdata\x18\x0c \x03(\x0b\x32!.gomschema.Facility.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\x9b\x01\n\x10\x43ommodityListing\x12\x14\n\x0c\x63ommodity_id\x18\x01 \x01(\r\x12\x14\n\x0csupply_units\x18\x02 \x01(\r\x12\x16\n\x0esupply_credits\x18\x03 \x01(\r\x12\x14\n\x0c\x64\x65mand_units\x18\x04 \x01(\r\x12\x16\n\x0e\x64\x65mand_credits\x18\x05 \x01(\r\x12\x15\n\rtimestamp_utc\x18\x06 \x01(\x04\"L\n\x0f\x46\x61\x63ilityListing\x12\n\n\x02id\x18\x01 \x01(\r\x12-\n\x08listings\x18\x02 \x03(\x0b\x32\x1b.gomschema.CommodityListing*\xf7\x01\n\x0eGovernmentType\x12\x0b\n\x07GovNone\x10\x00\x12\x0e\n\nGovAnarchy\x10\x01\x12\x10\n\x0cGovCommunism\x10\x02\x12\x12\n\x0eGovConfederacy\x10\x03\x12\x12\n\x0eGovCooperative\x10\x04\x12\x10\n\x0cGovCorporate\x10\x05\x12\x10\n\x0cGovDemocracy\x10\x06\x12\x13\n\x0fGovDictatorship\x10\x07\x12\r\n\tGovFeudal\x10\x08\x12\x10\n\x0cGovPatronage\x10\t\x12\r\n\tGovPrison\x10\n\x12\x13\n\x0fGovPrisonColony\x10\x0b\x12\x10\n\x0cGovTheocracy\x10\x0c*\x89\x01\n\x0e\x41llegianceType\x12\r\n\tAllegNone\x10\x00\x12\x11\n\rAllegAlliance\x10\x01\x12\x0f\n\x0b\x41llegEmpire\x10\x02\x12\x13\n\x0f\x41llegFederation\x10\x03\x12\x14\n\x10\x41llegIndependent\x10\x04\x12\x19\n\x15\x41llegPilotsFederation\x10\x05*m\n\rSecurityLevel\x12\x10\n\x0cSecurityNone\x10\x00\x12\x13\n\x0fSecurityAnarchy\x10\x01\x12\x0f\n\x0bSecurityLow\x10\x02\x12\x12\n\x0eSecurityMedium\x10\x03\x12\x10\n\x0cSecurityHigh\x10\x04*\xec\x02\n\x0c\x46\x61\x63ilityType\x12\n\n\x06\x46TNone\x10\x00\x12\x15\n\x11\x46TCivilianOutpost\x10\x01\x12\x17\n\x13\x46TCommercialOutpost\x10\x02\x12\x16\n\x12\x46TCoriolisStarport\x10\x03\x12\x17\n\x13\x46TIndustrialOutpost\x10\x04\x12\x15\n\x11\x46TMilitaryOutpost\x10\x05\x12\x13\n\x0f\x46TMiningOutpost\x10\x06\x12\x15\n\x11\x46TOcellusStarport\x10\x07\x12\x13\n\x0f\x46TOrbisStarport\x10\x08\x12\x17\n\x13\x46TScientificOutpost\x10\t\x12\x16\n\x12\x46TPlanetaryOutpost\x10\n\x12\x13\n\x0f\x46TPlanetaryPort\x10\x0b\x12\x19\n\x15\x46TPlanetarySettlement\x10\x0c\x12\x0e\n\nFTMegaship\x10\r\x12\x12\n\x0e\x46TAsteroidBase\x10\x0e\x12\x12\n\x0e\x46TFleetCarrier\x10\x0f*A\n\x07PadSize\x12\x0b\n\x07PadNone\x10\x00\x12\x0c\n\x08PadSmall\x10\x01\x12\r\n\tPadMedium\x10\x02\x12\x0c\n\x08PadLarge\x10\x03\x42\x10\n\x01.Z\x0b.;gomschemab\x06proto3'
 )
 
 _GOVERNMENTTYPE = _descriptor.EnumDescriptor(
@@ -98,8 +98,8 @@ _GOVERNMENTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2400,
-  serialized_end=2647,
+  serialized_start=2279,
+  serialized_end=2526,
 )
 _sym_db.RegisterEnumDescriptor(_GOVERNMENTTYPE)
 
@@ -144,8 +144,8 @@ _ALLEGIANCETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2650,
-  serialized_end=2787,
+  serialized_start=2529,
+  serialized_end=2666,
 )
 _sym_db.RegisterEnumDescriptor(_ALLEGIANCETYPE)
 
@@ -185,8 +185,8 @@ _SECURITYLEVEL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2789,
-  serialized_end=2898,
+  serialized_start=2668,
+  serialized_end=2777,
 )
 _sym_db.RegisterEnumDescriptor(_SECURITYLEVEL)
 
@@ -281,8 +281,8 @@ _FACILITYTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2901,
-  serialized_end=3265,
+  serialized_start=2780,
+  serialized_end=3144,
 )
 _sym_db.RegisterEnumDescriptor(_FACILITYTYPE)
 
@@ -317,8 +317,8 @@ _PADSIZE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3267,
-  serialized_end=3332,
+  serialized_start=3146,
+  serialized_end=3211,
 )
 _sym_db.RegisterEnumDescriptor(_PADSIZE)
 
@@ -369,40 +369,50 @@ PadMedium = 2
 PadLarge = 3
 
 
-_HEADER_CLASS = _descriptor.EnumDescriptor(
-  name='Class',
-  full_name='gomschema.Header.Class',
+_HEADER_TYPE = _descriptor.EnumDescriptor(
+  name='Type',
+  full_name='gomschema.Header.Type',
   filename=None,
   file=DESCRIPTOR,
   create_key=_descriptor._internal_create_key,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='CCategory', index=0, number=0,
+      name='CInvalid', index=0, number=0,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='CSystem', index=1, number=1,
+      name='CHeader', index=1, number=1,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='CFacility', index=2, number=2,
+      name='CCommodity', index=2, number=10,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
     _descriptor.EnumValueDescriptor(
-      name='CListing', index=3, number=3,
+      name='CSystem', index=3, number=20,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='CFacility', index=4, number=30,
+      serialized_options=None,
+      type=None,
+      create_key=_descriptor._internal_create_key),
+    _descriptor.EnumValueDescriptor(
+      name='CListing', index=5, number=40,
       serialized_options=None,
       type=None,
       create_key=_descriptor._internal_create_key),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=219,
-  serialized_end=283,
+  serialized_start=221,
+  serialized_end=312,
 )
-_sym_db.RegisterEnumDescriptor(_HEADER_CLASS)
+_sym_db.RegisterEnumDescriptor(_HEADER_TYPE)
 
 _COMMODITY_CATEGORY = _descriptor.EnumDescriptor(
   name='Category',
@@ -499,8 +509,8 @@ _COMMODITY_CATEGORY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=585,
-  serialized_end=891,
+  serialized_start=603,
+  serialized_end=909,
 )
 _sym_db.RegisterEnumDescriptor(_COMMODITY_CATEGORY)
 
@@ -535,12 +545,12 @@ _HEADER_USERDATAENTRY = _descriptor.Descriptor(
   ],
   serialized_options=b'8\001',
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=170,
-  serialized_end=217,
+  serialized_start=172,
+  serialized_end=219,
 )
 
 _HEADER = _descriptor.Descriptor(
@@ -552,8 +562,8 @@ _HEADER = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='class', full_name='gomschema.Header.class', index=0,
-      number=1, type=14, cpp_type=8, label=2,
+      name='header_type', full_name='gomschema.Header.header_type', index=0,
+      number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -567,14 +577,14 @@ _HEADER = _descriptor.Descriptor(
       serialized_options=b'\020\001', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='source', full_name='gomschema.Header.source', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=True, default_value=b"-".decode('utf-8'),
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='userdata', full_name='gomschema.Header.userdata', index=3,
-      number=4, type=11, cpp_type=10, label=3,
+      number=5, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -584,16 +594,16 @@ _HEADER = _descriptor.Descriptor(
   ],
   nested_types=[_HEADER_USERDATAENTRY, ],
   enum_types=[
-    _HEADER_CLASS,
+    _HEADER_TYPE,
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
   serialized_start=31,
-  serialized_end=283,
+  serialized_end=318,
 )
 
 
@@ -627,12 +637,12 @@ _COMMODITY_USERDATAENTRY = _descriptor.Descriptor(
   ],
   serialized_options=b'8\001',
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=170,
-  serialized_end=217,
+  serialized_start=172,
+  serialized_end=219,
 )
 
 _COMMODITY = _descriptor.Descriptor(
@@ -645,14 +655,14 @@ _COMMODITY = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='id', full_name='gomschema.Commodity.id', index=0,
-      number=1, type=4, cpp_type=4, label=2,
+      number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='name', full_name='gomschema.Commodity.name', index=1,
-      number=2, type=9, cpp_type=9, label=2,
+      number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -660,13 +670,13 @@ _COMMODITY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='timestamp_utc', full_name='gomschema.Commodity.timestamp_utc', index=2,
       number=3, type=4, cpp_type=4, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='category_id', full_name='gomschema.Commodity.category_id', index=3,
-      number=4, type=14, cpp_type=8, label=2,
+      number=4, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -674,14 +684,14 @@ _COMMODITY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='is_rare', full_name='gomschema.Commodity.is_rare', index=4,
       number=5, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=False,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='is_non_marketable', full_name='gomschema.Commodity.is_non_marketable', index=5,
       number=6, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=False,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -708,12 +718,12 @@ _COMMODITY = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=286,
-  serialized_end=891,
+  serialized_start=321,
+  serialized_end=909,
 )
 
 
@@ -727,21 +737,21 @@ _COORDINATE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='x', full_name='gomschema.Coordinate.x', index=0,
-      number=1, type=1, cpp_type=5, label=2,
+      number=1, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='y', full_name='gomschema.Coordinate.y', index=1,
-      number=2, type=1, cpp_type=5, label=2,
+      number=2, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='z', full_name='gomschema.Coordinate.z', index=2,
-      number=3, type=1, cpp_type=5, label=2,
+      number=3, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -754,12 +764,12 @@ _COORDINATE = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=893,
-  serialized_end=938,
+  serialized_start=911,
+  serialized_end=956,
 )
 
 
@@ -793,12 +803,12 @@ _SYSTEM_USERDATAENTRY = _descriptor.Descriptor(
   ],
   serialized_options=b'8\001',
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=170,
-  serialized_end=217,
+  serialized_start=172,
+  serialized_end=219,
 )
 
 _SYSTEM = _descriptor.Descriptor(
@@ -811,14 +821,14 @@ _SYSTEM = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='id', full_name='gomschema.System.id', index=0,
-      number=1, type=13, cpp_type=3, label=2,
+      number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='name', full_name='gomschema.System.name', index=1,
-      number=2, type=9, cpp_type=9, label=2,
+      number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -826,13 +836,13 @@ _SYSTEM = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='timestamp_utc', full_name='gomschema.System.timestamp_utc', index=2,
       number=3, type=4, cpp_type=4, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='position', full_name='gomschema.System.position', index=3,
-      number=4, type=11, cpp_type=10, label=2,
+      number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -840,42 +850,42 @@ _SYSTEM = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='populated', full_name='gomschema.System.populated', index=4,
       number=5, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='needs_permit', full_name='gomschema.System.needs_permit', index=5,
       number=6, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=False,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='security_level', full_name='gomschema.System.security_level', index=6,
       number=7, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=3,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='government', full_name='gomschema.System.government', index=7,
       number=8, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=5,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='allegiance', full_name='gomschema.System.allegiance', index=8,
       number=9, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=4,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='ed_address', full_name='gomschema.System.ed_address', index=9,
       number=10, type=4, cpp_type=4, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -894,12 +904,12 @@ _SYSTEM = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=941,
-  serialized_end=1411,
+  serialized_start=959,
+  serialized_end=1362,
 )
 
 
@@ -914,13 +924,13 @@ _SERVICES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='has_market', full_name='gomschema.Services.has_market', index=0,
       number=1, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='has_black_market', full_name='gomschema.Services.has_black_market', index=1,
-      number=2, type=8, cpp_type=7, label=2,
+      number=2, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -928,34 +938,34 @@ _SERVICES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='has_refuel', full_name='gomschema.Services.has_refuel', index=2,
       number=3, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='has_repair', full_name='gomschema.Services.has_repair', index=3,
       number=4, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='has_rearm', full_name='gomschema.Services.has_rearm', index=4,
       number=5, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='has_outfitting', full_name='gomschema.Services.has_outfitting', index=5,
-      number=6, type=8, cpp_type=7, label=2,
+      number=6, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='has_shipyard', full_name='gomschema.Services.has_shipyard', index=6,
-      number=7, type=8, cpp_type=7, label=2,
+      number=7, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -963,21 +973,21 @@ _SERVICES = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='has_docking', full_name='gomschema.Services.has_docking', index=7,
       number=8, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='has_commodities', full_name='gomschema.Services.has_commodities', index=8,
       number=9, type=8, cpp_type=7, label=1,
-      has_default_value=True, default_value=True,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='is_planetary', full_name='gomschema.Services.is_planetary', index=9,
-      number=10, type=8, cpp_type=7, label=2,
-      has_default_value=True, default_value=True,
+      number=10, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -989,12 +999,12 @@ _SERVICES = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1414,
-  serialized_end=1685,
+  serialized_start=1365,
+  serialized_end=1594,
 )
 
 
@@ -1028,12 +1038,12 @@ _FACILITY_USERDATAENTRY = _descriptor.Descriptor(
   ],
   serialized_options=b'8\001',
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=170,
-  serialized_end=217,
+  serialized_start=172,
+  serialized_end=219,
 )
 
 _FACILITY = _descriptor.Descriptor(
@@ -1046,21 +1056,21 @@ _FACILITY = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='id', full_name='gomschema.Facility.id', index=0,
-      number=1, type=13, cpp_type=3, label=2,
+      number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='system_id', full_name='gomschema.Facility.system_id', index=1,
-      number=2, type=13, cpp_type=3, label=2,
+      number=2, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='name', full_name='gomschema.Facility.name', index=2,
-      number=3, type=9, cpp_type=9, label=2,
+      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -1068,20 +1078,20 @@ _FACILITY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='timestamp_utc', full_name='gomschema.Facility.timestamp_utc', index=3,
       number=4, type=4, cpp_type=4, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='facility_type', full_name='gomschema.Facility.facility_type', index=4,
       number=5, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=10,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='services', full_name='gomschema.Facility.services', index=5,
-      number=6, type=11, cpp_type=10, label=2,
+      number=6, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -1089,7 +1099,7 @@ _FACILITY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='pad_size', full_name='gomschema.Facility.pad_size', index=6,
       number=7, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=2,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -1103,21 +1113,21 @@ _FACILITY = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='government', full_name='gomschema.Facility.government', index=8,
       number=9, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=5,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='allegiance', full_name='gomschema.Facility.allegiance', index=9,
       number=10, type=14, cpp_type=8, label=1,
-      has_default_value=True, default_value=4,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='ed_market_id', full_name='gomschema.Facility.ed_market_id', index=10,
       number=11, type=4, cpp_type=4, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -1136,48 +1146,62 @@ _FACILITY = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1688,
-  serialized_end=2200,
+  serialized_start=1597,
+  serialized_end=2040,
 )
 
 
-_TRADE = _descriptor.Descriptor(
-  name='Trade',
-  full_name='gomschema.Trade',
+_COMMODITYLISTING = _descriptor.Descriptor(
+  name='CommodityListing',
+  full_name='gomschema.CommodityListing',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='commodity_id', full_name='gomschema.Trade.commodity_id', index=0,
-      number=1, type=13, cpp_type=3, label=2,
+      name='commodity_id', full_name='gomschema.CommodityListing.commodity_id', index=0,
+      number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='units', full_name='gomschema.Trade.units', index=1,
-      number=2, type=13, cpp_type=3, label=2,
+      name='supply_units', full_name='gomschema.CommodityListing.supply_units', index=1,
+      number=2, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='credits', full_name='gomschema.Trade.credits', index=2,
-      number=3, type=5, cpp_type=1, label=2,
+      name='supply_credits', full_name='gomschema.CommodityListing.supply_credits', index=2,
+      number=3, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='timestamp_utc', full_name='gomschema.Trade.timestamp_utc', index=3,
-      number=4, type=4, cpp_type=4, label=1,
-      has_default_value=True, default_value=0,
+      name='demand_units', full_name='gomschema.CommodityListing.demand_units', index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='demand_credits', full_name='gomschema.CommodityListing.demand_credits', index=4,
+      number=5, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='timestamp_utc', full_name='gomschema.CommodityListing.timestamp_utc', index=5,
+      number=6, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -1189,12 +1213,12 @@ _TRADE = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2202,
-  serialized_end=2289,
+  serialized_start=2043,
+  serialized_end=2198,
 )
 
 
@@ -1207,22 +1231,15 @@ _FACILITYLISTING = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='facility_id', full_name='gomschema.FacilityListing.facility_id', index=0,
-      number=1, type=13, cpp_type=3, label=2,
+      name='id', full_name='gomschema.FacilityListing.id', index=0,
+      number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='supply', full_name='gomschema.FacilityListing.supply', index=1,
+      name='listings', full_name='gomschema.FacilityListing.listings', index=1,
       number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='demand', full_name='gomschema.FacilityListing.demand', index=2,
-      number=3, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -1235,18 +1252,18 @@ _FACILITYLISTING = _descriptor.Descriptor(
   ],
   serialized_options=None,
   is_extendable=False,
-  syntax='proto2',
+  syntax='proto3',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2291,
-  serialized_end=2397,
+  serialized_start=2200,
+  serialized_end=2276,
 )
 
 _HEADER_USERDATAENTRY.containing_type = _HEADER
-_HEADER.fields_by_name['class'].enum_type = _HEADER_CLASS
+_HEADER.fields_by_name['header_type'].enum_type = _HEADER_TYPE
 _HEADER.fields_by_name['userdata'].message_type = _HEADER_USERDATAENTRY
-_HEADER_CLASS.containing_type = _HEADER
+_HEADER_TYPE.containing_type = _HEADER
 _COMMODITY_USERDATAENTRY.containing_type = _COMMODITY
 _COMMODITY.fields_by_name['category_id'].enum_type = _COMMODITY_CATEGORY
 _COMMODITY.fields_by_name['userdata'].message_type = _COMMODITY_USERDATAENTRY
@@ -1264,15 +1281,14 @@ _FACILITY.fields_by_name['pad_size'].enum_type = _PADSIZE
 _FACILITY.fields_by_name['government'].enum_type = _GOVERNMENTTYPE
 _FACILITY.fields_by_name['allegiance'].enum_type = _ALLEGIANCETYPE
 _FACILITY.fields_by_name['userdata'].message_type = _FACILITY_USERDATAENTRY
-_FACILITYLISTING.fields_by_name['supply'].message_type = _TRADE
-_FACILITYLISTING.fields_by_name['demand'].message_type = _TRADE
+_FACILITYLISTING.fields_by_name['listings'].message_type = _COMMODITYLISTING
 DESCRIPTOR.message_types_by_name['Header'] = _HEADER
 DESCRIPTOR.message_types_by_name['Commodity'] = _COMMODITY
 DESCRIPTOR.message_types_by_name['Coordinate'] = _COORDINATE
 DESCRIPTOR.message_types_by_name['System'] = _SYSTEM
 DESCRIPTOR.message_types_by_name['Services'] = _SERVICES
 DESCRIPTOR.message_types_by_name['Facility'] = _FACILITY
-DESCRIPTOR.message_types_by_name['Trade'] = _TRADE
+DESCRIPTOR.message_types_by_name['CommodityListing'] = _COMMODITYLISTING
 DESCRIPTOR.message_types_by_name['FacilityListing'] = _FACILITYLISTING
 DESCRIPTOR.enum_types_by_name['GovernmentType'] = _GOVERNMENTTYPE
 DESCRIPTOR.enum_types_by_name['AllegianceType'] = _ALLEGIANCETYPE
@@ -1355,12 +1371,12 @@ Facility = _reflection.GeneratedProtocolMessageType('Facility', (_message.Messag
 _sym_db.RegisterMessage(Facility)
 _sym_db.RegisterMessage(Facility.UserdataEntry)
 
-Trade = _reflection.GeneratedProtocolMessageType('Trade', (_message.Message,), {
-  'DESCRIPTOR' : _TRADE,
+CommodityListing = _reflection.GeneratedProtocolMessageType('CommodityListing', (_message.Message,), {
+  'DESCRIPTOR' : _COMMODITYLISTING,
   '__module__' : 'gomschema_pb2'
-  # @@protoc_insertion_point(class_scope:gomschema.Trade)
+  # @@protoc_insertion_point(class_scope:gomschema.CommodityListing)
   })
-_sym_db.RegisterMessage(Trade)
+_sym_db.RegisterMessage(CommodityListing)
 
 FacilityListing = _reflection.GeneratedProtocolMessageType('FacilityListing', (_message.Message,), {
   'DESCRIPTOR' : _FACILITYLISTING,
