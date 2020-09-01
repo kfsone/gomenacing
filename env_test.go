@@ -55,12 +55,6 @@ func TestFilterError(t *testing.T) {
 	})
 	assert.Empty(t, result)
 
-	// MissingCategory shouldn't be filtered.
-	result = captureLog(t, func(t *testing.T) {
-		assert.Equal(t, ErrMissingCategory, FilterError(ErrMissingCategory))
-	})
-	assert.Empty(t, result)
-
 	t.Run("Check Duplicate Entry errors", func(t *testing.T) {
 		// ErrDuplicateEntity should be filtered until we make it an error,
 		// which means nil error returned and no logging generated, yet.

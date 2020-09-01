@@ -1,35 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"time"
 )
 
 type Listing struct {
-	CommodityID EntityID  `json:"id"`
-	Supply      int64     `json:"sup"`
-	Demand      int64     `json:"dem"`
-	BuyingAt    int64     `json:"buy"`
-	SellingAt   int64     `json:"sell"`
-	Recorded    time.Time `json:"time"`
+	CommodityID  EntityID
+	Supply       uint32
+	StationPays  uint32
+	Demand       uint32
+	StationAsks  uint32
+	TimestampUtc time.Time
 }
 
-const (
-	// EddbListings is the default name for the file with EDDB's item listings.
-	EddbListings = "listings.csv"
-)
+func NewListing(commodityID EntityID, supply uint32, stationPays uint32, demand uint32, stationAsks uint32, timestampUtc time.Time) *Listing {
+	return &Listing{CommodityID: commodityID, Supply: supply, StationPays: stationPays, Demand: demand, StationAsks: stationAsks, TimestampUtc: timestampUtc}
+}
 
-//func NewListingFromArray(array []string) (*Listing, error) {
-//	if len(array) != 6 {
-//		return nil, errors.New("invalid listing array")
-//	}
-//	commodityID, err := strconv.ParseInt(array[0], 10, 64)
-//	if err != nil {
-//		return nil, err
-//	}
-//	if commodityID <= 0 || commodityID >= 1<<32 {
-//		return nil, errors.New("invalid commodity id")
-//	}
-//	return &Listing{EntityID(commodityID),
-//		array[1], array[2], array[3], array[4],
-//		time.Unix(array[5], 0)}, nil
-//}
+func (l *Listing) GetId() uint32 {
+	return uint32(l.CommodityID)
+}
+
+func (l *Listing) GetDbId(f *Facility) string {
+	return fmt.Sprintf("%06x%4x", f.GetId(), l.GetId())
+}

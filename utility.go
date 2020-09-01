@@ -1,18 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
-	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/tidwall/gjson"
 )
 
 // Miscellaneous utility functions.
@@ -76,63 +71,4 @@ func stringToFeaturePad(padSize string) FacilityFeatureMask {
 		}
 	}
 	return FacilityFeatureMask(0)
-}
-
-type JSONEntry struct {
-	LineNo  int
-	Results []gjson.Result
-}
-
-// GetJSONItemsFromFile reads a file and invokes the specified callback for each line in it.
-// If an error occurs, the error will be decorated with the filename and line no.
-func GetJSONItemsFromFile(filename string, source io.Reader, fieldNames []string, errorsCh chan<- error) chan JSONEntry {
-	scanner := bufio.NewScanner(source)
-	lineNo := 0
-
-	linesCh := make(chan struct {
-		int
-		string
-	}, 8)
-	jsonsCh := make(chan JSONEntry, 8)
-
-	go func() {
-		defer close(linesCh)
-		for scanner.Scan() {
-			line := scanner.Text()
-			lineNo++
-			linesCh <- struct {
-				int
-				string
-			}{lineNo, line}
-		}
-		if scanner.Err() != nil {
-			errorsCh <- fmt.Errorf("%s:%d: parse error: %w", filename, lineNo, scanner.Err())
-		}
-	}()
-
-	go func() {
-		defer close(jsonsCh)
-		for line := range linesCh {
-			if !gjson.Valid(line.string) {
-				errorsCh <- fmt.Errorf("%s:%d: invalid json: %s", filename, line.int, line.string)
-				continue
-			}
-			results := gjson.GetMany(line.string, fieldNames...)
-			// Check if any were bad
-			var badData bool
-			for _, field := range results {
-				if field.Type == 0 && len(field.Raw) == 0 {
-					badData = true
-					break
-				}
-			}
-			if badData == true {
-				errorsCh <- fmt.Errorf("%s:%d: bad entry: %s", filename, line.int, line.string)
-				continue
-			}
-			jsonsCh <- JSONEntry{line.int, results}
-		}
-	}()
-
-	return jsonsCh
 }

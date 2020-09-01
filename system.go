@@ -1,47 +1,57 @@
 package main
 
 import (
+	"fmt"
+	gom "github.com/kfsone/gomenacing/pkg/gomschema"
 	"strings"
 	"time"
-
-	"github.com/tidwall/gjson"
 )
 
 type System struct {
 	// System describes a star system within Elite Dangerous.
 	DbEntity
-	Position   Coordinate  `json:"pos"`
-	Permit     bool        `json:"permit"`
-	Facilities []*Facility `json:"-"`
-	Updated    time.Time   `json:"updated"`
+	TimestampUtc  time.Time
+	Position      Coordinate
+	Populated     bool
+	NeedsPermit   bool
+	SecurityLevel gom.SecurityLevel
+	Government    gom.GovernmentType
+	Allegiance    gom.AllegianceType
+
+	facilities []*Facility
 }
 
-func NewSystem(entity DbEntity, position Coordinate, permit bool) (*System, error) {
-	return &System{DbEntity: entity, Position: position, Permit: permit}, nil
-}
-
-func NewSystemFromJson(json []gjson.Result) (system *System, err error) {
-	if entity, err := NewDbEntityFromJSON(json); err == nil {
-		position := Coordinate{json[2].Float(), json[3].Float(), json[4].Float()}
-		system, err = NewSystem(entity, position, json[5].Bool())
+func NewSystem(dbEntity DbEntity, timestampUtc time.Time, position Coordinate, populated bool, needsPermit bool, securityLevel gom.SecurityLevel, government gom.GovernmentType, allegiance gom.AllegianceType) *System {
+	return &System{
+		DbEntity: dbEntity,
+		TimestampUtc: timestampUtc,
+		Position: position,
+		Populated: populated,
+		NeedsPermit: needsPermit,
+		SecurityLevel: securityLevel,
+		Government: government,
+		Allegiance: allegiance,
 	}
-	return
 }
 
-func (s System) Distance(to *System) Square {
+func (s *System) Distance(to *System) Square {
 	return s.Position.Distance(to.Position)
 }
 
-func (s System) Name() string {
+func (s *System) GetDbId() string {
+	return fmt.Sprintf("%08x", s.DbEntity.ID)
+}
+
+func (s *System) Name() string {
 	return s.DbName
 }
 
-func (s System) String() string {
+func (s *System) String() string {
 	return s.DbName
 }
 
-func (s System) GetFacility(name string) *Facility {
-	for _, facility := range s.Facilities {
+func (s *System) GetFacility(name string) *Facility {
+	for _, facility := range s.facilities {
 		if strings.EqualFold(name, facility.DbName) {
 			return facility
 		}

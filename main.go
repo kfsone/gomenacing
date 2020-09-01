@@ -15,33 +15,6 @@ func failOnError(err error) {
 	}
 }
 
-func importEddbData(db *Database) {
-	errorsCh := make(chan error, 2)
-	defer close(errorsCh)
-	go func() {
-		errorsCh <- importFacilities(db)
-	}()
-	go func() {
-		errorsCh <- importSystems(db)
-	}()
-	go func() {
-		errorsCh <- importCommodities(db)
-	}()
-	go func() {
-		errorsCh <- importListings(db)
-	}()
-	errorCount := 0
-	for i := 0; i < 4; i++ {
-		if err := <-errorsCh; err != nil {
-			log.Print(err)
-			errorCount++
-		}
-	}
-	if errorCount > 0 {
-		log.Fatal("Stopping because of errors.")
-	}
-}
-
 func main() {
 	flag.Parse()
 	failOnError(SetupEnv())
@@ -59,7 +32,8 @@ func main() {
 
 	sdb := NewSystemDatabase(db)
 	if doImports {
-		importEddbData(db)
+		fmt.Printf("import not implemented")
+		//importEddbData(db)
 	}
 	failOnError(db.LoadData(sdb))
 

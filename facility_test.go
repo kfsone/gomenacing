@@ -95,13 +95,20 @@ import (
 //}
 
 func TestFacility_IsTrading(t *testing.T) {
+	var facility Facility
 	listings := []Listing{{}, {}}
-	assert.False(t, Facility{}.IsTrading())
-	assert.True(t, Facility{Features: FeatMarket}.IsTrading())
-	assert.True(t, Facility{listings: listings}.IsTrading())
-	assert.False(t, Facility{Features: FeatBlackMarket | FeatMediumPad | FeatPlanetary}.IsTrading())
-	assert.True(t, Facility{Features: FeatBlackMarket | FeatMarket}.IsTrading())
-	assert.True(t, Facility{Features: FeatBlackMarket, listings: listings}.IsTrading())
+	facility = Facility{}
+	assert.False(t, facility.IsTrading())
+	facility = Facility{Features: FeatMarket}
+	assert.True(t, facility.IsTrading())
+	facility = Facility{listings: listings}
+	assert.True(t, facility.IsTrading())
+	facility = Facility{Features: FeatBlackMarket | FeatMediumPad | FeatPlanetary}
+	assert.False(t, facility.IsTrading())
+	facility = Facility{Features: FeatBlackMarket | FeatMarket}
+	assert.True(t, facility.IsTrading())
+	facility = Facility{Features: FeatBlackMarket, listings: listings}
+	assert.True(t, facility.IsTrading())
 }
 
 func TestFacility_Name(t *testing.T) {
@@ -165,7 +172,7 @@ func TestFacility_AddListing(t *testing.T) {
 		assert.Equal(t, listings[0], facility.listings[0])
 	}
 
-	listings[0].TimestampUTC = time.Now().Add(-time.Second)
+	listings[0].TimestampUtc = time.Now().Add(-time.Second)
 	facility.AddListing(listings[0])
 	require.Len(t, facility.listings, 1)
 	assert.Equal(t, listings[0], facility.listings[0])
@@ -176,7 +183,7 @@ func TestFacility_AddListing(t *testing.T) {
 	}
 
 	// Check we don't mess up with the order re-adding.
-	listings[1].TimestampUTC = time.Now().Add(-time.Second)
+	listings[1].TimestampUtc = time.Now().Add(-time.Second)
 	facility.AddListing(listings[1])
 	if assert.Len(t, facility.listings, 2) {
 		assert.EqualValues(t, []Listing{ listings[1], listings[0] }, facility.listings)

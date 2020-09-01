@@ -2,68 +2,73 @@ package main
 
 import (
 	"fmt"
+	gom "github.com/kfsone/gomenacing/pkg/gomschema"
+	"sort"
 	"time"
-
-	"github.com/tidwall/gjson"
 )
 
 // FacilityFeatureMask holds a bit-mask of features/services of Facilities.
 type FacilityFeatureMask uint
 
 const (
-	// FeatMarket indicates a market.
 	FeatMarket FacilityFeatureMask = 1 << iota
-	// FeatBlackMarket indicates a black market is present.
 	FeatBlackMarket
-	// FeatCommodities indicates there's an actual commodity list (isn't this Market?)
 	FeatCommodities
-	FeatDocking    // FeatDocking indicates docking (why is this here?)
-	FeatFleet      // Is a fleet.
-	FeatLargePad   // Has a large pad.
-	FeatMediumPad  // Has a medium pad.
-	FeatOutfitting // Has an Outfitting service.
-	FeatPlanetary  // Is on a planet.
-	FeatRearm      // Has a Rearming service.
-	FeatRefuel     // Provides refuelling.
-	FeatRepair     // Provides repair service.
-	FeatShipyard   // Sells ships.
-	FeatSmallPad   // Has a small pad.
+	FeatDocking
+	FeatFleet
+	FeatLargePad
+	FeatMediumPad
+	FeatOutfitting
+	FeatPlanetary
+	FeatRearm
+	FeatRefuel
+	FeatRepair
+	FeatShipyard
+	FeatSmallPad
 )
 
 // Facility represents any orbital or planetary facility, where trade could happen.
 type Facility struct {
 	DbEntity
-	SystemID     EntityID            `json:"system_id"` // The system housing this facility.
-	System       *System             `json:"-"`
-	Features     FacilityFeatureMask `json:"features"` // Features it has.
-	LsFromStar   float64             `json:"ls"`       // Distance from star.
-	TypeID       int32               `json:"type"`     // Frontier facility type.
-	GovernmentID int32               `json:"govt"`     // Government operating the facility.
-	AllegianceID int32               `json:"alleg"`    // Group to which the facility is allied.
-	Updated      time.Time           `json:"updated"`  // When the facility was last updated.
-	Listings     []Listing           `json:"-"`        // List of items sold
+	System       *System
+	TimestampUtc time.Time           // When the facility was last updated.
+	FacilityType gom.FacilityType    // Frontier facility type.
+	Features     FacilityFeatureMask // Features it has.
+	LsFromStar   uint32              // Distance from star.
+	Government   gom.GovernmentType  // Government operating the facility.
+	Allegiance   gom.AllegianceType  // Group to which the facility is allied.
+
+	listings []Listing // List of items sold
 }
 
-func (f Facility) Name() string {
+func NewFacility(dbEntity DbEntity, system *System, timestampUtc time.Time, facilityType gom.FacilityType, features FacilityFeatureMask, lsFromStar uint32, government gom.GovernmentType, allegiance gom.AllegianceType) *Facility {
+	return &Facility{DbEntity: dbEntity, System: system, TimestampUtc: timestampUtc, FacilityType: facilityType, Features: features, LsFromStar: lsFromStar, Government: government, Allegiance: allegiance}
+}
+
+func (f *Facility) Name() string {
 	return f.System.DbName + "/" + f.DbName
+}
+
+func (f *Facility) GetDbId() string {
+	return fmt.Sprintf("%06x", f.DbEntity.ID)
 }
 
 // HasFeatures returns true if the facility has a matching set of features.
 // If more than one feature is specified, all of  the features must be available
 // at the facility to return true.
-func (f Facility) HasFeatures(featureMask FacilityFeatureMask) bool {
+func (f *Facility) HasFeatures(featureMask FacilityFeatureMask) bool {
 	if featureMask == FacilityFeatureMask(0) {
 		return f.Features == 0
 	}
 	return f.Features&featureMask == featureMask
 }
 
-func (f Facility) IsTrading() bool {
-	return f.HasFeatures(FeatMarket) || len(f.Listings) > 0
+func (f *Facility) IsTrading() bool {
+	return f.HasFeatures(FeatMarket) || len(f.listings) > 0
 }
 
 // SupportsPadSize returns true if the Facility has a pad of known size >= size.
-func (f Facility) SupportsPadSize(size FacilityFeatureMask) bool {
+func (f *Facility) SupportsPadSize(size FacilityFeatureMask) bool {
 	switch size {
 	case FeatLargePad:
 		return f.Features&FeatLargePad != 0
@@ -76,69 +81,92 @@ func (f Facility) SupportsPadSize(size FacilityFeatureMask) bool {
 	}
 }
 
-func checkSystemID(systemID int64) (entityID EntityID, err error) {
-	if systemID <= 0 || systemID >= 1<<32 {
-		return EntityID(0), fmt.Errorf("invalid value for system id: %d", systemID)
-	}
-	return EntityID(systemID), nil
+func FeatureMaskToServices(mask FacilityFeatureMask, services *gom.Services) {
+	services.HasMarket = (mask & FeatMarket) != 0
+	services.HasBlackMarket = (mask & FeatBlackMarket) != 0
+	services.HasCommodities = (mask & FeatCommodities) != 0
+	services.HasDocking = (mask & FeatDocking) != 0
+	services.HasOutfitting = (mask & FeatOutfitting) != 0
+	services.IsPlanetary = (mask & FeatPlanetary) != 0
+	services.HasRearm = (mask & FeatRearm) != 0
+	services.HasRefuel = (mask & FeatRefuel) != 0
+	services.HasRepair = (mask & FeatRepair) != 0
+	services.HasShipyard = (mask & FeatShipyard) != 0
 }
 
-func NewFacility(entity DbEntity, system interface{}, features FacilityFeatureMask) (facility *Facility, err error) {
-	var systemID EntityID
-	var systemPtr *System
-
-	switch typed := system.(type) {
-	case nil:
-		return nil, fmt.Errorf("nil system")
-	case int64:
-		if systemID, err = checkSystemID(typed); err != nil {
-			return nil, err
-		}
-	case EntityID:
-		if systemID, err = checkSystemID(int64(typed)); err != nil {
-			return nil, err
-		}
-	case int:
-		if systemID, err = checkSystemID(int64(typed)); err != nil {
-			return nil, err
-		}
-	case *System:
-		systemPtr = typed
-		systemID = typed.ID
-	default:
-		return nil, fmt.Errorf("invalid parameter for system passed to NewFacility: %#v", system)
+func FeatureMaskToPadSize(mask FacilityFeatureMask) gom.PadSize {
+	if (mask & FeatLargePad) != 0 {
+		return gom.PadSize_PadLarge
 	}
-
-	facility = &Facility{
-		DbEntity: entity,
-		SystemID: systemID,
-		System:   systemPtr,
-		Features: features,
+	if (mask & FeatMediumPad) != 0 {
+		return gom.PadSize_PadMedium
 	}
-
-	return
+	if (mask & FeatSmallPad) != 0 {
+		return gom.PadSize_PadSmall
+	}
+	return gom.PadSize_PadNone
 }
 
-func NewFacilityFromJSON(json []gjson.Result) (*Facility, error) {
-	entity, err := NewDbEntityFromJSON(json)
-	if err != nil {
-		return nil, err
+func ServicesToFeatures(services *gom.Services, pad gom.PadSize) (mask FacilityFeatureMask) {
+	mask = 0
+	if services.HasMarket {
+		mask |= FeatMarket
 	}
-	systemID := json[2].Int()
-	facility, err := NewFacility(entity, systemID, 0)
-	if err != nil {
-		return nil, err
+	if services.HasBlackMarket {
+		mask |= FeatBlackMarket
 	}
-	var featureMask = stringToFeaturePad(json[3].String())
-	for i, mask := range featureMasks {
-		if json[8+i].Bool() {
-			featureMask |= mask
-		}
+	if services.HasCommodities {
+		mask |= FeatCommodities
 	}
-	facility.Features = featureMask
-	facility.LsFromStar = json[4].Float()
-	facility.TypeID = int32(json[5].Int())
-	facility.GovernmentID = int32(json[6].Int())
-	facility.AllegianceID = int32(json[7].Int())
-	return facility, err
+	if services.HasDocking {
+		mask |= FeatDocking
+	}
+	if pad == gom.PadSize_PadLarge {
+		mask |= FeatLargePad
+	}
+	if pad == gom.PadSize_PadMedium {
+		mask |= FeatMediumPad
+	}
+	if services.HasOutfitting {
+		mask |= FeatOutfitting
+	}
+	if services.IsPlanetary {
+		mask |= FeatPlanetary
+	}
+	if services.HasRearm {
+		mask |= FeatRearm
+	}
+	if services.HasRefuel {
+		mask |= FeatRefuel
+	}
+	if services.HasRepair {
+		mask |= FeatRepair
+	}
+	if services.HasShipyard {
+		mask |= FeatShipyard
+	}
+	if pad == gom.PadSize_PadSmall {
+		mask |= FeatSmallPad
+	}
+	return mask
+}
+
+func (f *Facility) AddListing(listing Listing) {
+	commodity := listing.CommodityID
+	if f.listings == nil {
+		f.listings = make([]Listing, 0, 32)
+	}
+	var insertIdx = 0
+	if len(f.listings) > 0 {
+		insertIdx = sort.Search(len(f.listings), func(i int) bool { return f.listings[i].CommodityID >= commodity })
+	}
+	if insertIdx >= len(f.listings) {
+		f.listings = append(f.listings, listing)
+		return
+	}
+	if f.listings[insertIdx].CommodityID != commodity {
+		f.listings = append(f.listings, listing)
+		copy(f.listings[insertIdx+1:], f.listings[insertIdx:])
+	}
+	f.listings[insertIdx] = listing
 }
