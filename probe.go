@@ -6,5 +6,3 @@ package main
 //type Probe struct {
 //	neighbors	map[*System]NeighborDistances
 //}
-
-

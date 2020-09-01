@@ -140,7 +140,7 @@ var commands = CommandParser{
 		"quit": {help: "", action: func(r *Repl, _ []string, _ *CommandParser) { r.terminated = true }},
 		"system": {commands: map[string]CommandParser{
 			"find": {help: "Lookup a system by name.", action: cmdSystemFind}},
-				help: "System-related commands."},
+			help: "System-related commands."},
 	},
 	action: func(r *Repl, _ []string, cp *CommandParser) {
 		cp.Info(r, "")
