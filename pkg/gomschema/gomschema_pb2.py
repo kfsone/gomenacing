@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\001.Z\013.;gomschema',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fgomschema.proto\x12\tgomschema\"\x9f\x02\n\x06Header\x12+\n\x0bheader_type\x18\x01 \x01(\x0e\x32\x16.gomschema.Header.Type\x12\x11\n\x05sizes\x18\x02 \x03(\rB\x02\x10\x01\x12\x0e\n\x06source\x18\x04 \x01(\t\x12\x31\n\x08userdata\x18\x05 \x03(\x0b\x32\x1f.gomschema.Header.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"[\n\x04Type\x12\x0c\n\x08\x43Invalid\x10\x00\x12\x0b\n\x07\x43Header\x10\x01\x12\x0e\n\nCCommodity\x10\n\x12\x0b\n\x07\x43System\x10\x14\x12\r\n\tCFacility\x10\x1e\x12\x0c\n\x08\x43Listing\x10(J\x04\x08\x03\x10\x04\"\xcc\x04\n\tCommodity\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\x32\n\x0b\x63\x61tegory_id\x18\x04 \x01(\x0e\x32\x1d.gomschema.Commodity.Category\x12\x0f\n\x07is_rare\x18\x05 \x01(\x08\x12\x19\n\x11is_non_marketable\x18\x06 \x01(\x08\x12\x12\n\naverage_cr\x18\x07 \x01(\r\x12\x34\n\x08userdata\x18\x08 \x03(\x0b\x32\".gomschema.Commodity.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\xb2\x02\n\x08\x43\x61tegory\x12\x0b\n\x07\x43\x61tNone\x10\x00\x12\x10\n\x0c\x43\x61tChemicals\x10\x01\x12\x14\n\x10\x43\x61tConsumerItems\x10\x02\x12\x11\n\rCatLegalDrugs\x10\x03\x12\x0c\n\x08\x43\x61tFoods\x10\x04\x12\x1a\n\x16\x43\x61tIndustrialMaterials\x10\x05\x12\x10\n\x0c\x43\x61tMachinery\x10\x06\x12\x10\n\x0c\x43\x61tMedicines\x10\x07\x12\r\n\tCatMetals\x10\x08\x12\x0f\n\x0b\x43\x61tMinerals\x10\t\x12\x0e\n\nCatSlavery\x10\n\x12\x11\n\rCatTechnology\x10\x0b\x12\x0f\n\x0b\x43\x61tTextiles\x10\x0c\x12\x0c\n\x08\x43\x61tWaste\x10\r\x12\x0e\n\nCatWeapons\x10\x0e\x12\x0e\n\nCatUnknown\x10\x0f\x12\x0e\n\nCatSalvage\x10\x10\"-\n\nCoordinate\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"\x93\x03\n\x06System\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\'\n\x08position\x18\x04 \x01(\x0b\x32\x15.gomschema.Coordinate\x12\x11\n\tpopulated\x18\x05 \x01(\x08\x12\x14\n\x0cneeds_permit\x18\x06 \x01(\x08\x12\x30\n\x0esecurity_level\x18\x07 \x01(\x0e\x32\x18.gomschema.SecurityLevel\x12-\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType\x12\x12\n\ned_address\x18\n \x01(\x04\x12\x31\n\x08userdata\x18\x0b \x03(\x0b\x32\x1f.gomschema.System.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\xe5\x01\n\x08Services\x12\x12\n\nhas_market\x18\x01 \x01(\x08\x12\x18\n\x10has_black_market\x18\x02 \x01(\x08\x12\x12\n\nhas_refuel\x18\x03 \x01(\x08\x12\x12\n\nhas_repair\x18\x04 \x01(\x08\x12\x11\n\thas_rearm\x18\x05 \x01(\x08\x12\x16\n\x0ehas_outfitting\x18\x06 \x01(\x08\x12\x14\n\x0chas_shipyard\x18\x07 \x01(\x08\x12\x13\n\x0bhas_docking\x18\x08 \x01(\x08\x12\x17\n\x0fhas_commodities\x18\t \x01(\x08\x12\x14\n\x0cis_planetary\x18\n \x01(\x08\"\xbb\x03\n\x08\x46\x61\x63ility\x12\n\n\x02id\x18\x01 \x01(\r\x12\x11\n\tsystem_id\x18\x02 \x01(\r\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x04 \x01(\x04\x12.\n\rfacility_type\x18\x05 \x01(\x0e\x32\x17.gomschema.FacilityType\x12%\n\x08services\x18\x06 \x01(\x0b\x32\x13.gomschema.Services\x12$\n\x08pad_size\x18\x07 \x01(\x0e\x32\x12.gomschema.PadSize\x12\x14\n\x0cls_from_star\x18\x08 \x01(\r\x12-\n\ngovernment\x18\t \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\n \x01(\x0e\x32\x19.gomschema.AllegianceType\x12\x14\n\x0c\x65\x64_market_id\x18\x0b \x01(\x04\x12\x33\n\x08userdata\x18\x0c \x03(\x0b\x32!.gomschema.Facility.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"\x9b\x01\n\x10\x43ommodityListing\x12\x14\n\x0c\x63ommodity_id\x18\x01 \x01(\r\x12\x14\n\x0csupply_units\x18\x02 \x01(\r\x12\x16\n\x0esupply_credits\x18\x03 \x01(\r\x12\x14\n\x0c\x64\x65mand_units\x18\x04 \x01(\r\x12\x16\n\x0e\x64\x65mand_credits\x18\x05 \x01(\r\x12\x15\n\rtimestamp_utc\x18\x06 \x01(\x04\"L\n\x0f\x46\x61\x63ilityListing\x12\n\n\x02id\x18\x01 \x01(\r\x12-\n\x08listings\x18\x02 \x03(\x0b\x32\x1b.gomschema.CommodityListing*\xf7\x01\n\x0eGovernmentType\x12\x0b\n\x07GovNone\x10\x00\x12\x0e\n\nGovAnarchy\x10\x01\x12\x10\n\x0cGovCommunism\x10\x02\x12\x12\n\x0eGovConfederacy\x10\x03\x12\x12\n\x0eGovCooperative\x10\x04\x12\x10\n\x0cGovCorporate\x10\x05\x12\x10\n\x0cGovDemocracy\x10\x06\x12\x13\n\x0fGovDictatorship\x10\x07\x12\r\n\tGovFeudal\x10\x08\x12\x10\n\x0cGovPatronage\x10\t\x12\r\n\tGovPrison\x10\n\x12\x13\n\x0fGovPrisonColony\x10\x0b\x12\x10\n\x0cGovTheocracy\x10\x0c*\x89\x01\n\x0e\x41llegianceType\x12\r\n\tAllegNone\x10\x00\x12\x11\n\rAllegAlliance\x10\x01\x12\x0f\n\x0b\x41llegEmpire\x10\x02\x12\x13\n\x0f\x41llegFederation\x10\x03\x12\x14\n\x10\x41llegIndependent\x10\x04\x12\x19\n\x15\x41llegPilotsFederation\x10\x05*m\n\rSecurityLevel\x12\x10\n\x0cSecurityNone\x10\x00\x12\x13\n\x0fSecurityAnarchy\x10\x01\x12\x0f\n\x0bSecurityLow\x10\x02\x12\x12\n\x0eSecurityMedium\x10\x03\x12\x10\n\x0cSecurityHigh\x10\x04*\xec\x02\n\x0c\x46\x61\x63ilityType\x12\n\n\x06\x46TNone\x10\x00\x12\x15\n\x11\x46TCivilianOutpost\x10\x01\x12\x17\n\x13\x46TCommercialOutpost\x10\x02\x12\x16\n\x12\x46TCoriolisStarport\x10\x03\x12\x17\n\x13\x46TIndustrialOutpost\x10\x04\x12\x15\n\x11\x46TMilitaryOutpost\x10\x05\x12\x13\n\x0f\x46TMiningOutpost\x10\x06\x12\x15\n\x11\x46TOcellusStarport\x10\x07\x12\x13\n\x0f\x46TOrbisStarport\x10\x08\x12\x17\n\x13\x46TScientificOutpost\x10\t\x12\x16\n\x12\x46TPlanetaryOutpost\x10\n\x12\x13\n\x0f\x46TPlanetaryPort\x10\x0b\x12\x19\n\x15\x46TPlanetarySettlement\x10\x0c\x12\x0e\n\nFTMegaship\x10\r\x12\x12\n\x0e\x46TAsteroidBase\x10\x0e\x12\x12\n\x0e\x46TFleetCarrier\x10\x0f*A\n\x07PadSize\x12\x0b\n\x07PadNone\x10\x00\x12\x0c\n\x08PadSmall\x10\x01\x12\r\n\tPadMedium\x10\x02\x12\x0c\n\x08PadLarge\x10\x03\x42\x10\n\x01.Z\x0b.;gomschemab\x06proto3'
+  serialized_pb=b'\n\x0fgomschema.proto\x12\tgomschema\"\x9f\x02\n\x06Header\x12+\n\x0bheader_type\x18\x01 \x01(\x0e\x32\x16.gomschema.Header.Type\x12\x11\n\x05sizes\x18\x02 \x03(\rB\x02\x10\x01\x12\x0e\n\x06source\x18\x04 \x01(\t\x12\x31\n\x08userdata\x18\x05 \x03(\x0b\x32\x1f.gomschema.Header.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"[\n\x04Type\x12\x0c\n\x08\x43Invalid\x10\x00\x12\x0b\n\x07\x43Header\x10\x01\x12\x0e\n\nCCommodity\x10\n\x12\x0b\n\x07\x43System\x10\x14\x12\r\n\tCFacility\x10\x1e\x12\x0c\n\x08\x43Listing\x10(J\x04\x08\x03\x10\x04\"\xe5\x03\n\tCommodity\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\x32\n\x0b\x63\x61tegory_id\x18\x04 \x01(\x0e\x32\x1d.gomschema.Commodity.Category\x12\x0f\n\x07is_rare\x18\x05 \x01(\x08\x12\x19\n\x11is_non_marketable\x18\x06 \x01(\x08\x12\x12\n\naverage_cr\x18\x07 \x01(\r\"\xb2\x02\n\x08\x43\x61tegory\x12\x0b\n\x07\x43\x61tNone\x10\x00\x12\x10\n\x0c\x43\x61tChemicals\x10\x01\x12\x14\n\x10\x43\x61tConsumerItems\x10\x02\x12\x11\n\rCatLegalDrugs\x10\x03\x12\x0c\n\x08\x43\x61tFoods\x10\x04\x12\x1a\n\x16\x43\x61tIndustrialMaterials\x10\x05\x12\x10\n\x0c\x43\x61tMachinery\x10\x06\x12\x10\n\x0c\x43\x61tMedicines\x10\x07\x12\r\n\tCatMetals\x10\x08\x12\x0f\n\x0b\x43\x61tMinerals\x10\t\x12\x0e\n\nCatSlavery\x10\n\x12\x11\n\rCatTechnology\x10\x0b\x12\x0f\n\x0b\x43\x61tTextiles\x10\x0c\x12\x0c\n\x08\x43\x61tWaste\x10\r\x12\x0e\n\nCatWeapons\x10\x0e\x12\x0e\n\nCatUnknown\x10\x0f\x12\x0e\n\nCatSalvage\x10\x10\"-\n\nCoordinate\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"\x9b\x02\n\x06System\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\'\n\x08position\x18\x04 \x01(\x0b\x32\x15.gomschema.Coordinate\x12\x11\n\tpopulated\x18\x05 \x01(\x08\x12\x14\n\x0cneeds_permit\x18\x06 \x01(\x08\x12\x30\n\x0esecurity_level\x18\x07 \x01(\x0e\x32\x18.gomschema.SecurityLevel\x12-\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType\"\xe5\x01\n\x08Services\x12\x12\n\nhas_market\x18\x01 \x01(\x08\x12\x18\n\x10has_black_market\x18\x02 \x01(\x08\x12\x12\n\nhas_refuel\x18\x03 \x01(\x08\x12\x12\n\nhas_repair\x18\x04 \x01(\x08\x12\x11\n\thas_rearm\x18\x05 \x01(\x08\x12\x16\n\x0ehas_outfitting\x18\x06 \x01(\x08\x12\x14\n\x0chas_shipyard\x18\x07 \x01(\x08\x12\x13\n\x0bhas_docking\x18\x08 \x01(\x08\x12\x17\n\x0fhas_commodities\x18\t \x01(\x08\x12\x14\n\x0cis_planetary\x18\n \x01(\x08\"\xbf\x02\n\x08\x46\x61\x63ility\x12\n\n\x02id\x18\x01 \x01(\r\x12\x11\n\tsystem_id\x18\x02 \x01(\r\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x04 \x01(\x04\x12.\n\rfacility_type\x18\x05 \x01(\x0e\x32\x17.gomschema.FacilityType\x12%\n\x08services\x18\x06 \x01(\x0b\x32\x13.gomschema.Services\x12$\n\x08pad_size\x18\x07 \x01(\x0e\x32\x12.gomschema.PadSize\x12\x14\n\x0cls_from_star\x18\x08 \x01(\r\x12-\n\ngovernment\x18\t \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\n \x01(\x0e\x32\x19.gomschema.AllegianceType\"\x9b\x01\n\x10\x43ommodityListing\x12\x14\n\x0c\x63ommodity_id\x18\x01 \x01(\r\x12\x14\n\x0csupply_units\x18\x02 \x01(\r\x12\x16\n\x0esupply_credits\x18\x03 \x01(\r\x12\x14\n\x0c\x64\x65mand_units\x18\x04 \x01(\r\x12\x16\n\x0e\x64\x65mand_credits\x18\x05 \x01(\r\x12\x15\n\rtimestamp_utc\x18\x06 \x01(\x04\"L\n\x0f\x46\x61\x63ilityListing\x12\n\n\x02id\x18\x01 \x01(\r\x12-\n\x08listings\x18\x02 \x03(\x0b\x32\x1b.gomschema.CommodityListing*\xf7\x01\n\x0eGovernmentType\x12\x0b\n\x07GovNone\x10\x00\x12\x0e\n\nGovAnarchy\x10\x01\x12\x10\n\x0cGovCommunism\x10\x02\x12\x12\n\x0eGovConfederacy\x10\x03\x12\x12\n\x0eGovCooperative\x10\x04\x12\x10\n\x0cGovCorporate\x10\x05\x12\x10\n\x0cGovDemocracy\x10\x06\x12\x13\n\x0fGovDictatorship\x10\x07\x12\r\n\tGovFeudal\x10\x08\x12\x10\n\x0cGovPatronage\x10\t\x12\r\n\tGovPrison\x10\n\x12\x13\n\x0fGovPrisonColony\x10\x0b\x12\x10\n\x0cGovTheocracy\x10\x0c*\x89\x01\n\x0e\x41llegianceType\x12\r\n\tAllegNone\x10\x00\x12\x11\n\rAllegAlliance\x10\x01\x12\x0f\n\x0b\x41llegEmpire\x10\x02\x12\x13\n\x0f\x41llegFederation\x10\x03\x12\x14\n\x10\x41llegIndependent\x10\x04\x12\x19\n\x15\x41llegPilotsFederation\x10\x05*m\n\rSecurityLevel\x12\x10\n\x0cSecurityNone\x10\x00\x12\x13\n\x0fSecurityAnarchy\x10\x01\x12\x0f\n\x0bSecurityLow\x10\x02\x12\x12\n\x0eSecurityMedium\x10\x03\x12\x10\n\x0cSecurityHigh\x10\x04*\xec\x02\n\x0c\x46\x61\x63ilityType\x12\n\n\x06\x46TNone\x10\x00\x12\x15\n\x11\x46TCivilianOutpost\x10\x01\x12\x17\n\x13\x46TCommercialOutpost\x10\x02\x12\x16\n\x12\x46TCoriolisStarport\x10\x03\x12\x17\n\x13\x46TIndustrialOutpost\x10\x04\x12\x15\n\x11\x46TMilitaryOutpost\x10\x05\x12\x13\n\x0f\x46TMiningOutpost\x10\x06\x12\x15\n\x11\x46TOcellusStarport\x10\x07\x12\x13\n\x0f\x46TOrbisStarport\x10\x08\x12\x17\n\x13\x46TScientificOutpost\x10\t\x12\x16\n\x12\x46TPlanetaryOutpost\x10\n\x12\x13\n\x0f\x46TPlanetaryPort\x10\x0b\x12\x19\n\x15\x46TPlanetarySettlement\x10\x0c\x12\x0e\n\nFTMegaship\x10\r\x12\x12\n\x0e\x46TAsteroidBase\x10\x0e\x12\x12\n\x0e\x46TFleetCarrier\x10\x0f*A\n\x07PadSize\x12\x0b\n\x07PadNone\x10\x00\x12\x0c\n\x08PadSmall\x10\x01\x12\r\n\tPadMedium\x10\x02\x12\x0c\n\x08PadLarge\x10\x03\x42\x10\n\x01.Z\x0b.;gomschemab\x06proto3'
 )
 
 _GOVERNMENTTYPE = _descriptor.EnumDescriptor(
@@ -98,8 +98,8 @@ _GOVERNMENTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2279,
-  serialized_end=2526,
+  serialized_start=1932,
+  serialized_end=2179,
 )
 _sym_db.RegisterEnumDescriptor(_GOVERNMENTTYPE)
 
@@ -144,8 +144,8 @@ _ALLEGIANCETYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2529,
-  serialized_end=2666,
+  serialized_start=2182,
+  serialized_end=2319,
 )
 _sym_db.RegisterEnumDescriptor(_ALLEGIANCETYPE)
 
@@ -185,8 +185,8 @@ _SECURITYLEVEL = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2668,
-  serialized_end=2777,
+  serialized_start=2321,
+  serialized_end=2430,
 )
 _sym_db.RegisterEnumDescriptor(_SECURITYLEVEL)
 
@@ -281,8 +281,8 @@ _FACILITYTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2780,
-  serialized_end=3144,
+  serialized_start=2433,
+  serialized_end=2797,
 )
 _sym_db.RegisterEnumDescriptor(_FACILITYTYPE)
 
@@ -317,8 +317,8 @@ _PADSIZE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3146,
-  serialized_end=3211,
+  serialized_start=2799,
+  serialized_end=2864,
 )
 _sym_db.RegisterEnumDescriptor(_PADSIZE)
 
@@ -509,8 +509,8 @@ _COMMODITY_CATEGORY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=603,
-  serialized_end=909,
+  serialized_start=500,
+  serialized_end=806,
 )
 _sym_db.RegisterEnumDescriptor(_COMMODITY_CATEGORY)
 
@@ -607,44 +607,6 @@ _HEADER = _descriptor.Descriptor(
 )
 
 
-_COMMODITY_USERDATAENTRY = _descriptor.Descriptor(
-  name='UserdataEntry',
-  full_name='gomschema.Commodity.UserdataEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='gomschema.Commodity.UserdataEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='gomschema.Commodity.UserdataEntry.value', index=1,
-      number=2, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=b'8\001',
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=172,
-  serialized_end=219,
-)
-
 _COMMODITY = _descriptor.Descriptor(
   name='Commodity',
   full_name='gomschema.Commodity',
@@ -702,17 +664,10 @@ _COMMODITY = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='userdata', full_name='gomschema.Commodity.userdata', index=7,
-      number=8, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[_COMMODITY_USERDATAENTRY, ],
+  nested_types=[],
   enum_types=[
     _COMMODITY_CATEGORY,
   ],
@@ -723,7 +678,7 @@ _COMMODITY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=321,
-  serialized_end=909,
+  serialized_end=806,
 )
 
 
@@ -768,48 +723,10 @@ _COORDINATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=911,
-  serialized_end=956,
+  serialized_start=808,
+  serialized_end=853,
 )
 
-
-_SYSTEM_USERDATAENTRY = _descriptor.Descriptor(
-  name='UserdataEntry',
-  full_name='gomschema.System.UserdataEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='gomschema.System.UserdataEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='gomschema.System.UserdataEntry.value', index=1,
-      number=2, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=b'8\001',
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=172,
-  serialized_end=219,
-)
 
 _SYSTEM = _descriptor.Descriptor(
   name='System',
@@ -882,24 +799,10 @@ _SYSTEM = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ed_address', full_name='gomschema.System.ed_address', index=9,
-      number=10, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='userdata', full_name='gomschema.System.userdata', index=10,
-      number=11, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[_SYSTEM_USERDATAENTRY, ],
+  nested_types=[],
   enum_types=[
   ],
   serialized_options=None,
@@ -908,8 +811,8 @@ _SYSTEM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=959,
-  serialized_end=1362,
+  serialized_start=856,
+  serialized_end=1139,
 )
 
 
@@ -1003,48 +906,10 @@ _SERVICES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1365,
-  serialized_end=1594,
+  serialized_start=1142,
+  serialized_end=1371,
 )
 
-
-_FACILITY_USERDATAENTRY = _descriptor.Descriptor(
-  name='UserdataEntry',
-  full_name='gomschema.Facility.UserdataEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='gomschema.Facility.UserdataEntry.key', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='value', full_name='gomschema.Facility.UserdataEntry.value', index=1,
-      number=2, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=b'8\001',
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=172,
-  serialized_end=219,
-)
 
 _FACILITY = _descriptor.Descriptor(
   name='Facility',
@@ -1124,24 +989,10 @@ _FACILITY = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='ed_market_id', full_name='gomschema.Facility.ed_market_id', index=10,
-      number=11, type=4, cpp_type=4, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='userdata', full_name='gomschema.Facility.userdata', index=11,
-      number=12, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[_FACILITY_USERDATAENTRY, ],
+  nested_types=[],
   enum_types=[
   ],
   serialized_options=None,
@@ -1150,8 +1001,8 @@ _FACILITY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1597,
-  serialized_end=2040,
+  serialized_start=1374,
+  serialized_end=1693,
 )
 
 
@@ -1217,8 +1068,8 @@ _COMMODITYLISTING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2043,
-  serialized_end=2198,
+  serialized_start=1696,
+  serialized_end=1851,
 )
 
 
@@ -1256,31 +1107,25 @@ _FACILITYLISTING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2200,
-  serialized_end=2276,
+  serialized_start=1853,
+  serialized_end=1929,
 )
 
 _HEADER_USERDATAENTRY.containing_type = _HEADER
 _HEADER.fields_by_name['header_type'].enum_type = _HEADER_TYPE
 _HEADER.fields_by_name['userdata'].message_type = _HEADER_USERDATAENTRY
 _HEADER_TYPE.containing_type = _HEADER
-_COMMODITY_USERDATAENTRY.containing_type = _COMMODITY
 _COMMODITY.fields_by_name['category_id'].enum_type = _COMMODITY_CATEGORY
-_COMMODITY.fields_by_name['userdata'].message_type = _COMMODITY_USERDATAENTRY
 _COMMODITY_CATEGORY.containing_type = _COMMODITY
-_SYSTEM_USERDATAENTRY.containing_type = _SYSTEM
 _SYSTEM.fields_by_name['position'].message_type = _COORDINATE
 _SYSTEM.fields_by_name['security_level'].enum_type = _SECURITYLEVEL
 _SYSTEM.fields_by_name['government'].enum_type = _GOVERNMENTTYPE
 _SYSTEM.fields_by_name['allegiance'].enum_type = _ALLEGIANCETYPE
-_SYSTEM.fields_by_name['userdata'].message_type = _SYSTEM_USERDATAENTRY
-_FACILITY_USERDATAENTRY.containing_type = _FACILITY
 _FACILITY.fields_by_name['facility_type'].enum_type = _FACILITYTYPE
 _FACILITY.fields_by_name['services'].message_type = _SERVICES
 _FACILITY.fields_by_name['pad_size'].enum_type = _PADSIZE
 _FACILITY.fields_by_name['government'].enum_type = _GOVERNMENTTYPE
 _FACILITY.fields_by_name['allegiance'].enum_type = _ALLEGIANCETYPE
-_FACILITY.fields_by_name['userdata'].message_type = _FACILITY_USERDATAENTRY
 _FACILITYLISTING.fields_by_name['listings'].message_type = _COMMODITYLISTING
 DESCRIPTOR.message_types_by_name['Header'] = _HEADER
 DESCRIPTOR.message_types_by_name['Commodity'] = _COMMODITY
@@ -1313,19 +1158,11 @@ _sym_db.RegisterMessage(Header)
 _sym_db.RegisterMessage(Header.UserdataEntry)
 
 Commodity = _reflection.GeneratedProtocolMessageType('Commodity', (_message.Message,), {
-
-  'UserdataEntry' : _reflection.GeneratedProtocolMessageType('UserdataEntry', (_message.Message,), {
-    'DESCRIPTOR' : _COMMODITY_USERDATAENTRY,
-    '__module__' : 'gomschema_pb2'
-    # @@protoc_insertion_point(class_scope:gomschema.Commodity.UserdataEntry)
-    })
-  ,
   'DESCRIPTOR' : _COMMODITY,
   '__module__' : 'gomschema_pb2'
   # @@protoc_insertion_point(class_scope:gomschema.Commodity)
   })
 _sym_db.RegisterMessage(Commodity)
-_sym_db.RegisterMessage(Commodity.UserdataEntry)
 
 Coordinate = _reflection.GeneratedProtocolMessageType('Coordinate', (_message.Message,), {
   'DESCRIPTOR' : _COORDINATE,
@@ -1335,19 +1172,11 @@ Coordinate = _reflection.GeneratedProtocolMessageType('Coordinate', (_message.Me
 _sym_db.RegisterMessage(Coordinate)
 
 System = _reflection.GeneratedProtocolMessageType('System', (_message.Message,), {
-
-  'UserdataEntry' : _reflection.GeneratedProtocolMessageType('UserdataEntry', (_message.Message,), {
-    'DESCRIPTOR' : _SYSTEM_USERDATAENTRY,
-    '__module__' : 'gomschema_pb2'
-    # @@protoc_insertion_point(class_scope:gomschema.System.UserdataEntry)
-    })
-  ,
   'DESCRIPTOR' : _SYSTEM,
   '__module__' : 'gomschema_pb2'
   # @@protoc_insertion_point(class_scope:gomschema.System)
   })
 _sym_db.RegisterMessage(System)
-_sym_db.RegisterMessage(System.UserdataEntry)
 
 Services = _reflection.GeneratedProtocolMessageType('Services', (_message.Message,), {
   'DESCRIPTOR' : _SERVICES,
@@ -1357,19 +1186,11 @@ Services = _reflection.GeneratedProtocolMessageType('Services', (_message.Messag
 _sym_db.RegisterMessage(Services)
 
 Facility = _reflection.GeneratedProtocolMessageType('Facility', (_message.Message,), {
-
-  'UserdataEntry' : _reflection.GeneratedProtocolMessageType('UserdataEntry', (_message.Message,), {
-    'DESCRIPTOR' : _FACILITY_USERDATAENTRY,
-    '__module__' : 'gomschema_pb2'
-    # @@protoc_insertion_point(class_scope:gomschema.Facility.UserdataEntry)
-    })
-  ,
   'DESCRIPTOR' : _FACILITY,
   '__module__' : 'gomschema_pb2'
   # @@protoc_insertion_point(class_scope:gomschema.Facility)
   })
 _sym_db.RegisterMessage(Facility)
-_sym_db.RegisterMessage(Facility.UserdataEntry)
 
 CommodityListing = _reflection.GeneratedProtocolMessageType('CommodityListing', (_message.Message,), {
   'DESCRIPTOR' : _COMMODITYLISTING,
@@ -1389,7 +1210,4 @@ _sym_db.RegisterMessage(FacilityListing)
 DESCRIPTOR._options = None
 _HEADER_USERDATAENTRY._options = None
 _HEADER.fields_by_name['sizes']._options = None
-_COMMODITY_USERDATAENTRY._options = None
-_SYSTEM_USERDATAENTRY._options = None
-_FACILITY_USERDATAENTRY._options = None
 # @@protoc_insertion_point(module_scope)

@@ -85,9 +85,6 @@ message Commodity {
 
 	/// The average galactic market price in credits.
 	uint32 average_cr = 7;
-
-	/// Any app/user-purposed data. Key is app/meaning, value is data.
-	map<string, bytes> userdata = 8;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,12 +162,6 @@ message System {
 
   /// Which faction is the system allied to.
   AllegianceType allegiance = 9;
-
-  /// Guess: Elite Dangerous Internal ID
-  uint64 ed_address = 10;
-
-  /// User/app purposed data. Key=app/purpose, value=data.
-  map<string, bytes> userdata = 11;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -269,12 +260,6 @@ message Facility {
 
   /// Type of allegiance this station holds.
   AllegianceType allegiance = 10;
-
-  /// Guess: the internal Elite Dangerous id for the market here.
-  uint64 ed_market_id = 11;
-
-  /// App/user-purposed custom data. Key is app/purpose, value is data.
-  map<string, bytes> userdata = 12;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
