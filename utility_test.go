@@ -1,17 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func Test_captureLog(t *testing.T) {
@@ -108,73 +104,6 @@ func Test_stringToFeaturePad(t *testing.T) {
 	assert.Equal(t, FacilityFeatureMask(0), stringToFeaturePad("large"))
 	assert.Equal(t, FacilityFeatureMask(0), stringToFeaturePad("Mm"))
 	assert.Equal(t, FacilityFeatureMask(0), stringToFeaturePad("Ss"))
-}
-
-// A scanner that injects a non-EOF to ensure we test the handling of scanner.Err()
-type MockReader struct {
-	strings.Reader
-	err error
-}
-
-func (m *MockReader) Read(p []byte) (n int, err error) {
-	// Just forward calls to Read() until we reach EOF, then if we have
-	// an error in the MockReader, return that and remove it, so that the
-	// next call will return the original error
-	n, err = m.Reader.Read(p)
-	if err == io.EOF && m.err != nil {
-		err = m.err
-		m.err = nil
-	}
-	return
-}
-
-func TestGetJsonRowsFromFile(t *testing.T) {
-	var fieldNames = []string{"b", "a"}
-	const jsonl = "{\"a\":\"1\",\"b\":2}\n{\"b\":3, \"a\"  : \"4\"}\nintentional error\n{\"c\":\"3po\",\"a\":\"5\",\"b\":6}\n{\"a\":1}\n"
-	jsonReader := &MockReader{*strings.NewReader(jsonl), fmt.Errorf("scan error")}
-	errorCh := make(chan error, 2)
-
-	jsonLines := GetJSONItemsFromFile("jsonl.jsonl", jsonReader, fieldNames, errorCh)
-	require.NotNil(t, jsonLines)
-	// We should get 3 lines total.
-	var allLines bool
-	type ResultType struct {
-		lineNo int
-		intVal int64
-		strVal string
-	}
-	var results []ResultType
-	go func() {
-		defer close(errorCh)
-		for line := range jsonLines {
-			lineNo := line.LineNo
-			intVal := line.Results[0].Int()
-			strVal := line.Results[1].String()
-			results = append(results, ResultType{lineNo, intVal, strVal})
-		}
-		allLines = true
-	}()
-
-	var allErrors bool
-	var errorList []string
-	go func() {
-		for err := range errorCh {
-			errorList = append(errorList, err.Error())
-		}
-		allErrors = true
-	}()
-
-	assert.Eventually(t, func() bool { return allLines }, time.Millisecond*50, time.Microsecond*10)
-	assert.Len(t, results, 3)
-	assert.Equal(t, ResultType{1, 2, "1"}, results[0])
-	assert.Equal(t, ResultType{2, 3, "4"}, results[1])
-	assert.Equal(t, ResultType{4, 6, "5"}, results[2])
-
-	assert.Eventually(t, func() bool { return allErrors }, time.Millisecond*50, time.Microsecond*10)
-	assert.Len(t, errorList, 3)
-	assert.Contains(t, errorList, "jsonl.jsonl:3: invalid json: intentional error")
-	assert.Contains(t, errorList, "jsonl.jsonl:5: bad entry: {\"a\":1}")
-	assert.Contains(t, errorList, "jsonl.jsonl:5: parse error: scan error")
 }
 
 func TestTestDir(t *testing.T) {

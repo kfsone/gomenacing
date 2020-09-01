@@ -58,7 +58,7 @@ func TestSchema_PutAndCount(t *testing.T) {
 
 	schema, err := db.GetSchema("testing")
 	require.Nil(t, err)
-	defer func () { failOnError(schema.Close()) }()
+	defer func() { failOnError(schema.Close()) }()
 
 	assert.Zero(t, schema.Count())
 
@@ -117,7 +117,7 @@ func TestSchema_LoadData(t *testing.T) {
 			assert.Panics(t, func() { failOnError(schema.Close()) })
 		})
 		schema, _ = db.GetSchema("schema")
-		defer func () { failOnError(schema.Close()) }()
+		defer func() { failOnError(schema.Close()) }()
 		count := schema.Count()
 		return log, loaded, count, err
 	}
