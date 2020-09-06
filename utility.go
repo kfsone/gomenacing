@@ -12,6 +12,16 @@ import (
 
 // Miscellaneous utility functions.
 
+// ConditionallyOr will or `add` with `base` if predicate is true, without a branch.
+// https://gcc.godbolt.org/z/PGbz77
+func ConditionallyOrFeatures(base, add FacilityFeatureMask, predicate bool) FacilityFeatureMask {
+	var value FacilityFeatureMask
+	if predicate {
+		value = add
+	}
+	return base | value
+}
+
 // Captures any log output produced by a test function and returns it as a string.
 func captureLog(t *testing.T, test func(t *testing.T)) []string {
 	// https://stackoverflow.com/questions/44119951/how-to-check-a-log-output-in-go-test
