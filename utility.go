@@ -13,7 +13,7 @@ import (
 
 // Miscellaneous utility functions.
 
-// ConditionallyOr will or `add` with `base` if predicate is true, without a branch.
+// ConditionallyOr will bitwise-or `add` with `base` if `predicate` is true, without branching.
 // https://gcc.godbolt.org/z/PGbz77
 func ConditionallyOrFeatures(base, add FacilityFeatureMask, predicate bool) FacilityFeatureMask {
 	var value FacilityFeatureMask
@@ -53,6 +53,8 @@ func ensureDirectory(path string) (created bool, err error) {
 	return
 }
 
+// GetTestDir will return a path to a unique temporary folder instance.
+// See TestDir.Close()
 func GetTestDir(path ...string) TestDir {
 	pathname := filepath.Join(path...)
 	if dirname, err := ioutil.TempDir(pathname, "menace"); err != nil {
@@ -84,6 +86,7 @@ func stringToFeaturePad(padSize string) FacilityFeatureMask {
 	return FacilityFeatureMask(0)
 }
 
+// FeatureMaskToPadSize will return the largest  sized pad a feature mask represents.
 func FeatureMaskToPadSize(mask FacilityFeatureMask) gom.PadSize {
 	if (mask & FeatLargePad) != 0 {
 		return gom.PadSize_PadLarge
@@ -97,6 +100,8 @@ func FeatureMaskToPadSize(mask FacilityFeatureMask) gom.PadSize {
 	return gom.PadSize_PadNone
 }
 
+// FeatureMaskToServices will efficiently translate the feature bits of a mask into
+// the boolean fields of a gom Service object.
 func FeatureMaskToServices(mask FacilityFeatureMask, services *gom.Services) {
 	// This syntax appear to avoid branching.
 	services.HasMarket = (mask & FeatMarket) != 0
@@ -111,6 +116,8 @@ func FeatureMaskToServices(mask FacilityFeatureMask, services *gom.Services) {
 	services.HasShipyard = (mask & FeatShipyard) != 0
 }
 
+// ServicesToFeatures will perform a branchless translation of a gom Services table
+// and PadSize enumeration into a FacilityFeatureMask value.
 func ServicesToFeatures(services *gom.Services, pad gom.PadSize) (mask FacilityFeatureMask) {
 	// Perform boolean operations without branching.
 	mask = ConditionallyOrFeatures(mask, FeatMarket, services.HasMarket)
