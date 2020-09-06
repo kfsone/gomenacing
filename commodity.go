@@ -25,11 +25,11 @@ func NewCommodity(entity DbEntity, category gom.Commodity_Category, rare, nonMar
 	}, nil
 }
 
+func (c *Commodity) GetDbId() string {
+	return fmt.Sprintf("%04x", c.DbEntity.ID)
+}
+
 // Name is the user-facing name adjusted for level of detail.
 func (c *Commodity) Name() string {
 	return c.DbName
-}
-
-func (c *Commodity) GetDbId() string {
-	return fmt.Sprintf("%04x", c.DbEntity.ID)
 }

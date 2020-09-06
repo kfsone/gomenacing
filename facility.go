@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
 	"sort"
@@ -41,19 +42,11 @@ type Facility struct {
 	listings []Listing // List of items sold
 }
 
-func NewFacility(dbEntity DbEntity,
-	system *System,
-	timestampUtc time.Time,
-	facilityType gom.FacilityType,
-	features FacilityFeatureMask,
-	lsFromStar uint32,
-	government gom.GovernmentType,
-	allegiance gom.AllegianceType) *Facility {
-	return &Facility{DbEntity: dbEntity, System: system, TimestampUtc: timestampUtc, FacilityType: facilityType, Features: features, LsFromStar: lsFromStar, Government: government, Allegiance: allegiance}
-}
-
-func (f *Facility) Name() string {
-	return f.System.DbName + "/" + f.DbName
+func NewFacility(dbEntity DbEntity, system *System, facilityType gom.FacilityType) (*Facility, error) {
+	if system == nil {
+		return nil, errors.New("nil system for facility")
+	}
+	return &Facility{DbEntity: dbEntity, System: system, FacilityType: facilityType}, nil
 }
 
 func (f *Facility) GetDbId() string {
@@ -72,6 +65,10 @@ func (f *Facility) HasFeatures(featureMask FacilityFeatureMask) bool {
 
 func (f *Facility) IsTrading() bool {
 	return f.HasFeatures(FeatMarket) || len(f.listings) > 0
+}
+
+func (f *Facility) Name() string {
+	return f.System.DbName + "/" + f.DbName
 }
 
 // SupportsPadSize returns true if the Facility has a pad of known size >= size.

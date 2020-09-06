@@ -40,7 +40,7 @@ func NewSystemDatabase(db *Database) *SystemDatabase {
 	}
 }
 
-func registerIDLookup(entity DbEntity, ids map[string]EntityID) bool {
+func registerIDLookup(entity *DbEntity, ids map[string]EntityID) bool {
 	name := strings.ToLower(entity.DbName)
 	if _, present := ids[name]; present != false {
 		return false
@@ -51,7 +51,7 @@ func registerIDLookup(entity DbEntity, ids map[string]EntityID) bool {
 
 func (sdb *SystemDatabase) registerCommodity(commodity *Commodity) (err error) {
 	if _, present := sdb.commoditiesByID[commodity.ID]; present == false {
-		if registerIDLookup(commodity.DbEntity, sdb.commodityIDs) {
+		if registerIDLookup(&commodity.DbEntity, sdb.commodityIDs) {
 			sdb.commoditiesByID[commodity.ID] = commodity
 			return nil
 		}
@@ -64,7 +64,7 @@ func (sdb *SystemDatabase) registerCommodity(commodity *Commodity) (err error) {
 
 func (sdb *SystemDatabase) registerSystem(system *System) (err error) {
 	if _, present := sdb.systemsByID[system.ID]; present == false {
-		if registerIDLookup(system.DbEntity, sdb.systemIDs) {
+		if registerIDLookup(&system.DbEntity, sdb.systemIDs) {
 			sdb.systemsByID[system.ID] = system
 			return nil
 		}

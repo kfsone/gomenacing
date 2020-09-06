@@ -2,41 +2,32 @@ package main
 
 import (
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
+	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewSystem(t *testing.T) {
-	now := time.Now()
-	system := NewSystem(
-		DbEntity{ID: 111, DbName: "system of a down"},
-		now,
-		Coordinate{X: 1.0, Y: 2.0, Z: 3.0},
-		true,
-		false,
-		gom.SecurityLevel_SecurityHigh,
-		gom.GovernmentType_GovFeudal,
-		gom.AllegianceType_AllegEmpire)
+	system := NewSystem(DbEntity{ID: 111, DbName: "system of a down"},  Coordinate{X: 1.0, Y: 2.0, Z: 3.0})
 
 	require.NotNil(t, system)
 	assert.Equal(t, EntityID(111), system.ID)
 	assert.Equal(t, "system of a down", system.DbName)
-	assert.Equal(t, now, system.TimestampUtc)
 	assert.Equal(t, Coordinate{1.0, 2.0, 3.0}, system.position)
-	assert.True(t, system.Populated)
+
+	assert.Equal(t, time.Time{}, system.TimestampUtc)
+	assert.False(t, system.Populated)
 	assert.False(t, system.NeedsPermit)
-	assert.Equal(t, gom.SecurityLevel_SecurityHigh, system.SecurityLevel)
-	assert.Equal(t, gom.GovernmentType_GovFeudal, system.Government)
-	assert.Equal(t, gom.AllegianceType_AllegEmpire, system.Allegiance)
+	assert.Equal(t, gom.SecurityLevel_SecurityNone, system.SecurityLevel)
+	assert.Equal(t, gom.GovernmentType_GovNone, system.Government)
+	assert.Equal(t, gom.AllegianceType_AllegNone, system.Allegiance)
 	assert.Nil(t, system.facilities)
 }
 
 func TestSystem_GetFacility(t *testing.T) {
-	system := NewSystem(DbEntity{ID: 100, DbName: "SYSTEM"}, time.Now(), Coordinate{X: 1.0, Y: 2.0, Z: 3.0}, true, false, gom.SecurityLevel_SecurityLow, gom.GovernmentType_GovCommunism, gom.AllegianceType_AllegPilotsFederation)
+	system := NewSystem(DbEntity{ID: 100, DbName: "SYSTEM"}, Coordinate{X: 1.0, Y: 2.0, Z: 3.0})
 	t.Run("Facility lookup with no facilities", func(t *testing.T) {
 		assert.Nil(t, system.GetFacility(""))
 		assert.Nil(t, system.GetFacility("facility"))
@@ -70,7 +61,7 @@ func TestSystem_Name(t *testing.T) {
 	system := System{DbEntity: DbEntity{DbName: "System #1"}}
 	assert.Equal(t, "System #1", system.Name())
 
-	madeSystem := NewSystem(system.DbEntity, time.Now(), Coordinate{}, true, true, gom.SecurityLevel_SecurityLow, gom.GovernmentType_GovPatronage, gom.AllegianceType_AllegPilotsFederation)
+	madeSystem := NewSystem(system.DbEntity, Coordinate{})
 	assert.Equal(t, "System #1", madeSystem.Name())
 }
 
@@ -78,7 +69,7 @@ func TestSystem_String(t *testing.T) {
 	system := System{DbEntity: DbEntity{DbName: "System PQY Z.1+2"}}
 	assert.Equal(t, "System PQY Z.1+2", system.String())
 
-	madeSystem := NewSystem(system.DbEntity, time.Now(), Coordinate{}, true, true, gom.SecurityLevel_SecurityLow, gom.GovernmentType_GovPatronage, gom.AllegianceType_AllegPilotsFederation)
+	madeSystem := NewSystem(system.DbEntity, Coordinate{})
 	assert.Equal(t, "System PQY Z.1+2", madeSystem.String())
 }
 

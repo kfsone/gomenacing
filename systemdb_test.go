@@ -111,109 +111,95 @@ func TestSystemDatabase_registerSystem(t *testing.T) {
 	}
 }
 
-//func TestSystemDatabase_registerFacility(t *testing.T) {
-//	sdb := NewSystemDatabase(nil)
-//
-//	// Register two star systems.
-//	sys1 := System{DbEntity: DbEntity{1, "first"}}
-//	require.Nil(t, sdb.registerSystem(&sys1))
-//	sys2 := System{DbEntity: DbEntity{2, "second"}}
-//	require.Nil(t, sdb.registerSystem(&sys2))
-//
-//	err := sdb.registerFacility(&Facility{DbEntity: DbEntity{ID: 1, DbName: "first"}})
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "first (#1): attempted to register facility without a system id", err.Error())
-//	}
-//
-//	err = sdb.registerFacility(&Facility{DbEntity: DbEntity{ID: 1, DbName: "first"}, SystemID: 42})
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "first (#1): system id: unknown: 42", err.Error())
-//	}
-//
-//	facility1 := Facility{DbEntity: DbEntity{1, "first"}, System: &sys1}
-//	require.Nil(t, sdb.registerFacility(&facility1))
-//	assert.Len(t, sys1.Facilities, 1)
-//	assert.Contains(t, sys1.Facilities, &facility1)
-//	assert.Equal(t, sys1.ID, facility1.SystemID)
-//	assert.Equal(t, &sys1, facility1.System)
-//
-//	// Registering the same id twice should fail.
-//	err = sdb.registerFacility(&facility1)
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "first/first (#1): duplicate: facility id", err.Error())
-//	}
-//	assert.Equal(t, []*Facility{&facility1}, sys1.Facilities)
-//	assert.Empty(t, sys2.Facilities)
-//	assert.Equal(t, sys1.ID, facility1.SystemID)
-//	assert.Equal(t, &sys1, facility1.System)
-//
-//	// Deliberately re-use id and name because they should be independent.
-//	facility2 := Facility{DbEntity: DbEntity{2, "first"}, System: &sys1}
-//	err = sdb.registerFacility(&facility2)
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "first/first (#2): duplicate: facility name in system", err.Error())
-//	}
-//	assert.Equal(t, []*Facility{&facility1}, sys1.Facilities)
-//	assert.Empty(t, sys2.Facilities)
-//	assert.EqualValues(t, 0, facility2.SystemID)
-//	assert.Equal(t, &sys1, facility2.System)
-//
-//	// But registering it under system 2 should work. Check that ID registration works.
-//	facility2.System = nil
-//	facility2.SystemID = sys2.ID
-//	require.Nil(t, sdb.registerFacility(&facility2))
-//	assert.Equal(t, &sys2, facility2.System)
-//	assert.Equal(t, sys2.ID, facility2.SystemID)
-//	assert.Equal(t, []*Facility{&facility1}, sys1.Facilities)
-//	assert.Equal(t, []*Facility{&facility2}, sys2.Facilities)
-//
-//	// Registering either ID should fail at this point.
-//	err = sdb.registerFacility(&facility1)
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "first/first (#1): duplicate: facility id", err.Error())
-//	}
-//	err = sdb.registerFacility(&facility2)
-//	facility2.System = nil
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "second/first (#2): duplicate: facility id", err.Error())
-//	}
-//	assert.Nil(t, facility2.System)
-//	assert.Equal(t, sys2.ID, facility2.SystemID)
-//
-//	facility3 := Facility{DbEntity: DbEntity{3, "second"}, System: &sys1, SystemID: sys1.ID}
-//	require.Nil(t, sdb.registerFacility(&facility3))
-//	assert.Equal(t, []*Facility{&facility1, &facility3}, sys1.Facilities)
-//	assert.Equal(t, []*Facility{&facility2}, sys2.Facilities)
-//	assert.Equal(t, &sys1, facility3.System)
-//	assert.Equal(t, sys1.ID, facility3.SystemID)
-//
-//	err = sdb.registerFacility(&facility3)
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "first/second (#3): duplicate: facility id", err.Error())
-//	}
-//	assert.Equal(t, &sys1, facility3.System)
-//	assert.Equal(t, sys1.ID, facility3.SystemID)
-//
-//	facility4 := Facility{DbEntity: DbEntity{4, "second"}, System: &sys1}
-//	err = sdb.registerFacility(&facility4)
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "first/second (#4): duplicate: facility name in system", err.Error())
-//	}
-//	assert.Equal(t, &sys1, facility4.System)
-//	assert.EqualValues(t, 0, facility4.SystemID)
-//
-//	facility4.System = &sys2
-//	require.Nil(t, sdb.registerFacility(&facility4))
-//	assert.Equal(t, []*Facility{&facility1, &facility3}, sys1.Facilities)
-//	assert.Equal(t, []*Facility{&facility2, &facility4}, sys2.Facilities)
-//
-//	err = sdb.registerFacility(&facility4)
-//	if assert.Error(t, err) {
-//		assert.Equal(t, "second/second (#4): duplicate: facility id", err.Error())
-//	}
-//	assert.Equal(t, []*Facility{&facility1, &facility3}, sys1.Facilities)
-//	assert.Equal(t, []*Facility{&facility2, &facility4}, sys2.Facilities)
-//}
+func TestSystemDatabase_registerFacility(t *testing.T) {
+	sdb := NewSystemDatabase(nil)
+
+	// Register two star systems.
+	sys1 := System{DbEntity: DbEntity{1, "first"}}
+	require.Nil(t, sdb.registerSystem(&sys1))
+	sys2 := System{DbEntity: DbEntity{2, "second"}}
+	require.Nil(t, sdb.registerSystem(&sys2))
+
+	err := sdb.registerFacility(&Facility{DbEntity: DbEntity{ID: 1, DbName: "first"}})
+	if assert.Error(t, err) {
+		assert.Equal(t, "first (#1): attempted to register facility without a system", err.Error())
+	}
+
+	facility1 := Facility{DbEntity: DbEntity{1, "first"}, System: &sys1}
+	require.Nil(t, sdb.registerFacility(&facility1))
+	assert.Len(t, sys1.facilities, 1)
+	assert.Contains(t, sys1.facilities, &facility1)
+	assert.Equal(t, &sys1, facility1.System)
+
+	// Registering the same id twice should fail.
+	err = sdb.registerFacility(&facility1)
+	if assert.Error(t, err) {
+		assert.Equal(t, "first/first (#1): duplicate: facility id", err.Error())
+	}
+	assert.Equal(t, []*Facility{&facility1}, sys1.facilities)
+	assert.Empty(t, sys2.facilities)
+	assert.Equal(t, &sys1, facility1.System)
+
+	// Deliberately re-use id and name because they should be independent.
+	facility2 := Facility{DbEntity: DbEntity{2, "first"}, System: &sys1}
+	err = sdb.registerFacility(&facility2)
+	if assert.Error(t, err) {
+		assert.Equal(t, "first/first (#2): duplicate: facility name in system", err.Error())
+	}
+	assert.Equal(t, []*Facility{&facility1}, sys1.facilities)
+	assert.Empty(t, sys2.facilities)
+	assert.Equal(t, &sys1, facility2.System)
+
+	// But registering it under system 2 should work.
+	facility2.System = &sys2
+	require.Nil(t, sdb.registerFacility(&facility2))
+	assert.Equal(t, &sys2, facility2.System)
+	assert.Equal(t, []*Facility{&facility1}, sys1.facilities)
+	assert.Equal(t, []*Facility{&facility2}, sys2.facilities)
+
+	// Registering either should fail at this point.
+	err = sdb.registerFacility(&facility1)
+	if assert.Error(t, err) {
+		assert.Equal(t, "first/first (#1): duplicate: facility id", err.Error())
+	}
+	err = sdb.registerFacility(&facility2)
+	facility2.System = nil
+	if assert.Error(t, err) {
+		assert.Equal(t, "second/first (#2): duplicate: facility id", err.Error())
+	}
+	assert.Nil(t, facility2.System)
+
+	facility3 := Facility{DbEntity: DbEntity{3, "second"}, System: &sys1}
+	require.Nil(t, sdb.registerFacility(&facility3))
+	assert.Equal(t, []*Facility{&facility1, &facility3}, sys1.facilities)
+	assert.Equal(t, []*Facility{&facility2}, sys2.facilities)
+	assert.Equal(t, &sys1, facility3.System)
+
+	err = sdb.registerFacility(&facility3)
+	if assert.Error(t, err) {
+		assert.Equal(t, "first/second (#3): duplicate: facility id", err.Error())
+	}
+	assert.Equal(t, &sys1, facility3.System)
+
+	facility4 := Facility{DbEntity: DbEntity{4, "second"}, System: &sys1}
+	err = sdb.registerFacility(&facility4)
+	if assert.Error(t, err) {
+		assert.Equal(t, "first/second (#4): duplicate: facility name in system", err.Error())
+	}
+	assert.Equal(t, &sys1, facility4.System)
+
+	facility4.System = &sys2
+	require.Nil(t, sdb.registerFacility(&facility4))
+	assert.Equal(t, []*Facility{&facility1, &facility3}, sys1.facilities)
+	assert.Equal(t, []*Facility{&facility2, &facility4}, sys2.facilities)
+
+	err = sdb.registerFacility(&facility4)
+	if assert.Error(t, err) {
+		assert.Equal(t, "second/second (#4): duplicate: facility id", err.Error())
+	}
+	assert.Equal(t, []*Facility{&facility1, &facility3}, sys1.facilities)
+	assert.Equal(t, []*Facility{&facility2, &facility4}, sys2.facilities)
+}
 
 func TestSystemDatabase_GetSystem(t *testing.T) {
 	sdb := NewSystemDatabase(nil)
@@ -242,3 +228,54 @@ func TestSystemDatabase_GetSystem(t *testing.T) {
 	assert.Nil(t, sdb.GetSystem("Second."))
 }
 
+func Test_registerIDLookup(t *testing.T) {
+	ids := make(map[string]EntityID)
+	expected := make(map[string]EntityID)
+	// We don't do validation, so registering an empty string can occur.
+	require.True(t, registerIDLookup(&DbEntity{ID:0, DbName:""}, ids))
+	expected[""] = 0
+	assert.Equal(t, expected, ids)
+
+	// It should fail if we try to do it again.
+	require.False(t, registerIDLookup(&DbEntity{ID:0, DbName:""}, ids))
+	assert.Equal(t, map[string]EntityID{"": EntityID(0)}, ids)
+	assert.Equal(t, expected, ids)
+
+	// Register something different, but it shouldn't do validation, so reuse id.
+	require.True(t, registerIDLookup(&DbEntity{ID:0, DbName:"Number 1"}, ids))
+	// Note: registered IDs should have lowercase.
+	expected["number 1"] = 0
+	assert.Equal(t, expected, ids)
+
+	// And register something completely different.
+	require.True(t, registerIDLookup(&DbEntity{ID:42, DbName:"Life, the Universe, EVERYTHING"}, ids))
+	// again, lowercase IDs:
+	expected["life, the universe, everything"] = 42
+	assert.Equal(t, expected, ids)
+}
+
+func TestSystemDatabase_GetSystemByID(t *testing.T) {
+	sdb := SystemDatabase{}
+	assert.Nil(t, sdb.GetSystemByID(0))
+	assert.Nil(t, sdb.GetSystemByID(1))
+	assert.Nil(t, sdb.GetSystemByID(42))
+
+	sdb.systemsByID = make(map[EntityID]*System)
+	assert.Nil(t, sdb.GetSystemByID(0))
+	assert.Nil(t, sdb.GetSystemByID(1))
+	assert.Nil(t, sdb.GetSystemByID(42))
+
+	// Confirm that querying did not alter the table.
+	assert.Len(t, sdb.systemsByID, 0)
+
+	system0 := System{}
+	system7 := System{}
+	sdb.systemsByID[7] = &system7
+	sdb.systemsByID[0] = &system0
+	assert.Nil(t, sdb.GetSystemByID(1))
+	assert.Equal(t, &system0, sdb.GetSystemByID(0))
+	assert.Equal(t, &system7, sdb.GetSystemByID(7))
+
+	// Confirm that querying did not alter the table.
+	assert.Len(t, sdb.systemsByID, 2)
+}

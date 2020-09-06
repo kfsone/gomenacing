@@ -11,6 +11,14 @@ type DbEntity struct {
 	DbName string
 }
 
+func NewDbEntity(id int64, name string) (DbEntity, error) {
+	if dbName, err := validateEntity(id, name); err == nil {
+		return DbEntity{ID: EntityID(id), DbName: dbName}, nil
+	} else {
+		return DbEntity{}, err
+	}
+}
+
 func (e DbEntity) GetId() uint32 {
 	return uint32(e.ID)
 }
@@ -21,20 +29,12 @@ func (e DbEntity) GetName() string {
 
 func validateEntity(id int64, name string) (string, error) {
 	if id <= 0 || id >= 1<<32 {
-		return name, fmt.Errorf("invalid id: %d", id)
+		return "", fmt.Errorf("invalid id: %d", id)
 	}
 
 	dbName := strings.TrimSpace(name)
-	if len(dbName) <= 0 {
-		return name, fmt.Errorf("invalid/empty name: \"%s\"", name)
+	if len(dbName) <= 1 {
+		return "", fmt.Errorf("invalid/empty name: \"%s\"", name)
 	}
 	return dbName, nil
-}
-
-func NewDbEntity(id int64, name string) (DbEntity, error) {
-	if dbName, err := validateEntity(id, name); err == nil {
-		return DbEntity{ID: EntityID(id), DbName: dbName}, nil
-	} else {
-		return DbEntity{}, err
-	}
 }

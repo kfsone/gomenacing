@@ -21,16 +21,10 @@ type System struct {
 	facilities []*Facility
 }
 
-func NewSystem(dbEntity DbEntity, timestampUtc time.Time, position Coordinate, populated bool, needsPermit bool, securityLevel gom.SecurityLevel, government gom.GovernmentType, allegiance gom.AllegianceType) *System {
+func NewSystem(dbEntity DbEntity, position Coordinate) *System {
 	return &System{
 		DbEntity:      dbEntity,
-		TimestampUtc:  timestampUtc,
 		position:      position,
-		Populated:     populated,
-		NeedsPermit:   needsPermit,
-		SecurityLevel: securityLevel,
-		Government:    government,
-		Allegiance:    allegiance,
 	}
 }
 

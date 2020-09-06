@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	gom "github.com/kfsone/gomenacing/pkg/gomschema"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -9,90 +10,71 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-//func TestNewFacility(t *testing.T) {
-//	system, err := NewSystem(DbEntity{ID: 100, DbName: "system"}, Coordinate{}, false)
-//	require.Nil(t, err)
-//	assert.Empty(t, system.Facilities)
-//
-//	t.Run("Reject bad values", func(t *testing.T) {
-//		entity := DbEntity{ID: 1, DbName: "first"}
-//		facility, err := NewFacility(entity, nil, 0)
-//		assert.Nil(t, facility)
-//		if assert.Error(t, err) {
-//			assert.Equal(t, "nil system", err.Error())
-//		}
-//
-//		facility, err = NewFacility(entity, -1, 0)
-//		assert.Nil(t, facility)
-//		if assert.Error(t, err) {
-//			assert.Equal(t, "invalid value for system id: -1", err.Error())
-//		}
-//
-//		facility, err = NewFacility(entity, int64(-1), 0)
-//		assert.Nil(t, facility)
-//		if assert.Error(t, err) {
-//			assert.Equal(t, "invalid value for system id: -1", err.Error())
-//		}
-//
-//		facility, err = NewFacility(entity, EntityID(0), 0)
-//		assert.Nil(t, facility)
-//		if assert.Error(t, err) {
-//			assert.Equal(t, "invalid value for system id: 0", err.Error())
-//		}
-//
-//		facility, err = NewFacility(entity, struct{}{}, 0)
-//		assert.Nil(t, facility)
-//		if assert.Error(t, err) {
-//			assert.Equal(t, "invalid parameter for system passed to NewFacility: struct {}{}", err.Error())
-//		}
-//	})
-//
-//	t.Run("Create genuine facility", func(t *testing.T) {
-//		features := FeatBlackMarket | FeatSmallPad
-//		facility, err := NewFacility(DbEntity{ID: 111, DbName: "First"}, system, features)
-//		assert.Nil(t, err)
-//		assert.NotNil(t, facility)
-//		assert.Equal(t, DbEntity{ID: 111, DbName: "First"}, facility.DbEntity)
-//		assert.Equal(t, system, facility.System)
-//		assert.Equal(t, features, facility.Features)
-//
-//		assert.Empty(t, system.Facilities)
-//	})
-//}
-//
-//func TestFacility_HasFeatures(t *testing.T) {
-//	facility := Facility{
-//		Features: FeatMarket | FeatFleet,
-//	}
-//	assert.True(t, facility.HasFeatures(FeatMarket))
-//	assert.True(t, facility.HasFeatures(FeatFleet))
-//	assert.True(t, facility.HasFeatures(FeatMarket|FeatMarket))
-//	assert.False(t, facility.HasFeatures(FeatBlackMarket|FeatMediumPad))
-//	assert.False(t, facility.HasFeatures(FeatMarket|FeatMarket|FeatBlackMarket))
-//
-//	// If you ask if a facility has no features, it must have *no* features.
-//	assert.False(t, facility.HasFeatures(FacilityFeatureMask(0)))
-//
-//	facility.Features =
-//		FeatBlackMarket |
-//			FeatCommodities |
-//			FeatDocking |
-//			FeatFleet |
-//			FeatMarket |
-//			FeatOutfitting |
-//			FeatPlanetary |
-//			FeatRearm |
-//			FeatRefuel |
-//			FeatRepair |
-//			FeatShipyard |
-//			0
-//	assert.True(t, facility.HasFeatures(facility.Features))
-//	assert.False(t, facility.HasFeatures(FeatSmallPad))
-//	assert.True(t, facility.HasFeatures(FeatFleet|FeatDocking))
-//
-//	// Test against a facility with no features.
-//	assert.True(t, Facility{}.HasFeatures(FacilityFeatureMask(0)))
-//}
+func TestNewFacility(t *testing.T) {
+	system := NewSystem(DbEntity{ID: 100, DbName: "system"}, Coordinate{})
+	assert.Empty(t, system.facilities)
+
+	t.Run("Reject bad values", func(t *testing.T) {
+		entity := DbEntity{ID: 1, DbName: "first"}
+		facility, err := NewFacility(entity, nil, 0)
+		assert.Nil(t, facility)
+		if assert.Error(t, err) {
+			assert.Equal(t, "nil system for facility", err.Error())
+		}
+	})
+
+	t.Run("Create genuine facility", func(t *testing.T) {
+		facility, err := NewFacility(DbEntity{ID: 111, DbName: "First"}, system, gom.FacilityType_FTAsteroidBase)
+		assert.Nil(t, err)
+		assert.NotNil(t, facility)
+		assert.Equal(t, DbEntity{ID: 111, DbName: "First"}, facility.DbEntity)
+		assert.Equal(t, system, facility.System)
+		assert.Equal(t, gom.FacilityType_FTAsteroidBase, facility.FacilityType)
+		assert.Equal(t, FacilityFeatureMask(0), facility.Features)
+
+		assert.Empty(t, system.facilities)
+	})
+}
+
+func TestFacility_GetDbId(t *testing.T) {
+	facility := Facility{}
+	assert.Equal(t, "000000", facility.GetDbId())
+	facility.DbEntity = DbEntity{ID: 0x987ace, DbName: "Monkey Island"}
+	assert.Equal(t, "987ace", facility.GetDbId())
+}
+
+func TestFacility_HasFeatures(t *testing.T) {
+	// Test against a facility with no features.
+	facility := Facility{}
+	assert.True(t, facility.HasFeatures(FacilityFeatureMask(0)))
+
+	facility.Features = FeatMarket | FeatFleet
+	assert.True(t, facility.HasFeatures(FeatMarket))
+	assert.True(t, facility.HasFeatures(FeatFleet))
+	assert.True(t, facility.HasFeatures(FeatMarket|FeatMarket))
+	assert.False(t, facility.HasFeatures(FeatBlackMarket|FeatMediumPad))
+	assert.False(t, facility.HasFeatures(FeatMarket|FeatMarket|FeatBlackMarket))
+
+	// If you ask if a facility has no features, it must have *no* features.
+	assert.False(t, facility.HasFeatures(FacilityFeatureMask(0)))
+
+	facility.Features =
+		FeatBlackMarket |
+			FeatCommodities |
+			FeatDocking |
+			FeatFleet |
+			FeatMarket |
+			FeatOutfitting |
+			FeatPlanetary |
+			FeatRearm |
+			FeatRefuel |
+			FeatRepair |
+			FeatShipyard |
+			0
+	assert.True(t, facility.HasFeatures(facility.Features))
+	assert.False(t, facility.HasFeatures(FeatSmallPad))
+	assert.True(t, facility.HasFeatures(FeatFleet|FeatDocking))
+}
 
 func TestFacility_IsTrading(t *testing.T) {
 	var facility Facility
