@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	gom "github.com/kfsone/gomenacing/pkg/gomschema"
 	"io/ioutil"
 	"log"
 	"os"
@@ -81,4 +82,49 @@ func stringToFeaturePad(padSize string) FacilityFeatureMask {
 		}
 	}
 	return FacilityFeatureMask(0)
+}
+
+func FeatureMaskToPadSize(mask FacilityFeatureMask) gom.PadSize {
+	if (mask & FeatLargePad) != 0 {
+		return gom.PadSize_PadLarge
+	}
+	if (mask & FeatMediumPad) != 0 {
+		return gom.PadSize_PadMedium
+	}
+	if (mask & FeatSmallPad) != 0 {
+		return gom.PadSize_PadSmall
+	}
+	return gom.PadSize_PadNone
+}
+
+func FeatureMaskToServices(mask FacilityFeatureMask, services *gom.Services) {
+	// This syntax appear to avoid branching.
+	services.HasMarket = (mask & FeatMarket) != 0
+	services.HasBlackMarket = (mask & FeatBlackMarket) != 0
+	services.HasCommodities = (mask & FeatCommodities) != 0
+	services.HasDocking = (mask & FeatDocking) != 0
+	services.HasOutfitting = (mask & FeatOutfitting) != 0
+	services.IsPlanetary = (mask & FeatPlanetary) != 0
+	services.HasRearm = (mask & FeatRearm) != 0
+	services.HasRefuel = (mask & FeatRefuel) != 0
+	services.HasRepair = (mask & FeatRepair) != 0
+	services.HasShipyard = (mask & FeatShipyard) != 0
+}
+
+func ServicesToFeatures(services *gom.Services, pad gom.PadSize) (mask FacilityFeatureMask) {
+	// Perform boolean operations without branching.
+	mask = ConditionallyOrFeatures(mask, FeatMarket, services.HasMarket)
+	mask = ConditionallyOrFeatures(mask, FeatBlackMarket, services.HasBlackMarket)
+	mask = ConditionallyOrFeatures(mask, FeatCommodities, services.HasCommodities)
+	mask = ConditionallyOrFeatures(mask, FeatDocking, services.HasDocking)
+	mask = ConditionallyOrFeatures(mask, FeatLargePad, pad == gom.PadSize_PadLarge)
+	mask = ConditionallyOrFeatures(mask, FeatMediumPad, pad == gom.PadSize_PadMedium)
+	mask = ConditionallyOrFeatures(mask, FeatOutfitting, services.HasOutfitting)
+	mask = ConditionallyOrFeatures(mask, FeatPlanetary, services.IsPlanetary)
+	mask = ConditionallyOrFeatures(mask, FeatRearm, services.HasRearm)
+	mask = ConditionallyOrFeatures(mask, FeatRefuel, services.HasRefuel)
+	mask = ConditionallyOrFeatures(mask, FeatRepair, services.HasRepair)
+	mask = ConditionallyOrFeatures(mask, FeatShipyard, services.HasShipyard)
+	mask = ConditionallyOrFeatures(mask, FeatSmallPad, pad == gom.PadSize_PadSmall)
+	return mask
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/kfsone/gomenacing/pkg/gomschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"log"
@@ -152,4 +153,59 @@ func TestTestDir(t *testing.T) {
 
 		assert.NoDirExists(t, testDir.Path())
 	})
+}
+
+func TestFeatureMaskToPadSize(t *testing.T) {
+	type args struct {
+		mask FacilityFeatureMask
+	}
+	tests := []struct {
+		name string
+		args args
+		want gomschema.PadSize
+	}{
+		{"unset", args{FacilityFeatureMask(0)}, gomschema.PadSize_PadNone},
+		{"small", args{FacilityFeatureMask(FeatSmallPad)}, gomschema.PadSize_PadSmall},
+		{"med", args{FacilityFeatureMask(FeatMediumPad)}, gomschema.PadSize_PadMedium},
+		{"large", args{FacilityFeatureMask(FeatLargePad)}, gomschema.PadSize_PadLarge},
+		{ "all", args{FacilityFeatureMask(0xffff)}, gomschema.PadSize_PadLarge},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := FeatureMaskToPadSize(tt.args.mask); got != tt.want {
+				t.Errorf("FeatureMaskToPadSize() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestConditionallyOr(t *testing.T) {
+	type args struct {
+		base      FacilityFeatureMask
+		add       FacilityFeatureMask
+		predicate bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want FacilityFeatureMask
+	}{
+		{"zeroes, false", args{0, 0, false}, 0},
+		{"zeroes, true", args{0, 0, true}, 0},
+		{"zero, 1, false", args{0, 1, false}, 0},
+		{"zero, 1, true", args{0, 1, true}, 1},
+		{"non-zero, 0, false", args{1234, 0, false}, 1234},
+		{"non-zero, 0, true", args{1234, 0, true}, 1234},
+		{"non-zero, 1, false", args{1234, 1, false}, 1234},
+		{"non-zero, 1, true", args{1234, 1, true}, 1235},
+		{"non-zero, 9, false", args{8, 9, false}, 8},
+		{"non-zero, 9, true", args{8, 9, true}, 9},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ConditionallyOrFeatures(tt.args.base, tt.args.add, tt.args.predicate); got != tt.want {
+				t.Errorf("ConditionallyOr() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
