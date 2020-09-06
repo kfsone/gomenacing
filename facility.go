@@ -41,7 +41,14 @@ type Facility struct {
 	listings []Listing // List of items sold
 }
 
-func NewFacility(dbEntity DbEntity, system *System, timestampUtc time.Time, facilityType gom.FacilityType, features FacilityFeatureMask, lsFromStar uint32, government gom.GovernmentType, allegiance gom.AllegianceType) *Facility {
+func NewFacility(dbEntity DbEntity,
+	system *System,
+	timestampUtc time.Time,
+	facilityType gom.FacilityType,
+	features FacilityFeatureMask,
+	lsFromStar uint32,
+	government gom.GovernmentType,
+	allegiance gom.AllegianceType) *Facility {
 	return &Facility{DbEntity: dbEntity, System: system, TimestampUtc: timestampUtc, FacilityType: facilityType, Features: features, LsFromStar: lsFromStar, Government: government, Allegiance: allegiance}
 }
 

@@ -66,9 +66,9 @@ func SerializeSystem(into *gom.System, from *System) {
 	into.Id = uint32(from.DbEntity.ID)
 	into.Name = from.DbEntity.DbName
 	into.TimestampUtc = uint64(from.TimestampUtc.Unix())
-	into.Position.X = from.Position.X
-	into.Position.Y = from.Position.Y
-	into.Position.Z = from.Position.Z
+	into.Position.X = from.Position().X
+	into.Position.Y = from.Position().Y
+	into.Position.Z = from.Position().Z
 	if from.Populated {
 		into.Populated = true
 	}
@@ -86,9 +86,7 @@ func DeserializeSystem(into *System, from *gom.System, _ *SystemDatabase) error 
 		into.DbEntity.ID = EntityID(from.GetId())
 		into.DbEntity.DbName = name
 		into.TimestampUtc = time.Unix(int64(from.GetTimestampUtc()), 0)
-		into.Position.X = from.Position.X
-		into.Position.Y = from.Position.Y
-		into.Position.Z = from.Position.Z
+		into.position = Coordinate{from.Position.X, from.Position.Y, from.Position.Z}
 		into.Populated = from.Populated
 		into.NeedsPermit = from.NeedsPermit
 		into.SecurityLevel = from.SecurityLevel
@@ -143,4 +141,3 @@ func Deserialize(into *Facility, from *gom.Facility, db *SystemDatabase) (err er
 
 	return nil
 }
-
