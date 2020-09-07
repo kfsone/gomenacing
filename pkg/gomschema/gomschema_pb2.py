@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='gomschema',
   syntax='proto3',
   serialized_options=_b('\n\001.Z\013.;gomschema'),
-  serialized_pb=_b('\n\x0fgomschema.proto\x12\tgomschema\"\x9f\x02\n\x06Header\x12+\n\x0bheader_type\x18\x01 \x01(\x0e\x32\x16.gomschema.Header.Type\x12\x11\n\x05sizes\x18\x02 \x03(\rB\x02\x10\x01\x12\x0e\n\x06source\x18\x04 \x01(\t\x12\x31\n\x08userdata\x18\x05 \x03(\x0b\x32\x1f.gomschema.Header.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"[\n\x04Type\x12\x0c\n\x08\x43Invalid\x10\x00\x12\x0b\n\x07\x43Header\x10\x01\x12\x0e\n\nCCommodity\x10\x02\x12\x0b\n\x07\x43System\x10\x03\x12\r\n\tCFacility\x10\x04\x12\x0c\n\x08\x43Listing\x10\x05J\x04\x08\x03\x10\x04\"\xe5\x03\n\tCommodity\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\x32\n\x0b\x63\x61tegory_id\x18\x04 \x01(\x0e\x32\x1d.gomschema.Commodity.Category\x12\x0f\n\x07is_rare\x18\x05 \x01(\x08\x12\x19\n\x11is_non_marketable\x18\x06 \x01(\x08\x12\x12\n\naverage_cr\x18\x07 \x01(\r\"\xb2\x02\n\x08\x43\x61tegory\x12\x0b\n\x07\x43\x61tNone\x10\x00\x12\x10\n\x0c\x43\x61tChemicals\x10\x01\x12\x14\n\x10\x43\x61tConsumerItems\x10\x02\x12\x11\n\rCatLegalDrugs\x10\x03\x12\x0c\n\x08\x43\x61tFoods\x10\x04\x12\x1a\n\x16\x43\x61tIndustrialMaterials\x10\x05\x12\x10\n\x0c\x43\x61tMachinery\x10\x06\x12\x10\n\x0c\x43\x61tMedicines\x10\x07\x12\r\n\tCatMetals\x10\x08\x12\x0f\n\x0b\x43\x61tMinerals\x10\t\x12\x0e\n\nCatSlavery\x10\n\x12\x11\n\rCatTechnology\x10\x0b\x12\x0f\n\x0b\x43\x61tTextiles\x10\x0c\x12\x0c\n\x08\x43\x61tWaste\x10\r\x12\x0e\n\nCatWeapons\x10\x0e\x12\x0e\n\nCatUnknown\x10\x0f\x12\x0e\n\nCatSalvage\x10\x10\"-\n\nCoordinate\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"\x9b\x02\n\x06System\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\'\n\x08position\x18\x04 \x01(\x0b\x32\x15.gomschema.Coordinate\x12\x11\n\tpopulated\x18\x05 \x01(\x08\x12\x14\n\x0cneeds_permit\x18\x06 \x01(\x08\x12\x30\n\x0esecurity_level\x18\x07 \x01(\x0e\x32\x18.gomschema.SecurityLevel\x12-\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType\"\x84\x02\n\x08\x46\x61\x63ility\x12\n\n\x02id\x18\x01 \x01(\r\x12\x11\n\tsystem_id\x18\x02 \x01(\r\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x04 \x01(\x04\x12.\n\rfacility_type\x18\x05 \x01(\x0e\x32\x17.gomschema.FacilityType\x12\x10\n\x08\x66\x65\x61tures\x18\x06 \x01(\r\x12\x14\n\x0cls_from_star\x18\x07 \x01(\r\x12-\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType\"\x9b\x01\n\x10\x43ommodityListing\x12\x14\n\x0c\x63ommodity_id\x18\x01 \x01(\r\x12\x14\n\x0csupply_units\x18\x02 \x01(\r\x12\x16\n\x0esupply_credits\x18\x03 \x01(\r\x12\x14\n\x0c\x64\x65mand_units\x18\x04 \x01(\r\x12\x16\n\x0e\x64\x65mand_credits\x18\x05 \x01(\r\x12\x15\n\rtimestamp_utc\x18\x06 \x01(\x04\"L\n\x0f\x46\x61\x63ilityListing\x12\n\n\x02id\x18\x01 \x01(\r\x12-\n\x08listings\x18\x02 \x03(\x0b\x32\x1b.gomschema.CommodityListing*\xf7\x01\n\x0eGovernmentType\x12\x0b\n\x07GovNone\x10\x00\x12\x0e\n\nGovAnarchy\x10\x01\x12\x10\n\x0cGovCommunism\x10\x02\x12\x12\n\x0eGovConfederacy\x10\x03\x12\x12\n\x0eGovCooperative\x10\x04\x12\x10\n\x0cGovCorporate\x10\x05\x12\x10\n\x0cGovDemocracy\x10\x06\x12\x13\n\x0fGovDictatorship\x10\x07\x12\r\n\tGovFeudal\x10\x08\x12\x10\n\x0cGovPatronage\x10\t\x12\r\n\tGovPrison\x10\n\x12\x13\n\x0fGovPrisonColony\x10\x0b\x12\x10\n\x0cGovTheocracy\x10\x0c*\x89\x01\n\x0e\x41llegianceType\x12\r\n\tAllegNone\x10\x00\x12\x11\n\rAllegAlliance\x10\x01\x12\x0f\n\x0b\x41llegEmpire\x10\x02\x12\x13\n\x0f\x41llegFederation\x10\x03\x12\x14\n\x10\x41llegIndependent\x10\x04\x12\x19\n\x15\x41llegPilotsFederation\x10\x05*m\n\rSecurityLevel\x12\x10\n\x0cSecurityNone\x10\x00\x12\x13\n\x0fSecurityAnarchy\x10\x01\x12\x0f\n\x0bSecurityLow\x10\x02\x12\x12\n\x0eSecurityMedium\x10\x03\x12\x10\n\x0cSecurityHigh\x10\x04*\xec\x02\n\x0c\x46\x61\x63ilityType\x12\n\n\x06\x46TNone\x10\x00\x12\x15\n\x11\x46TCivilianOutpost\x10\x01\x12\x17\n\x13\x46TCommercialOutpost\x10\x02\x12\x16\n\x12\x46TCoriolisStarport\x10\x03\x12\x17\n\x13\x46TIndustrialOutpost\x10\x04\x12\x15\n\x11\x46TMilitaryOutpost\x10\x05\x12\x13\n\x0f\x46TMiningOutpost\x10\x06\x12\x15\n\x11\x46TOcellusStarport\x10\x07\x12\x13\n\x0f\x46TOrbisStarport\x10\x08\x12\x17\n\x13\x46TScientificOutpost\x10\t\x12\x16\n\x12\x46TPlanetaryOutpost\x10\n\x12\x13\n\x0f\x46TPlanetaryPort\x10\x0b\x12\x19\n\x15\x46TPlanetarySettlement\x10\x0c\x12\x0e\n\nFTMegaship\x10\r\x12\x12\n\x0e\x46TAsteroidBase\x10\x0e\x12\x12\n\x0e\x46TFleetCarrier\x10\x0f*\x9c\x02\n\x0c\x46\x65\x61tureMasks\x12\x0c\n\x08\x46\x65\x61tNone\x10\x00\x12\x0e\n\nFeatMarket\x10\x01\x12\x13\n\x0f\x46\x65\x61tBlackMarket\x10\x02\x12\x13\n\x0f\x46\x65\x61tCommodities\x10\x04\x12\x0f\n\x0b\x46\x65\x61tDocking\x10\x08\x12\r\n\tFeatFleet\x10\x10\x12\x10\n\x0c\x46\x65\x61tLargePad\x10 \x12\x11\n\rFeatMediumPad\x10@\x12\x13\n\x0e\x46\x65\x61tOutfitting\x10\x80\x01\x12\x12\n\rFeatPlanetary\x10\x80\x02\x12\x0e\n\tFeatRearm\x10\x80\x04\x12\x0f\n\nFeatRefuel\x10\x80\x08\x12\x0f\n\nFeatRepair\x10\x80\x10\x12\x11\n\x0c\x46\x65\x61tShipyard\x10\x80 \x12\x11\n\x0c\x46\x65\x61tSmallPad\x10\x80@B\x10\n\x01.Z\x0b.;gomschemab\x06proto3')
+  serialized_pb=_b('\n\x0fgomschema.proto\x12\tgomschema\"\x9f\x02\n\x06Header\x12+\n\x0bheader_type\x18\x01 \x01(\x0e\x32\x16.gomschema.Header.Type\x12\x11\n\x05sizes\x18\x02 \x03(\rB\x02\x10\x01\x12\x0e\n\x06source\x18\x04 \x01(\t\x12\x31\n\x08userdata\x18\x05 \x03(\x0b\x32\x1f.gomschema.Header.UserdataEntry\x1a/\n\rUserdataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\"[\n\x04Type\x12\x0c\n\x08\x43Invalid\x10\x00\x12\x0b\n\x07\x43Header\x10\x01\x12\x0e\n\nCCommodity\x10\x02\x12\x0b\n\x07\x43System\x10\x03\x12\r\n\tCFacility\x10\x04\x12\x0c\n\x08\x43Listing\x10\x05J\x04\x08\x03\x10\x04\"\xe5\x03\n\tCommodity\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\x32\n\x0b\x63\x61tegory_id\x18\x04 \x01(\x0e\x32\x1d.gomschema.Commodity.Category\x12\x0f\n\x07is_rare\x18\x05 \x01(\x08\x12\x19\n\x11is_non_marketable\x18\x06 \x01(\x08\x12\x12\n\naverage_cr\x18\x07 \x01(\r\"\xb2\x02\n\x08\x43\x61tegory\x12\x0b\n\x07\x43\x61tNone\x10\x00\x12\x10\n\x0c\x43\x61tChemicals\x10\x01\x12\x14\n\x10\x43\x61tConsumerItems\x10\x02\x12\x11\n\rCatLegalDrugs\x10\x03\x12\x0c\n\x08\x43\x61tFoods\x10\x04\x12\x1a\n\x16\x43\x61tIndustrialMaterials\x10\x05\x12\x10\n\x0c\x43\x61tMachinery\x10\x06\x12\x10\n\x0c\x43\x61tMedicines\x10\x07\x12\r\n\tCatMetals\x10\x08\x12\x0f\n\x0b\x43\x61tMinerals\x10\t\x12\x0e\n\nCatSlavery\x10\n\x12\x11\n\rCatTechnology\x10\x0b\x12\x0f\n\x0b\x43\x61tTextiles\x10\x0c\x12\x0c\n\x08\x43\x61tWaste\x10\r\x12\x0e\n\nCatWeapons\x10\x0e\x12\x0e\n\nCatUnknown\x10\x0f\x12\x0e\n\nCatSalvage\x10\x10\"-\n\nCoordinate\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"\x9b\x02\n\x06System\x12\n\n\x02id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x03 \x01(\x04\x12\'\n\x08position\x18\x04 \x01(\x0b\x32\x15.gomschema.Coordinate\x12\x11\n\tpopulated\x18\x05 \x01(\x08\x12\x14\n\x0cneeds_permit\x18\x06 \x01(\x08\x12\x30\n\x0esecurity_level\x18\x07 \x01(\x0e\x32\x18.gomschema.SecurityLevel\x12-\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType\"\x84\x02\n\x08\x46\x61\x63ility\x12\n\n\x02id\x18\x01 \x01(\r\x12\x11\n\tsystem_id\x18\x02 \x01(\r\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x15\n\rtimestamp_utc\x18\x04 \x01(\x04\x12.\n\rfacility_type\x18\x05 \x01(\x0e\x32\x17.gomschema.FacilityType\x12\x10\n\x08\x66\x65\x61tures\x18\x06 \x01(\r\x12\x14\n\x0cls_from_star\x18\x07 \x01(\r\x12-\n\ngovernment\x18\x08 \x01(\x0e\x32\x19.gomschema.GovernmentType\x12-\n\nallegiance\x18\t \x01(\x0e\x32\x19.gomschema.AllegianceType\"\x9b\x01\n\x10\x43ommodityListing\x12\x14\n\x0c\x63ommodity_id\x18\x01 \x01(\r\x12\x14\n\x0csupply_units\x18\x02 \x01(\r\x12\x16\n\x0esupply_credits\x18\x03 \x01(\r\x12\x14\n\x0c\x64\x65mand_units\x18\x04 \x01(\r\x12\x16\n\x0e\x64\x65mand_credits\x18\x05 \x01(\r\x12\x15\n\rtimestamp_utc\x18\x06 \x01(\x04\"L\n\x0f\x46\x61\x63ilityListing\x12\n\n\x02id\x18\x01 \x01(\r\x12-\n\x08listings\x18\x02 \x03(\x0b\x32\x1b.gomschema.CommodityListing*\xf7\x01\n\x0eGovernmentType\x12\x0b\n\x07GovNone\x10\x00\x12\x0e\n\nGovAnarchy\x10\x01\x12\x10\n\x0cGovCommunism\x10\x02\x12\x12\n\x0eGovConfederacy\x10\x03\x12\x12\n\x0eGovCooperative\x10\x04\x12\x10\n\x0cGovCorporate\x10\x05\x12\x10\n\x0cGovDemocracy\x10\x06\x12\x13\n\x0fGovDictatorship\x10\x07\x12\r\n\tGovFeudal\x10\x08\x12\x10\n\x0cGovPatronage\x10\t\x12\r\n\tGovPrison\x10\n\x12\x13\n\x0fGovPrisonColony\x10\x0b\x12\x10\n\x0cGovTheocracy\x10\x0c*\x89\x01\n\x0e\x41llegianceType\x12\r\n\tAllegNone\x10\x00\x12\x11\n\rAllegAlliance\x10\x01\x12\x0f\n\x0b\x41llegEmpire\x10\x02\x12\x13\n\x0f\x41llegFederation\x10\x03\x12\x14\n\x10\x41llegIndependent\x10\x04\x12\x19\n\x15\x41llegPilotsFederation\x10\x05*m\n\rSecurityLevel\x12\x10\n\x0cSecurityNone\x10\x00\x12\x13\n\x0fSecurityAnarchy\x10\x01\x12\x0f\n\x0bSecurityLow\x10\x02\x12\x12\n\x0eSecurityMedium\x10\x03\x12\x10\n\x0cSecurityHigh\x10\x04*\xec\x02\n\x0c\x46\x61\x63ilityType\x12\n\n\x06\x46TNone\x10\x00\x12\x15\n\x11\x46TCivilianOutpost\x10\x01\x12\x17\n\x13\x46TCommercialOutpost\x10\x02\x12\x16\n\x12\x46TCoriolisStarport\x10\x03\x12\x17\n\x13\x46TIndustrialOutpost\x10\x04\x12\x15\n\x11\x46TMilitaryOutpost\x10\x05\x12\x13\n\x0f\x46TMiningOutpost\x10\x06\x12\x15\n\x11\x46TOcellusStarport\x10\x07\x12\x13\n\x0f\x46TOrbisStarport\x10\x08\x12\x17\n\x13\x46TScientificOutpost\x10\t\x12\x16\n\x12\x46TPlanetaryOutpost\x10\n\x12\x13\n\x0f\x46TPlanetaryPort\x10\x0b\x12\x19\n\x15\x46TPlanetarySettlement\x10\x0c\x12\x0e\n\nFTMegaship\x10\r\x12\x12\n\x0e\x46TAsteroidBase\x10\x0e\x12\x12\n\x0e\x46TFleetCarrier\x10\x0f*\xcd\x01\n\nFeatureBit\x12\n\n\x06Market\x10\x00\x12\x0f\n\x0b\x42lackMarket\x10\x01\x12\x0f\n\x0b\x43ommodities\x10\x02\x12\x0b\n\x07\x44ocking\x10\x03\x12\t\n\x05\x46leet\x10\x04\x12\x0c\n\x08LargePad\x10\x05\x12\r\n\tMediumPad\x10\x06\x12\x0e\n\nOutfitting\x10\x07\x12\r\n\tPlanetary\x10\x08\x12\t\n\x05Rearm\x10\t\x12\n\n\x06Refuel\x10\n\x12\n\n\x06Repair\x10\x0b\x12\x0c\n\x08Shipyard\x10\x0c\x12\x0c\n\x08SmallPad\x10\rB\x10\n\x01.Z\x0b.;gomschemab\x06proto3')
 )
 
 _GOVERNMENTTYPE = _descriptor.EnumDescriptor(
@@ -243,81 +243,77 @@ _FACILITYTYPE = _descriptor.EnumDescriptor(
 _sym_db.RegisterEnumDescriptor(_FACILITYTYPE)
 
 FacilityType = enum_type_wrapper.EnumTypeWrapper(_FACILITYTYPE)
-_FEATUREMASKS = _descriptor.EnumDescriptor(
-  name='FeatureMasks',
-  full_name='gomschema.FeatureMasks',
+_FEATUREBIT = _descriptor.EnumDescriptor(
+  name='FeatureBit',
+  full_name='gomschema.FeatureBit',
   filename=None,
   file=DESCRIPTOR,
   values=[
     _descriptor.EnumValueDescriptor(
-      name='FeatNone', index=0, number=0,
+      name='Market', index=0, number=0,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatMarket', index=1, number=1,
+      name='BlackMarket', index=1, number=1,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatBlackMarket', index=2, number=2,
+      name='Commodities', index=2, number=2,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatCommodities', index=3, number=4,
+      name='Docking', index=3, number=3,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatDocking', index=4, number=8,
+      name='Fleet', index=4, number=4,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatFleet', index=5, number=16,
+      name='LargePad', index=5, number=5,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatLargePad', index=6, number=32,
+      name='MediumPad', index=6, number=6,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatMediumPad', index=7, number=64,
+      name='Outfitting', index=7, number=7,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatOutfitting', index=8, number=128,
+      name='Planetary', index=8, number=8,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatPlanetary', index=9, number=256,
+      name='Rearm', index=9, number=9,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatRearm', index=10, number=512,
+      name='Refuel', index=10, number=10,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatRefuel', index=11, number=1024,
+      name='Repair', index=11, number=11,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatRepair', index=12, number=2048,
+      name='Shipyard', index=12, number=12,
       serialized_options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='FeatShipyard', index=13, number=4096,
-      serialized_options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='FeatSmallPad', index=14, number=8192,
+      name='SmallPad', index=13, number=13,
       serialized_options=None,
       type=None),
   ],
   containing_type=None,
   serialized_options=None,
   serialized_start=2509,
-  serialized_end=2793,
+  serialized_end=2714,
 )
-_sym_db.RegisterEnumDescriptor(_FEATUREMASKS)
+_sym_db.RegisterEnumDescriptor(_FEATUREBIT)
 
-FeatureMasks = enum_type_wrapper.EnumTypeWrapper(_FEATUREMASKS)
+FeatureBit = enum_type_wrapper.EnumTypeWrapper(_FEATUREBIT)
 GovNone = 0
 GovAnarchy = 1
 GovCommunism = 2
@@ -358,21 +354,20 @@ FTPlanetarySettlement = 12
 FTMegaship = 13
 FTAsteroidBase = 14
 FTFleetCarrier = 15
-FeatNone = 0
-FeatMarket = 1
-FeatBlackMarket = 2
-FeatCommodities = 4
-FeatDocking = 8
-FeatFleet = 16
-FeatLargePad = 32
-FeatMediumPad = 64
-FeatOutfitting = 128
-FeatPlanetary = 256
-FeatRearm = 512
-FeatRefuel = 1024
-FeatRepair = 2048
-FeatShipyard = 4096
-FeatSmallPad = 8192
+Market = 0
+BlackMarket = 1
+Commodities = 2
+Docking = 3
+Fleet = 4
+LargePad = 5
+MediumPad = 6
+Outfitting = 7
+Planetary = 8
+Rearm = 9
+Refuel = 10
+Repair = 11
+Shipyard = 12
+SmallPad = 13
 
 
 _HEADER_TYPE = _descriptor.EnumDescriptor(
@@ -1007,7 +1002,7 @@ DESCRIPTOR.enum_types_by_name['GovernmentType'] = _GOVERNMENTTYPE
 DESCRIPTOR.enum_types_by_name['AllegianceType'] = _ALLEGIANCETYPE
 DESCRIPTOR.enum_types_by_name['SecurityLevel'] = _SECURITYLEVEL
 DESCRIPTOR.enum_types_by_name['FacilityType'] = _FACILITYTYPE
-DESCRIPTOR.enum_types_by_name['FeatureMasks'] = _FEATUREMASKS
+DESCRIPTOR.enum_types_by_name['FeatureBit'] = _FEATUREBIT
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Header = _reflection.GeneratedProtocolMessageType('Header', (_message.Message,), dict(

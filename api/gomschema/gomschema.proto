@@ -187,22 +187,22 @@ enum FacilityType {
     FTFleetCarrier = 15;
 };
 
-enum FeatureMasks {
-	FeatNone        = 0x0000;
-	FeatMarket      = 0x0001;
-	FeatBlackMarket = 0x0002;
-	FeatCommodities = 0x0004;
-	FeatDocking     = 0x0008;
-	FeatFleet       = 0x0010;
-	FeatLargePad    = 0x0020;
-	FeatMediumPad   = 0x0040;
-	FeatOutfitting  = 0x0080;
-	FeatPlanetary   = 0x0100;
-	FeatRearm       = 0x0200;
-	FeatRefuel      = 0x0400;
-	FeatRepair      = 0x0800;
-	FeatShipyard    = 0x1000;
-	FeatSmallPad    = 0x2000;
+/// FeatureBit denotes which bits of the Features mask represent which capacity.
+enum FeatureBit {
+	Market      = 0;
+	BlackMarket = 1;
+	Commodities = 2;
+	Docking     = 3;
+	Fleet       = 4;
+	LargePad    = 5;
+	MediumPad   = 6;
+	Outfitting  = 7;
+	Planetary   = 8;
+	Rearm       = 9;
+	Refuel      = 10;
+	Repair      = 11;
+	Shipyard    = 12;
+	SmallPad    = 13;
 };
 
 /// Facility describes a station/planetary base, anything you can dock/trade with in-game.
