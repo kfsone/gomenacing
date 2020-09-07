@@ -107,8 +107,7 @@ func SerializeFacility(into *gom.Facility, from *Facility) error {
 	into.Name = from.DbEntity.DbName
 	into.TimestampUtc = uint64(from.TimestampUtc.Unix())
 	into.FacilityType = from.FacilityType
-	FeatureMaskToServices(from.Features, into.GetServices())
-	into.PadSize = FeatureMaskToPadSize(from.Features)
+	into.Features = uint32(from.Features)
 	into.Government = from.Government
 	into.Allegiance = from.Allegiance
 	return nil
@@ -134,7 +133,7 @@ func Deserialize(into *Facility, from *gom.Facility, db *SystemDatabase) (err er
 	into.System = system
 	into.TimestampUtc = time.Unix(int64(from.GetTimestampUtc()), 0)
 	into.FacilityType = from.FacilityType
-	into.Features = ServicesToFeatures(from.GetServices(), from.GetPadSize())
+	into.Features = FacilityFeatureMask(from.Features)
 	into.LsFromStar = from.LsFromStar
 	into.Government = from.Government
 	into.Allegiance = from.Allegiance

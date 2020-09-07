@@ -12,20 +12,20 @@ import (
 type FacilityFeatureMask uint
 
 const (
-	FeatMarket FacilityFeatureMask = 1 << iota
-	FeatBlackMarket
-	FeatCommodities
-	FeatDocking
-	FeatFleet
-	FeatLargePad
-	FeatMediumPad
-	FeatOutfitting
-	FeatPlanetary
-	FeatRearm
-	FeatRefuel
-	FeatRepair
-	FeatShipyard
-	FeatSmallPad
+	FeatMarket = FacilityFeatureMask(gom.FeatureMasks_FeatMarket)
+	FeatBlackMarket = FacilityFeatureMask(gom.FeatureMasks_FeatBlackMarket)
+	FeatCommodities = FacilityFeatureMask(gom.FeatureMasks_FeatCommodities)
+	FeatDocking = FacilityFeatureMask(gom.FeatureMasks_FeatDocking)
+	FeatFleet = FacilityFeatureMask(gom.FeatureMasks_FeatFleet)
+	FeatLargePad = FacilityFeatureMask(gom.FeatureMasks_FeatLargePad)
+	FeatMediumPad = FacilityFeatureMask(gom.FeatureMasks_FeatMarket)
+	FeatOutfitting = FacilityFeatureMask(gom.FeatureMasks_FeatOutfitting)
+	FeatPlanetary = FacilityFeatureMask(gom.FeatureMasks_FeatPlanetary)
+	FeatRearm = FacilityFeatureMask(gom.FeatureMasks_FeatRearm)
+	FeatRefuel = FacilityFeatureMask(gom.FeatureMasks_FeatRefuel)
+	FeatRepair = FacilityFeatureMask(gom.FeatureMasks_FeatRepair)
+	FeatShipyard = FacilityFeatureMask(gom.FeatureMasks_FeatShipyard)
+	FeatSmallPad = FacilityFeatureMask(gom.FeatureMasks_FeatSmallPad)
 )
 
 // Facility represents any orbital or planetary facility, where trade could happen.
@@ -42,11 +42,17 @@ type Facility struct {
 	listings []Listing // List of items sold
 }
 
-func NewFacility(dbEntity DbEntity, system *System, facilityType gom.FacilityType) (*Facility, error) {
+// NewFacility constructs a minimally populated Facility entity. It does not allocate
+// listings unless the FeatureMask indicates Commodities are available here.
+func NewFacility(dbEntity DbEntity, system *System, facilityType gom.FacilityType, features FacilityFeatureMask) (*Facility, error) {
 	if system == nil {
 		return nil, errors.New("nil system for facility")
 	}
-	return &Facility{DbEntity: dbEntity, System: system, FacilityType: facilityType}, nil
+	facility := Facility{DbEntity: dbEntity, System: system, FacilityType: facilityType, Features: features}
+	if facility.HasFeatures(FeatCommodities) {
+		facility.listings = make([]Listing, 0, 32)
+	}
+	return &facility, nil
 }
 
 func (f *Facility) GetDbId() string {
@@ -64,7 +70,7 @@ func (f *Facility) HasFeatures(featureMask FacilityFeatureMask) bool {
 }
 
 func (f *Facility) IsTrading() bool {
-	return f.HasFeatures(FeatMarket) || len(f.listings) > 0
+	return f.HasFeatures(FeatCommodities) || len(f.listings) > 0
 }
 
 func (f *Facility) Name() string {

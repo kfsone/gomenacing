@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/kfsone/gomenacing/pkg/gomschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"log"
@@ -153,30 +152,6 @@ func TestTestDir(t *testing.T) {
 
 		assert.NoDirExists(t, testDir.Path())
 	})
-}
-
-func TestFeatureMaskToPadSize(t *testing.T) {
-	type args struct {
-		mask FacilityFeatureMask
-	}
-	tests := []struct {
-		name string
-		args args
-		want gomschema.PadSize
-	}{
-		{"unset", args{FacilityFeatureMask(0)}, gomschema.PadSize_PadNone},
-		{"small", args{FacilityFeatureMask(FeatSmallPad)}, gomschema.PadSize_PadSmall},
-		{"med", args{FacilityFeatureMask(FeatMediumPad)}, gomschema.PadSize_PadMedium},
-		{"large", args{FacilityFeatureMask(FeatLargePad)}, gomschema.PadSize_PadLarge},
-		{ "all", args{FacilityFeatureMask(0xffff)}, gomschema.PadSize_PadLarge},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := FeatureMaskToPadSize(tt.args.mask); got != tt.want {
-				t.Errorf("FeatureMaskToPadSize() = %v, want %v", got, tt.want)
-			}
-		})
-	}
 }
 
 func TestConditionallyOr(t *testing.T) {

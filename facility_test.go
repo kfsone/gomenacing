@@ -16,7 +16,7 @@ func TestNewFacility(t *testing.T) {
 
 	t.Run("Reject bad values", func(t *testing.T) {
 		entity := DbEntity{ID: 1, DbName: "first"}
-		facility, err := NewFacility(entity, nil, 0)
+		facility, err := NewFacility(entity, nil, 0, 0)
 		assert.Nil(t, facility)
 		if assert.Error(t, err) {
 			assert.Equal(t, "nil system for facility", err.Error())
@@ -24,14 +24,28 @@ func TestNewFacility(t *testing.T) {
 	})
 
 	t.Run("Create genuine facility", func(t *testing.T) {
-		facility, err := NewFacility(DbEntity{ID: 111, DbName: "First"}, system, gom.FacilityType_FTAsteroidBase)
+		facility, err := NewFacility(DbEntity{ID: 111, DbName: "First"}, system, gom.FacilityType_FTAsteroidBase, FeatLargePad)
 		assert.Nil(t, err)
 		assert.NotNil(t, facility)
 		assert.Equal(t, DbEntity{ID: 111, DbName: "First"}, facility.DbEntity)
 		assert.Equal(t, system, facility.System)
 		assert.Equal(t, gom.FacilityType_FTAsteroidBase, facility.FacilityType)
-		assert.Equal(t, FacilityFeatureMask(0), facility.Features)
+		assert.Equal(t, FeatLargePad, facility.Features)
+		assert.Nil(t, facility.listings)
+		assert.Empty(t, system.facilities)
+	})
 
+	t.Run("Create commodity facility", func(t *testing.T) {
+		facility, err := NewFacility(DbEntity{ID: 9999, DbName: "Second"}, system, gom.FacilityType_FTCoriolisStarport, FeatSmallPad | FeatCommodities)
+		assert.Nil(t, err)
+		assert.NotNil(t, facility)
+		assert.Equal(t, DbEntity{ID: 9999, DbName: "Second"}, facility.DbEntity)
+		assert.Equal(t, system, facility.System)
+		assert.Equal(t, gom.FacilityType_FTCoriolisStarport, facility.FacilityType)
+		assert.Equal(t, FeatSmallPad | FeatCommodities, facility.Features)
+		if assert.NotNil(t, facility.listings) {
+			assert.Len(t, facility.listings, 0)
+		}
 		assert.Empty(t, system.facilities)
 	})
 }
@@ -82,12 +96,14 @@ func TestFacility_IsTrading(t *testing.T) {
 	facility = Facility{}
 	assert.False(t, facility.IsTrading())
 	facility = Facility{Features: FeatMarket}
+	assert.False(t, facility.IsTrading())
+	facility = Facility{Features: FeatCommodities}
 	assert.True(t, facility.IsTrading())
 	facility = Facility{listings: listings}
 	assert.True(t, facility.IsTrading())
-	facility = Facility{Features: FeatBlackMarket | FeatMediumPad | FeatPlanetary}
+	facility = Facility{Features: FeatBlackMarket | FeatMarket | FeatMediumPad | FeatPlanetary}
 	assert.False(t, facility.IsTrading())
-	facility = Facility{Features: FeatBlackMarket | FeatMarket}
+	facility = Facility{Features: FeatBlackMarket | FeatCommodities}
 	assert.True(t, facility.IsTrading())
 	facility = Facility{Features: FeatBlackMarket, listings: listings}
 	assert.True(t, facility.IsTrading())
