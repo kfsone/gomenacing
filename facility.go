@@ -12,20 +12,20 @@ import (
 type FacilityFeatureMask uint
 
 const (
-	FeatMarket = 1 << gom.FeatureBit_Market
-	FeatBlackMarket = 1 << gom.FeatureBit_BlackMarket
-	FeatCommodities = 1 << gom.FeatureBit_Commodities
-	FeatDocking = 1 << gom.FeatureBit_Docking
-	FeatFleet = 1 << gom.FeatureBit_Fleet
-	FeatLargePad = 1 << gom.FeatureBit_LargePad
-	FeatMediumPad = 1 << gom.FeatureBit_Market
-	FeatOutfitting = 1 << gom.FeatureBit_Outfitting
-	FeatPlanetary = 1 << gom.FeatureBit_Planetary
-	FeatRearm = 1 << gom.FeatureBit_Rearm
-	FeatRefuel = 1 << gom.FeatureBit_Refuel
-	FeatRepair = 1 << gom.FeatureBit_Repair
-	FeatShipyard = 1 << gom.FeatureBit_Shipyard
-	FeatSmallPad = 1 << gom.FeatureBit_SmallPad
+	FeatMarket = FacilityFeatureMask(1 << gom.FeatureBit_Market)
+	FeatBlackMarket = FacilityFeatureMask(1 << gom.FeatureBit_BlackMarket)
+	FeatCommodities = FacilityFeatureMask(1 << gom.FeatureBit_Commodities)
+	FeatDocking = FacilityFeatureMask(1 << gom.FeatureBit_Docking)
+	FeatFleet = FacilityFeatureMask(1 << gom.FeatureBit_Fleet)
+	FeatLargePad = FacilityFeatureMask(1 << gom.FeatureBit_LargePad)
+	FeatMediumPad = FacilityFeatureMask(1 << gom.FeatureBit_Market)
+	FeatOutfitting = FacilityFeatureMask(1 << gom.FeatureBit_Outfitting)
+	FeatPlanetary = FacilityFeatureMask(1 << gom.FeatureBit_Planetary)
+	FeatRearm = FacilityFeatureMask(1 << gom.FeatureBit_Rearm)
+	FeatRefuel = FacilityFeatureMask(1 << gom.FeatureBit_Refuel)
+	FeatRepair = FacilityFeatureMask(1 << gom.FeatureBit_Repair)
+	FeatShipyard = FacilityFeatureMask(1 << gom.FeatureBit_Shipyard)
+	FeatSmallPad = FacilityFeatureMask(1 << gom.FeatureBit_SmallPad)
 )
 
 // Facility represents any orbital or planetary facility, where trade could happen.
