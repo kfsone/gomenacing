@@ -65,14 +65,14 @@ func Test_validateEntity(t *testing.T) {
 		wantErr bool
 	}{
 		{"zero value", args{0, ""}, "", true},
-		{ "empty name", args{1, ""}, "", true},
-		{ "whitespace name", args{1, " \t"}, "", true},
-		{ "invalid name", args{1, "a"}, "", true},
-		{ "invalid name w/space", args{1, " a "}, "", true},
-		{ "excessive id", args{int64(1) << 34, "Sol"}, "", true},
-		{ "1, Sol", args{1, "Sol"}, "Sol", false},
-		{ "1, Sol w/spaces", args{1, " \t Sol \t "}, "Sol", false},
-		{ "~0, sOl sYsTeM w/spaces", args{(int64(1) << 32) - 1, " \t sOl sYsTeM\t "}, "sOl sYsTeM", false},
+		{"empty name", args{1, ""}, "", true},
+		{"whitespace name", args{1, " \t"}, "", true},
+		{"invalid name", args{1, "a"}, "", true},
+		{"invalid name w/space", args{1, " a "}, "", true},
+		{"excessive id", args{int64(1) << 34, "Sol"}, "", true},
+		{"1, Sol", args{1, "Sol"}, "Sol", false},
+		{"1, Sol w/spaces", args{1, " \t Sol \t "}, "Sol", false},
+		{"~0, sOl sYsTeM w/spaces", args{(int64(1) << 32) - 1, " \t sOl sYsTeM\t "}, "sOl sYsTeM", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

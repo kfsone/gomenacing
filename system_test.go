@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewSystem(t *testing.T) {
-	system := NewSystem(DbEntity{ID: 111, DbName: "system of a down"},  Coordinate{X: 1.0, Y: 2.0, Z: 3.0})
+	system := NewSystem(DbEntity{ID: 111, DbName: "system of a down"}, Coordinate{X: 1.0, Y: 2.0, Z: 3.0})
 
 	require.NotNil(t, system)
 	assert.Equal(t, EntityID(111), system.ID)

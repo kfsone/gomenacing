@@ -23,8 +23,8 @@ type System struct {
 
 func NewSystem(dbEntity DbEntity, position Coordinate) *System {
 	return &System{
-		DbEntity:      dbEntity,
-		position:      position,
+		DbEntity: dbEntity,
+		position: position,
 	}
 }
 

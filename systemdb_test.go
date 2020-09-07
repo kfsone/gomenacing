@@ -232,23 +232,23 @@ func Test_registerIDLookup(t *testing.T) {
 	ids := make(map[string]EntityID)
 	expected := make(map[string]EntityID)
 	// We don't do validation, so registering an empty string can occur.
-	require.True(t, registerIDLookup(&DbEntity{ID:0, DbName:""}, ids))
+	require.True(t, registerIDLookup(&DbEntity{ID: 0, DbName: ""}, ids))
 	expected[""] = 0
 	assert.Equal(t, expected, ids)
 
 	// It should fail if we try to do it again.
-	require.False(t, registerIDLookup(&DbEntity{ID:0, DbName:""}, ids))
+	require.False(t, registerIDLookup(&DbEntity{ID: 0, DbName: ""}, ids))
 	assert.Equal(t, map[string]EntityID{"": EntityID(0)}, ids)
 	assert.Equal(t, expected, ids)
 
 	// Register something different, but it shouldn't do validation, so reuse id.
-	require.True(t, registerIDLookup(&DbEntity{ID:0, DbName:"Number 1"}, ids))
+	require.True(t, registerIDLookup(&DbEntity{ID: 0, DbName: "Number 1"}, ids))
 	// Note: registered IDs should have lowercase.
 	expected["number 1"] = 0
 	assert.Equal(t, expected, ids)
 
 	// And register something completely different.
-	require.True(t, registerIDLookup(&DbEntity{ID:42, DbName:"Life, the Universe, EVERYTHING"}, ids))
+	require.True(t, registerIDLookup(&DbEntity{ID: 42, DbName: "Life, the Universe, EVERYTHING"}, ids))
 	// again, lowercase IDs:
 	expected["life, the universe, everything"] = 42
 	assert.Equal(t, expected, ids)

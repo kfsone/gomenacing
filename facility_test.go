@@ -36,13 +36,13 @@ func TestNewFacility(t *testing.T) {
 	})
 
 	t.Run("Create commodity facility", func(t *testing.T) {
-		facility, err := NewFacility(DbEntity{ID: 9999, DbName: "Second"}, system, gom.FacilityType_FTCoriolisStarport, FeatSmallPad | FeatCommodities)
+		facility, err := NewFacility(DbEntity{ID: 9999, DbName: "Second"}, system, gom.FacilityType_FTCoriolisStarport, FeatSmallPad|FeatCommodities)
 		assert.Nil(t, err)
 		assert.NotNil(t, facility)
 		assert.Equal(t, DbEntity{ID: 9999, DbName: "Second"}, facility.DbEntity)
 		assert.Equal(t, system, facility.System)
 		assert.Equal(t, gom.FacilityType_FTCoriolisStarport, facility.FacilityType)
-		assert.Equal(t, FeatSmallPad | FeatCommodities, facility.Features)
+		assert.Equal(t, FeatSmallPad|FeatCommodities, facility.Features)
 		if assert.NotNil(t, facility.listings) {
 			assert.Len(t, facility.listings, 0)
 		}
@@ -177,14 +177,14 @@ func TestFacility_AddListing(t *testing.T) {
 
 	facility.AddListing(listings[1])
 	if assert.Len(t, facility.listings, 2) {
-		assert.EqualValues(t, []Listing{ listings[1], listings[0] }, facility.listings)
+		assert.EqualValues(t, []Listing{listings[1], listings[0]}, facility.listings)
 	}
 
 	// Check we don't mess up with the order re-adding.
 	listings[1].TimestampUtc = time.Now().Add(-time.Second)
 	facility.AddListing(listings[1])
 	if assert.Len(t, facility.listings, 2) {
-		assert.EqualValues(t, []Listing{ listings[1], listings[0] }, facility.listings)
+		assert.EqualValues(t, []Listing{listings[1], listings[0]}, facility.listings)
 	}
 
 	// Add the third value.
