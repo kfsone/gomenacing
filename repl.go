@@ -9,9 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kfsone/gomenacing/pkg/gomschema"
 	"github.com/mattn/go-shellwords"
-	"google.golang.org/protobuf/proto"
 )
 
 func Must(err error) {
@@ -47,68 +45,6 @@ func cmdSystemFind(r *Repl, args []string, _ *CommandParser) {
 	}
 }
 
-func importCommodity(r *Repl, item *gomschema.Commodity) error {
-	return nil
-}
-
-func importSystem(r *Repl, item *gomschema.System) error {
-	return nil
-}
-
-func importFacility(r *Repl, item *gomschema.Facility) error {
-	return nil
-}
-
-func importListings(r *Repl, item *gomschema.FacilityListing) error {
-	return nil
-}
-
-func fnImportFile(r *Repl, pathname string, required bool) bool {
-	file, err := os.Open(pathname)
-	if err != nil {
-		if required {
-			fmt.Fprintln(r, file, ": error opening file: ", err)
-		}
-		return false
-	}
-	defer func() { Must(file.Close()) }()
-
-	gomFile, err := gomschema.OpenGOMFile(file)
-	if err != nil {
-		fmt.Fprintln(r, file, ": ", err)
-		return false
-	}
-	defer gomFile.Close()
-
-	count := 0
-	err = gomFile.Read(func(message proto.Message, index uint) (err error) {
-		switch m := message.(type) {
-		case *gomschema.Commodity:
-			err = importCommodity(r, m)
-
-		case *gomschema.System:
-			err = importSystem(r, m)
-
-		case *gomschema.Facility:
-			err = importFacility(r, m)
-
-		case *gomschema.FacilityListing:
-			err = importListings(r, m)
-
-		default:
-			return fmt.Errorf("unrecognized message type: %t", message)
-		}
-		if err == nil {
-			count++
-		}
-		return err
-	})
-
-	fmt.Fprintf(r, "%s: read %d items.\n", pathname, count)
-
-	return true
-}
-
 func cmdImport(r *Repl, args []string, _ *CommandParser) {
 	pathname := strings.Join(args, " ")
 
@@ -127,7 +63,7 @@ func cmdImport(r *Repl, args []string, _ *CommandParser) {
 		}
 
 		imports := 0
-		for _, filename := range []string{"commodities.gom", "systems.gom", "stations.gom", "listings.gom"} {
+		for _, filename := range GetImportFilenames() {
 			if fnImportFile(r, filepath.Join(pathname, filename), false) {
 				imports++
 			}
@@ -241,11 +177,42 @@ func (c CommandParser) Parse(r *Repl, args []string) {
 	}
 }
 
+func toggleBool(boolPtr *bool) string {
+	*boolPtr = !*boolPtr
+	boolState := "off"
+	if *boolPtr {
+		boolState = "on"
+	}
+	return boolState
+}
+
+func cmdToggleWarnings(r *Repl, args []string, _ *CommandParser) {
+	fmt.Fprintln(r, "Warnings are now:", toggleBool(ShowWarnings))
+}
+
+func cmdToggleOnDuplicate(r *Repl, args []string, _ *CommandParser) {
+	fmt.Fprintln(r, "OnDuplicate is now:", toggleBool(ErrorOnUnknown))
+}
+
+func cmdToggleOnUnknown(r *Repl, args []string, _ *CommandParser) {
+	fmt.Fprintln(r, "OnUnknown is now:", toggleBool(ErrorOnDuplicate))
+}
+
 var commands = CommandParser{
 	commands: map[string]CommandParser{
 		"exit":   {help: "Exit the application.", action: func(r *Repl, _ []string, _ *CommandParser) { r.terminated = true }},
 		"quit":   {help: "", action: func(r *Repl, _ []string, _ *CommandParser) { r.terminated = true }},
 		"import": {help: "Import data from a file or directory.", action: cmdImport},
+		"stats": {help: "Show stats on current database.", action: func (r *Repl, _ []string, _ *CommandParser) {
+			r.sdb.Stats(r.out)
+		}},
+		"set": {commands: map[string]CommandParser{
+			"warnings": {help: "Toggle warnings on/off.", action: cmdToggleWarnings},
+			"onduplicate": {help: "Toggle on-duplicate on/off.", action: cmdToggleOnDuplicate},
+			"onunknown": {help: "Toggle on-unknown on/off.", action: cmdToggleOnUnknown},
+			},
+			help: "Change environment settings.",
+		},
 		"system": {commands: map[string]CommandParser{
 			"find": {help: "Lookup a system by name.", action: cmdSystemFind}},
 			help: "System-related commands."},

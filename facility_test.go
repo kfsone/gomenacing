@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
 
@@ -92,7 +90,8 @@ func TestFacility_HasFeatures(t *testing.T) {
 
 func TestFacility_IsTrading(t *testing.T) {
 	var facility Facility
-	listings := []Listing{{}, {}}
+	listing := Listing{EntityID(1), 0, 0, 0, 0, time.Now()}
+	listings := map[EntityID]*Listing{ listing.CommodityID: &listing }
 	facility = Facility{}
 	assert.False(t, facility.IsTrading())
 	facility = Facility{Features: FeatMarket}
@@ -144,69 +143,4 @@ func TestFacility_SupportsPadSize(t *testing.T) {
 	assert.True(t, facility.SupportsPadSize(FeatLargePad))
 	assert.False(t, facility.SupportsPadSize(FacilityFeatureMask(0)))
 	assert.False(t, facility.SupportsPadSize(FeatRefuel))
-}
-
-func TestFacility_AddListing(t *testing.T) {
-	listings := []Listing{
-		{CommodityID: 30},
-		{CommodityID: 7},
-		{CommodityID: 19},
-		{CommodityID: 20},
-		{CommodityID: 2},
-		{CommodityID: 3},
-		{CommodityID: 4},
-		{CommodityID: 128},
-		{CommodityID: 129},
-		{CommodityID: 127},
-	}
-	expectedOrder := []uint32{2, 3, 4, 7, 19, 20, 30, 127, 128, 129}
-
-	facility := Facility{}
-	assert.Nil(t, facility.listings)
-
-	facility.AddListing(listings[0])
-	require.NotNil(t, facility.listings)
-	if assert.Len(t, facility.listings, 1) {
-		assert.Equal(t, listings[0], facility.listings[0])
-	}
-
-	listings[0].TimestampUtc = time.Now().Add(-time.Second)
-	facility.AddListing(listings[0])
-	require.Len(t, facility.listings, 1)
-	assert.Equal(t, listings[0], facility.listings[0])
-
-	facility.AddListing(listings[1])
-	if assert.Len(t, facility.listings, 2) {
-		assert.EqualValues(t, []Listing{listings[1], listings[0]}, facility.listings)
-	}
-
-	// Check we don't mess up with the order re-adding.
-	listings[1].TimestampUtc = time.Now().Add(-time.Second)
-	facility.AddListing(listings[1])
-	if assert.Len(t, facility.listings, 2) {
-		assert.EqualValues(t, []Listing{listings[1], listings[0]}, facility.listings)
-	}
-
-	// Add the third value.
-	facility.AddListing(listings[2])
-	if assert.Len(t, facility.listings, 3) {
-		assert.EqualValues(t, listings[2], facility.listings[1])
-	}
-
-	// Now insert all of the listings, and check that we build an in-order list.
-	for _, listing := range listings {
-		facility.AddListing(listing)
-	}
-	if assert.Len(t, facility.listings, len(listings)) {
-		var lastID uint32
-		for idx, listing := range facility.listings {
-			t.Run(fmt.Sprintf("Check listing %d", idx), func(t *testing.T) {
-				id := uint32(listing.CommodityID)
-				if assert.Greater(t, id, lastID) {
-					assert.Equal(t, expectedOrder[idx], id)
-				}
-				lastID = uint32(listing.CommodityID)
-			})
-		}
-	}
 }

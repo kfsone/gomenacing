@@ -1,13 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"path/filepath"
-
+	"fmt"
 	"github.com/akrylysov/pogreb"
+	"github.com/kfsone/gomenacing/pkg/gomschema"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/protobuf/proto"
+	"path/filepath"
 )
 
 type Database struct {
@@ -59,17 +59,33 @@ func (db *Database) Systems() (*Schema, error) {
 	return db.GetSchema("systems")
 }
 
+func getSchemaForMessage(db *Database, message *proto.Message) (*Schema, error) {
+	switch v := (*message).(type) {
+	case *gomschema.Commodity:
+		return db.Commodities()
+
+	case *gomschema.System:
+		return db.Systems()
+
+	case *gomschema.Facility:
+		return db.Facilities()
+
+	case *gomschema.FacilityListing:
+		return db.Listings()
+
+	default:
+		return nil, fmt.Errorf("%w: message type: %t", ErrUnknownEntity, v)
+	}
+}
+
 func (db *Database) loadSystems(sdb *SystemDatabase) error {
 	schema, err := db.Systems()
 	if err == nil {
 		sdb.systemIDs = make(map[string]EntityID, schema.Count())
 		sdb.systemsByID = make(map[EntityID]*System, schema.Count())
-		err = schema.LoadData("Systems", func(val []byte) error {
-			var system = &System{}
-			if err = json.Unmarshal(val, system); err == nil {
-				err = sdb.registerSystem(system)
-			}
-			return err
+		gomItem := &gomschema.System{}
+		err = schema.LoadData("Systems", gomItem, func() error {
+			return sdb.newSystem(gomItem)
 		})
 	}
 	return err
@@ -79,12 +95,9 @@ func (db *Database) loadFacilities(sdb *SystemDatabase) error {
 	schema, err := db.Facilities()
 	if err == nil {
 		sdb.facilitiesByID = make(map[EntityID]*Facility, schema.Count())
-		err = schema.LoadData("Facilities", func(val []byte) error {
-			var facility = &Facility{}
-			if err = json.Unmarshal(val, facility); err == nil {
-				err = sdb.registerFacility(facility)
-			}
-			return err
+		gomItem := &gomschema.Facility{}
+		err = schema.LoadData("Facilities", gomItem, func() error {
+			return sdb.newFacility(gomItem)
 		})
 	}
 	return err
@@ -95,12 +108,9 @@ func (db *Database) loadCommodities(sdb *SystemDatabase) error {
 	if err == nil {
 		sdb.commodityIDs = make(map[string]EntityID, schema.Count())
 		sdb.commoditiesByID = make(map[EntityID]*Commodity, schema.Count())
-		err = schema.LoadData("Commodities", func(val []byte) error {
-			var item = &Commodity{}
-			if err = json.Unmarshal(val, item); err == nil {
-				err = sdb.registerCommodity(item)
-			}
-			return err
+		gomItem := &gomschema.Commodity{}
+		err = schema.LoadData("Commodities", gomItem, func() error {
+			return sdb.newCommodity(gomItem)
 		})
 	}
 	return err
@@ -109,9 +119,9 @@ func (db *Database) loadCommodities(sdb *SystemDatabase) error {
 func (db *Database) loadListings(sdb *SystemDatabase) error {
 	schema, err := db.Listings()
 	if err == nil {
-		err = schema.LoadData("Listings", func(val []byte) error {
-			_ = bytes.Split(val, []byte(" "))
-			return nil
+		gomItem := &gomschema.FacilityListing{}
+		err = schema.LoadData("Listings", gomItem, func() error {
+			return sdb.newListings(gomItem)
 		})
 	}
 	return err

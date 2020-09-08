@@ -40,6 +40,11 @@ func (s *System) GetFacility(name string) *Facility {
 	}
 	return nil
 }
+
+func (s *System) GetTimestampUtc() uint64 {
+	return uint64(s.TimestampUtc.Unix())
+}
+
 func (s *System) Name() string {
 	return s.DbName
 }

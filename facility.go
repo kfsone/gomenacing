@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
-	"sort"
 	"time"
 )
 
@@ -39,24 +38,24 @@ type Facility struct {
 	Government   gom.GovernmentType  // Government operating the facility.
 	Allegiance   gom.AllegianceType  // Group to which the facility is allied.
 
-	listings []Listing // List of items sold
+	listings map[EntityID]*Listing  // Table of sales/purchases
 }
 
-// NewFacility constructs a minimally populated Facility entity. It does not allocate
-// listings unless the FeatureMask indicates Commodities are available here.
+// NewFacility constructs a minimally populated Facility entity.
 func NewFacility(dbEntity DbEntity, system *System, facilityType gom.FacilityType, features FacilityFeatureMask) (*Facility, error) {
 	if system == nil {
 		return nil, errors.New("nil system for facility")
 	}
 	facility := Facility{DbEntity: dbEntity, System: system, FacilityType: facilityType, Features: features}
-	if facility.HasFeatures(FeatCommodities) {
-		facility.listings = make([]Listing, 0, 32)
-	}
 	return &facility, nil
 }
 
 func (f *Facility) GetDbId() string {
 	return fmt.Sprintf("%06x", f.DbEntity.ID)
+}
+
+func (f *Facility) GetTimestampUtc() uint64 {
+	return uint64(f.TimestampUtc.Unix())
 }
 
 // HasFeatures returns true if the facility has a matching set of features.
@@ -89,24 +88,4 @@ func (f *Facility) SupportsPadSize(size FacilityFeatureMask) bool {
 	default:
 		return false
 	}
-}
-
-func (f *Facility) AddListing(listing Listing) {
-	commodity := listing.CommodityID
-	if f.listings == nil {
-		f.listings = make([]Listing, 0, 32)
-	}
-	var insertIdx = 0
-	if len(f.listings) > 0 {
-		insertIdx = sort.Search(len(f.listings), func(i int) bool { return f.listings[i].CommodityID >= commodity })
-	}
-	if insertIdx >= len(f.listings) {
-		f.listings = append(f.listings, listing)
-		return
-	}
-	if f.listings[insertIdx].CommodityID != commodity {
-		f.listings = append(f.listings, listing)
-		copy(f.listings[insertIdx+1:], f.listings[insertIdx:])
-	}
-	f.listings[insertIdx] = listing
 }

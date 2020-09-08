@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/akrylysov/pogreb"
+	"google.golang.org/protobuf/proto"
 )
 
 type Schema struct {
@@ -38,7 +39,7 @@ func (s *Schema) Put(key []byte, value []byte) error {
 	return s.store.Put(key, value)
 }
 
-func (s *Schema) LoadData(name string, handler func(val []byte) error) error {
+func (s *Schema) LoadData(name string, into proto.Message, handler func() error) error {
 	defer func() { failOnError(s.Close()) }()
 
 	it := s.store.Items()
@@ -46,7 +47,10 @@ func (s *Schema) LoadData(name string, handler func(val []byte) error) error {
 	for {
 		key, val, err := it.Next()
 		if err == nil {
-			err = handler(val)
+			err = proto.Unmarshal(val, into)
+			if err == nil {
+				err = handler()
+			}
 		}
 		if err != nil {
 			if err == pogreb.ErrIterationDone {

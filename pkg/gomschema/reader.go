@@ -22,6 +22,10 @@ type GOMFile struct {
 	item   proto.Message
 }
 
+func (f *GOMFile) Item() *proto.Message {
+	return &f.item
+}
+
 // getMessageType will identify which type of GOM message the header represents.
 func getMessageType(header *Header) proto.Message {
 	switch header.HeaderType {
