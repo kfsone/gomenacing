@@ -4,7 +4,6 @@ import (
 	"fmt"
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
 	"strings"
-	"time"
 )
 
 type GomDbEntity interface {
@@ -65,7 +64,7 @@ func DeserializeCommodity(into *Commodity, from *gom.Commodity, _ *SystemDatabas
 func SerializeSystem(into *gom.System, from *System) {
 	into.Id = uint32(from.DbEntity.ID)
 	into.Name = from.DbEntity.DbName
-	into.TimestampUtc = uint64(from.TimestampUtc.Unix())
+	into.TimestampUtc = from.TimestampUtc
 	into.Position.X = from.Position().X
 	into.Position.Y = from.Position().Y
 	into.Position.Z = from.Position().Z
@@ -85,7 +84,7 @@ func DeserializeSystem(into *System, from *gom.System, _ *SystemDatabase) error 
 	if name, err := validateEntityForSerialization("system", from); err == nil {
 		into.DbEntity.ID = EntityID(from.GetId())
 		into.DbEntity.DbName = name
-		into.TimestampUtc = time.Unix(int64(from.GetTimestampUtc()), 0)
+		into.TimestampUtc = from.GetTimestampUtc()
 		into.position = Coordinate{from.Position.X, from.Position.Y, from.Position.Z}
 		into.Populated = from.Populated
 		into.NeedsPermit = from.NeedsPermit
@@ -105,7 +104,7 @@ func DeserializeSystem(into *System, from *gom.System, _ *SystemDatabase) error 
 func SerializeFacility(into *gom.Facility, from *Facility) error {
 	into.Id = uint32(from.DbEntity.ID)
 	into.Name = from.DbEntity.DbName
-	into.TimestampUtc = uint64(from.TimestampUtc.Unix())
+	into.TimestampUtc = from.TimestampUtc
 	into.FacilityType = from.FacilityType
 	into.Features = uint32(from.Features)
 	into.Government = from.Government
@@ -113,8 +112,8 @@ func SerializeFacility(into *gom.Facility, from *Facility) error {
 	return nil
 }
 
-// Deserialize converts from a schema System into a local System
-func Deserialize(into *Facility, from *gom.Facility, db *SystemDatabase) (err error) {
+// Deserialize converts from a schema Facility into a local Facility
+func DeserializeFacility(into *Facility, from *gom.Facility, db *SystemDatabase) (err error) {
 	var name string
 	if name, err = validateEntityForSerialization("facility", from); err != nil {
 		return err
@@ -131,7 +130,7 @@ func Deserialize(into *Facility, from *gom.Facility, db *SystemDatabase) (err er
 	into.DbEntity.ID = EntityID(from.GetId())
 	into.DbEntity.DbName = name
 	into.System = system
-	into.TimestampUtc = time.Unix(int64(from.GetTimestampUtc()), 0)
+	into.TimestampUtc = from.GetTimestampUtc()
 	into.FacilityType = from.FacilityType
 	into.Features = FacilityFeatureMask(from.Features)
 	into.LsFromStar = from.LsFromStar

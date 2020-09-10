@@ -2,11 +2,9 @@ package main
 
 import (
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
-	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNewSystem(t *testing.T) {
@@ -17,7 +15,7 @@ func TestNewSystem(t *testing.T) {
 	assert.Equal(t, "system of a down", system.DbName)
 	assert.Equal(t, Coordinate{1.0, 2.0, 3.0}, system.position)
 
-	assert.Equal(t, time.Time{}, system.TimestampUtc)
+	assert.Equal(t, uint64(0), system.TimestampUtc)
 	assert.False(t, system.Populated)
 	assert.False(t, system.NeedsPermit)
 	assert.Equal(t, gom.SecurityLevel_SecurityNone, system.SecurityLevel)
@@ -87,4 +85,11 @@ func TestSystem_GetDbId(t *testing.T) {
 
 	system.DbEntity.DbName = "SomethingOrOther"
 	assert.Equal(t, "000010ab", system.GetDbId())
+}
+
+func TestSystem_GetTimestampUtc(t *testing.T) {
+	system := System{}
+	assert.EqualValues(t, 0, system.GetTimestampUtc())
+	system.TimestampUtc = 4999
+	assert.EqualValues(t, 4999, system.GetTimestampUtc())
 }

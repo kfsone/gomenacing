@@ -11,4 +11,11 @@ require (
 	github.com/tidwall/gjson v1.6.1
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	google.golang.org/protobuf v1.25.0
+	gopkg.in/zeromq/goczmq.v4 v4.1.0
 )
+
+replace github.com/kfsone/gomenacing/pkg/gomschema => ./pkg/gomschema
+
+replace github.com/kfsone/gomenacing/pkg/parsing => ./pkg/parsing
+
+replace github.com/kfsone/gomenacing/pkg/plugins/eddn => ./pkg/plugins/eddn

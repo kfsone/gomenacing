@@ -7,6 +7,7 @@ import (
 	"github.com/kfsone/gomenacing/pkg/gomschema"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/proto"
+	"log"
 	"path/filepath"
 )
 
@@ -59,8 +60,8 @@ func (db *Database) Systems() (*Schema, error) {
 	return db.GetSchema("systems")
 }
 
-func getSchemaForMessage(db *Database, message *proto.Message) (*Schema, error) {
-	switch v := (*message).(type) {
+func getSchemaForMessage(db *Database, message proto.Message) (*Schema, error) {
+	switch v := message.(type) {
 	case *gomschema.Commodity:
 		return db.Commodities()
 
@@ -80,54 +81,77 @@ func getSchemaForMessage(db *Database, message *proto.Message) (*Schema, error) 
 
 func (db *Database) loadSystems(sdb *SystemDatabase) error {
 	schema, err := db.Systems()
+	var loaded int
 	if err == nil {
 		sdb.systemIDs = make(map[string]EntityID, schema.Count())
 		sdb.systemsByID = make(map[EntityID]*System, schema.Count())
-		gomItem := &gomschema.System{}
-		err = schema.LoadData("Systems", gomItem, func() error {
-			return sdb.newSystem(gomItem)
-		})
+		temporary := &gomschema.System{}
+		loader, err := NewTypedDataLoader("gom", temporary, func() error { return sdb.newSystem(temporary) })
+		if err == nil {
+			loaded, err = schema.LoadData(loader)
+			if err == nil {
+				log.Printf("Loaded %d Systems.", loaded)
+			}
+		}
 	}
 	return err
 }
 
 func (db *Database) loadFacilities(sdb *SystemDatabase) error {
 	schema, err := db.Facilities()
+	var loaded int
 	if err == nil {
 		sdb.facilitiesByID = make(map[EntityID]*Facility, schema.Count())
-		gomItem := &gomschema.Facility{}
-		err = schema.LoadData("Facilities", gomItem, func() error {
-			return sdb.newFacility(gomItem)
-		})
+		temporary := &gomschema.Facility{}
+		loader, err := NewTypedDataLoader("gom", temporary, func() error { return sdb.newFacility(temporary) })
+		if err == nil {
+			loaded, err = schema.LoadData(loader)
+			if err == nil {
+				log.Printf("Loaded %d Facilities.", loaded)
+			}
+		}
 	}
 	return err
 }
 
 func (db *Database) loadCommodities(sdb *SystemDatabase) error {
 	schema, err := db.Commodities()
+	var loaded int
 	if err == nil {
 		sdb.commodityIDs = make(map[string]EntityID, schema.Count())
 		sdb.commoditiesByID = make(map[EntityID]*Commodity, schema.Count())
-		gomItem := &gomschema.Commodity{}
-		err = schema.LoadData("Commodities", gomItem, func() error {
-			return sdb.newCommodity(gomItem)
-		})
+		temporary := &gomschema.Commodity{}
+		loader, err := NewTypedDataLoader("gom", temporary, func() error { return sdb.newCommodity(temporary) })
+		if err == nil {
+			loaded, err = schema.LoadData(loader)
+			if err == nil {
+				log.Printf("Loaded %d Commodities.", loaded)
+			}
+		}
 	}
 	return err
 }
 
 func (db *Database) loadListings(sdb *SystemDatabase) error {
 	schema, err := db.Listings()
+	loaded, lineItems := 0, 0
 	if err == nil {
-		gomItem := &gomschema.FacilityListing{}
-		err = schema.LoadData("Listings", gomItem, func() error {
-			return sdb.newListings(gomItem)
+		temporary := &gomschema.FacilityListing{}
+		loader, err := NewTypedDataLoader("gom", temporary, func() error {
+			lineItems += len(temporary.Listings)
+			return sdb.newListings(temporary)
 		})
+		if err == nil {
+			loaded, err = schema.LoadData(loader)
+			if err == nil {
+				log.Printf("Loaded %d Listings at %d Facilities.", lineItems, loaded)
+			}
+		}
 	}
 	return err
 }
 
-func (db *Database) LoadData(sdb *SystemDatabase) (err error) {
+func (db *Database) LoadDatabase(sdb *SystemDatabase) (err error) {
 	///TODO: Speed up import-load by making import a part of load.
 	/// Thus we can load commodities as soon as we've imported them.
 	/// We could also break up checks into resource channels, so work

@@ -41,9 +41,7 @@ func TestNewFacility(t *testing.T) {
 		assert.Equal(t, system, facility.System)
 		assert.Equal(t, gom.FacilityType_FTCoriolisStarport, facility.FacilityType)
 		assert.Equal(t, FeatSmallPad|FeatCommodities, facility.Features)
-		if assert.NotNil(t, facility.listings) {
-			assert.Len(t, facility.listings, 0)
-		}
+		assert.Nil(t, facility.listings)
 		assert.Empty(t, system.facilities)
 	})
 }
@@ -53,6 +51,15 @@ func TestFacility_GetDbId(t *testing.T) {
 	assert.Equal(t, "000000", facility.GetDbId())
 	facility.DbEntity = DbEntity{ID: 0x987ace, DbName: "Monkey Island"}
 	assert.Equal(t, "987ace", facility.GetDbId())
+}
+
+func TestFacility_GetTimestampUtc(t *testing.T) {
+	facility := Facility{}
+
+	assert.Equal(t, uint64(0), facility.GetTimestampUtc())
+	now := time.Now().UTC()
+	facility.TimestampUtc = uint64(now.Unix())
+	assert.Equal(t, uint64(now.Unix()), facility.GetTimestampUtc())
 }
 
 func TestFacility_HasFeatures(t *testing.T) {
@@ -90,8 +97,8 @@ func TestFacility_HasFeatures(t *testing.T) {
 
 func TestFacility_IsTrading(t *testing.T) {
 	var facility Facility
-	listing := Listing{EntityID(1), 0, 0, 0, 0, time.Now()}
-	listings := map[EntityID]*Listing{ listing.CommodityID: &listing }
+	listing := Listing{EntityID(1), 0, 0, 0, 0, 0}
+	listings := map[EntityID]*Listing{listing.CommodityID: &listing}
 	facility = Facility{}
 	assert.False(t, facility.IsTrading())
 	facility = Facility{Features: FeatMarket}

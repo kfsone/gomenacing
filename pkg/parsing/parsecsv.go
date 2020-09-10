@@ -7,6 +7,8 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log"
+	"strconv"
 	"strings"
 )
 
@@ -42,7 +44,7 @@ func getFieldOrder(fields []string, line string) ([]int, int) {
 // This is a very naive csv reader, it simply splits on commas, and removes
 // leading/trailing double-quotes.
 //
-func ParseCSV(source io.Reader, fields []string) (<-chan [][]byte, error) {
+func ParseCSV(source io.Reader, fields []string) (<-chan []string, error) {
 	// Scan for a first line, which should contain the headers.
 	scanner := bufio.NewScanner(source)
 	if !scanner.Scan() {
@@ -57,14 +59,14 @@ func ParseCSV(source io.Reader, fields []string) (<-chan [][]byte, error) {
 		return nil, errors.New("missing fields in header")
 	}
 
-	channel := make(chan [][]byte, 2)
+	channel := make(chan []string, 4)
 	go func() {
 		// Break remaining lines up by
 		scanner, fieldOrder, channel := scanner, fieldOrder, channel
 		var separator = []byte(",")
 		defer close(channel)
 		for scanner.Scan() {
-			result := make([][]byte, len(fields))
+			result := make([]string, len(fields))
 			columns := bytes.Split(scanner.Bytes(), separator)
 			if len(columns) < numHeadings {
 				continue
@@ -77,11 +79,40 @@ func ParseCSV(source io.Reader, fields []string) (<-chan [][]byte, error) {
 				if len(value) > 0 && value[len(value)-1] == '"' {
 					value = value[:len(value)-1]
 				}
-				result[fieldNo] = value
+				result[fieldNo] = string(value)
 			}
 			channel <- result
 		}
 	}()
 
 	return channel, nil
+}
+
+func stringsToUint64s(from []string) (into []uint64, err error) {
+	into = make([]uint64, len(from))
+	for idx, value := range from {
+		if into[idx], err = strconv.ParseUint(value, 10, 64); err != nil {
+			return nil, err
+		}
+	}
+	return into, nil
+}
+
+func ParseCSVToUint64s(source io.Reader, fields []string) (<-chan []uint64, error) {
+	incoming, err := ParseCSV(source, fields)
+	if err != nil {
+		return nil, err
+	}
+	arraysOut := make(chan []uint64, 2)
+	go func() {
+		defer close(arraysOut)
+		for stringsIn := range incoming {
+			if row, err := stringsToUint64s(stringsIn); err != nil {
+				log.Printf("expected numeric value: ")
+			} else {
+				arraysOut <- row
+			}
+		}
+	}()
+	return arraysOut, nil
 }

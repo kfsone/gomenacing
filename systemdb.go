@@ -7,6 +7,7 @@ import (
 	"github.com/kfsone/gomenacing/pkg/gomschema"
 	"google.golang.org/protobuf/proto"
 	"log"
+	"math"
 	"strings"
 
 	flag "github.com/spf13/pflag"
@@ -142,18 +143,25 @@ func (sdb *SystemDatabase) registerFromMessage(message proto.Message, schema *Sc
 	}
 }
 
-func (sdb *SystemDatabase) GetSystemByID(id EntityID) (system *System) {
+func (sdb *SystemDatabase) GetCommodityByID(id EntityID) *Commodity {
+	if commodity, exists := sdb.commoditiesByID[id]; exists {
+		return commodity
+	}
+	return nil
+}
+
+func (sdb *SystemDatabase) GetSystemByID(id EntityID) *System {
 	if system, exists := sdb.systemsByID[id]; exists {
 		return system
 	}
 	return nil
 }
 
-func (sdb *SystemDatabase) GetSystem(name string) (system *System) {
+func (sdb *SystemDatabase) GetSystem(name string) *System {
 	if id, exists := sdb.systemIDs[strings.ToLower(name)]; exists {
-		system = sdb.systemsByID[id]
+		return sdb.systemsByID[id]
 	}
-	return
+	return nil
 }
 
 func (sdb *SystemDatabase) GetFacilityByID(id EntityID) *Facility {
@@ -196,7 +204,7 @@ func (sdb *SystemDatabase) newSystem(gomItem *gomschema.System) error {
 	}
 
 	item := NewSystem(entity, Coordinate{gomItem.Position.X, gomItem.Position.Y, gomItem.Position.Z})
-	item.TimestampUtc = getTimestamp(gomItem)
+	item.TimestampUtc = gomItem.GetTimestampUtc()
 	item.Populated = gomItem.GetPopulated()
 	item.NeedsPermit = gomItem.GetNeedsPermit()
 	item.SecurityLevel = gomItem.GetSecurityLevel()
@@ -222,7 +230,7 @@ func (sdb *SystemDatabase) newFacility(gomItem *gomschema.Facility) error {
 	}
 	item, err := NewFacility(entity, system, gomItem.FacilityType, FacilityFeatureMask(gomItem.Features))
 	if err == nil {
-		item.TimestampUtc = getTimestamp(gomItem)
+		item.TimestampUtc = gomItem.GetTimestampUtc()
 		item.LsFromStar = gomItem.GetLsFromStar()
 		item.Government = gomItem.GetGovernment()
 		item.Allegiance = gomItem.GetAllegiance()
@@ -251,10 +259,11 @@ func (sdb *SystemDatabase) newListings(gomItem *gomschema.FacilityListing) error
 			StationPays:  gomListing.GetSupplyCredits(),
 			Demand:       gomListing.GetDemandUnits(),
 			StationAsks:  gomListing.GetDemandCredits(),
-			TimestampUtc: getTimestamp(gomListing),
+			TimestampUtc: gomListing.TimestampUtc,
 		}
 		facility.listings[l.CommodityID] = &l
 	}
+
 	return nil
 }
 
@@ -279,7 +288,7 @@ func (sdb *SystemDatabase) updateCommodity(item *gomschema.Commodity, schema *Sc
 }
 
 func requireNewer(newer, older Timestamped) error {
-	if older.GetTimestampUtc() != 0 && newer.GetTimestampUtc() <= older.GetTimestampUtc() {
+	if newer.GetTimestampUtc() < older.GetTimestampUtc() {
 		return fmt.Errorf("stale update (%v v %v)", newer.GetTimestampUtc(), older.GetTimestampUtc())
 	}
 	return nil
@@ -298,8 +307,8 @@ func (sdb *SystemDatabase) updateSystem(item *gomschema.System, schema *Schema) 
 			return nil
 		}
 		system.DbEntity.DbName = item.Name
-		system.TimestampUtc = getTimestamp(item)
-		system.position = Coordinate{item.Position.X, item.Position.Y, item.Position.Z }
+		system.TimestampUtc = item.TimestampUtc
+		system.position = Coordinate{item.Position.X, item.Position.Y, item.Position.Z}
 		system.Populated = item.Populated
 		system.NeedsPermit = item.NeedsPermit
 		system.SecurityLevel = item.SecurityLevel
@@ -326,7 +335,7 @@ func updateExistingFacility(sdb *SystemDatabase, newSystem *System, oldFacility 
 	oldFacility.System = newSystem
 	oldFacility.FacilityType = item.FacilityType
 	oldFacility.Features = FacilityFeatureMask(item.Features)
-	oldFacility.TimestampUtc = getTimestamp(item)
+	oldFacility.TimestampUtc = item.TimestampUtc
 	oldFacility.LsFromStar = item.GetLsFromStar()
 	oldFacility.Government = item.GetGovernment()
 	oldFacility.Allegiance = item.GetAllegiance()
@@ -353,6 +362,130 @@ func (sdb *SystemDatabase) updateFacility(item *gomschema.Facility, schema *Sche
 	return writeMessageForId(item, schema)
 }
 
-func (sdb *SystemDatabase) updateFacilityListing(item *gomschema.FacilityListing, schema *Schema) error {
-	panic("Not handled")
+func (sdb *SystemDatabase) updateFacilityListing(item *gomschema.FacilityListing, schema *Schema) (err error) {
+	facility := sdb.GetFacilityByID(EntityID(item.Id))
+	if facility == nil {
+		return fmt.Errorf("%w: facility for listing: %d", ErrUnknownEntity, item.Id)
+	}
+
+	// If there's nothing here, this is going to be simple.
+	if facility.listings == nil {
+		facility.listings = make(map[EntityID]*Listing, len(item.Listings))
+	} else {
+		for _, update := range item.Listings {
+			commodityId := EntityID(update.CommodityId)
+			if sdb.GetCommodityByID(commodityId) == nil {
+				FilterError(fmt.Errorf("%w: facility %s (%d): commodity: %d", ErrUnknownEntity, facility.Name(), facility.GetId(), commodityId))
+				continue
+			}
+			existing, existed := facility.listings[commodityId]
+			if existed {
+				// Check this is an update.
+				if requireNewer(update, existing) != nil {
+					continue
+				}
+			} else {
+				existing = &Listing{CommodityID: commodityId}
+				facility.listings[existing.CommodityID] = existing
+			}
+			existing.Supply = update.SupplyUnits
+			existing.StationAsks = update.SupplyCredits
+			existing.Demand = update.DemandUnits
+			existing.StationPays = update.DemandCredits
+			existing.TimestampUtc = update.TimestampUtc
+		}
+	}
+
+	return writeMessageForId(item, schema)
+}
+
+type VolumeQuery struct {
+	center         Coordinate
+	centerKey      SectorKey
+	radius         float64
+	radiusSq       SquareFloat
+	sectorRadius   int64
+	sectorRadiusSq SquareInt
+}
+
+func NewVolumeQuery(center Positioned, radius float64) (*VolumeQuery, error) {
+	if radius <= 0 {
+		return nil, errors.New("invalid radius")
+	}
+	sectorRadius := int64(math.Ceil(radius))
+	coordinate := center.Coordinate()
+	return &VolumeQuery{
+		center:       *coordinate,
+		centerKey:    coordinate.SectorKey(),
+		radius:       radius,
+		radiusSq:     NewSquareFloat(radius),
+		sectorRadius: sectorRadius,
+		// By squaring ahead of time, we won't have to sqrt distances
+		sectorRadiusSq: NewSquareInt(sectorRadius),
+	}, nil
+}
+
+func (v *VolumeQuery) InRange(target Positioned) bool {
+	return Distance(v.center, target) > v.radiusSq
+}
+
+func (v *VolumeQuery) volumeSectorKeys(callback func (SectorKey) bool) bool {
+	var sectorKey SectorKey
+	var result bool
+	///TODO: Two obvious optimizations:
+	/// 1. We can pre-calculate the Y and Z constraints each loop,
+	///    based on the outer values. That is: when x is sectorRadius,
+	///    there is no room left for Y or Z exploration.
+	///    yRange := math.Min(math.Sqrt(sectorRange - x*x), sectorRange)
+	///    zRange := math.Min(math.Sqrt(sectorRange - (x*x+y*y)
+	/// 2. Replace the map[SectorKey] with [x][y][z][]*System and ensure the
+	///    outer lists are sorted so we can binary search.
+	for x := -v.sectorRadius; x <= +v.sectorRadius; x++ {
+		sectorKey.X = v.centerKey.X + int(x)
+		xDeltaSq := NewSquareInt(x)
+		for y := -v.sectorRadius; y <= v.sectorRadius; y++ {
+			sectorKey.Y = v.centerKey.Y + int(y)
+			yDeltaSq := NewSquareInt(y)
+			for z := -v.sectorRadius; z <= v.sectorRadius; z++ {
+				zDeltaSq := NewSquareInt(z)
+				if xDeltaSq + yDeltaSq + zDeltaSq <= v.sectorRadiusSq {
+					sectorKey := SectorKey{sectorKey.X, sectorKey.Y, v.centerKey.Z + int(z)}
+					if !callback(sectorKey) {
+						return false
+					}
+					result = true
+				}
+			}
+		}
+	}
+	return result
+}
+
+func (sdb *SystemDatabase) getSystemsFromVolume(query *VolumeQuery, callback func(*System) bool) bool {
+	return query.volumeSectorKeys(func (sectorKey SectorKey) bool {
+		for _, system := range sdb.sectors[sectorKey] {
+			if !callback(system) {
+				return false
+			}
+		}
+		return true
+	})
+}
+
+func (sdb *SystemDatabase) getSystemsWithinRange(origin *System, distance float64, callback func(*System, SquareFloat) bool) (bool, error) {
+	query, err := NewVolumeQuery(origin, distance)
+	if err != nil {
+		return false, err
+	}
+	matched := false
+	success := sdb.getSystemsFromVolume(query, func (system *System) bool {
+		if distSq := Distance(system, origin); distSq <= query.radiusSq {
+			if !callback(system, distSq) {
+				return false
+			}
+			matched = true
+		}
+		return true
+	})
+	return success && matched, nil
 }

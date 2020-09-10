@@ -3,13 +3,14 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/mattn/go-shellwords"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
-
-	"github.com/mattn/go-shellwords"
+	"time"
 )
 
 func Must(err error) {
@@ -198,23 +199,78 @@ func cmdToggleOnUnknown(r *Repl, args []string, _ *CommandParser) {
 	fmt.Fprintln(r, "OnUnknown is now:", toggleBool(ErrorOnDuplicate))
 }
 
+func cmdProbe(r *Repl, args []string, _ *CommandParser) {
+	// Assume 'args' is a system name
+	hard := false
+	if len(args) >= 1 && args[0] == "--hard" {
+		hard = true
+		args = args[1:]
+	}
+	if len(args) < 2 {
+		fmt.Fprintln(r, "Please specify <distance in ly> and <system name>, e.g: probe 16.2 sol")
+		return
+	}
+	distance, err := strconv.ParseFloat(args[0], 64)
+	if err != nil {
+		fmt.Fprintf(r, "Invalid distance value: %s\n", err)
+		return
+	}
+
+	systemName := strings.Join(args[1:], " ")
+	system := r.sdb.GetSystem(systemName)
+	if system == nil {
+		fmt.Fprintf(r, "Unrecognized system: %s\n", err)
+		return
+	}
+
+	fmt.Fprintf(r, "Searching for systems within %.fly of %s (%d)\n", distance, system.Name(), system.GetId())
+
+	start := time.Now()
+	matches := false
+	if hard {
+		rangeSq := NewSquareFloat(distance)
+		for _, target := range r.sdb.systemsByID {
+			if distSq := Distance(system, target); distSq <= rangeSq {
+				fmt.Fprintf(r, "- %8.2fly %s\n", distSq.Root(), target.Name())
+				matches = true
+			}
+		}
+	} else {
+		matches, err = r.sdb.getSystemsWithinRange(system, distance, func(neighbor *System, distSq SquareFloat) bool {
+			fmt.Fprintf(r, "- %8.2fly %s\n", distSq.Root(), neighbor.Name())
+			return true
+		})
+		if err != nil {
+			fmt.Fprintf(r, "Error: %s\n", err)
+			return
+		}
+	}
+	if !matches {
+		fmt.Fprintln(r, "Nothing found, which is odd.")
+	} else {
+		fmt.Fprintf(r, "Took: %s\n", time.Since(start))
+	}
+}
+
 var commands = CommandParser{
 	commands: map[string]CommandParser{
 		"exit":   {help: "Exit the application.", action: func(r *Repl, _ []string, _ *CommandParser) { r.terminated = true }},
 		"quit":   {help: "", action: func(r *Repl, _ []string, _ *CommandParser) { r.terminated = true }},
 		"import": {help: "Import data from a file or directory.", action: cmdImport},
-		"stats": {help: "Show stats on current database.", action: func (r *Repl, _ []string, _ *CommandParser) {
+		"stats": {help: "Show stats on current database.", action: func(r *Repl, _ []string, _ *CommandParser) {
 			r.sdb.Stats(r.out)
 		}},
 		"set": {commands: map[string]CommandParser{
-			"warnings": {help: "Toggle warnings on/off.", action: cmdToggleWarnings},
+			"warnings":    {help: "Toggle warnings on/off.", action: cmdToggleWarnings},
 			"onduplicate": {help: "Toggle on-duplicate on/off.", action: cmdToggleOnDuplicate},
-			"onunknown": {help: "Toggle on-unknown on/off.", action: cmdToggleOnUnknown},
-			},
+			"onunknown":   {help: "Toggle on-unknown on/off.", action: cmdToggleOnUnknown},
+		},
 			help: "Change environment settings.",
 		},
 		"system": {commands: map[string]CommandParser{
-			"find": {help: "Lookup a system by name.", action: cmdSystemFind}},
+			"find": {help: "Lookup a system by name.", action: cmdSystemFind},
+			"scan": {help: "Find other systems within a given distance of a system.", action: cmdProbe},
+		},
 			help: "System-related commands."},
 	},
 	action: func(r *Repl, _ []string, cp *CommandParser) {

@@ -16,6 +16,7 @@ func TestNewSystemDatabase(t *testing.T) {
 	assert.NotNil(t, sdb.facilitiesByID)
 	assert.NotNil(t, sdb.commoditiesByID)
 	assert.NotNil(t, sdb.commodityIDs)
+	assert.NotNil(t, sdb.sectors)
 }
 
 func TestSystemDatabase_registerCommodity(t *testing.T) {
@@ -71,6 +72,7 @@ func TestSystemDatabase_registerSystem(t *testing.T) {
 	require.Nil(t, sdb.registerSystem(&first))
 	assert.Len(t, sdb.systemsByID, 1)
 	assert.Len(t, sdb.systemIDs, 1)
+	assert.Len(t, sdb.sectors, 0)
 	lookup, ok = sdb.systemsByID[1]
 	assert.True(t, ok)
 	assert.Equal(t, &first, lookup)
@@ -82,6 +84,7 @@ func TestSystemDatabase_registerSystem(t *testing.T) {
 	require.Nil(t, sdb.registerSystem(&second))
 	assert.Len(t, sdb.systemsByID, 2)
 	assert.Len(t, sdb.systemIDs, 2)
+	assert.Len(t, sdb.sectors, 0)
 
 	// Check the first system is still correct
 	lookup, ok = sdb.systemsByID[1]
@@ -103,11 +106,13 @@ func TestSystemDatabase_registerSystem(t *testing.T) {
 	err = sdb.registerSystem(&first)
 	if assert.True(t, errors.Is(err, ErrDuplicateEntity)) {
 		assert.Equal(t, "first (#1): duplicate: system id", err.Error())
+		assert.Len(t, sdb.sectors, 0)
 	}
 
 	err = sdb.registerSystem(&System{DbEntity: DbEntity{3, "first"}})
 	if assert.Error(t, err) {
 		assert.Equal(t, "first (#3): duplicate: system name", err.Error())
+		assert.Len(t, sdb.sectors, 0)
 	}
 }
 
@@ -278,4 +283,73 @@ func TestSystemDatabase_GetSystemByID(t *testing.T) {
 
 	// Confirm that querying did not alter the table.
 	assert.Len(t, sdb.systemsByID, 2)
+}
+
+func TestSystemDatabase_registerSystemToSector(t *testing.T) {
+	sdb := NewSystemDatabase(nil)
+	system1 := System{DbEntity: DbEntity{ID: 101, DbName: "System1"}}
+	zeroKey := system1.position.SectorKey()
+	sdb.registerSystemToSector(&system1)
+	if assert.Len(t, sdb.sectors, 1) {
+		systems, exists := sdb.sectors[zeroKey]
+		if assert.True(t, exists) {
+			assert.Equal(t, []*System{&system1}, systems)
+		}
+	}
+
+	// Adding it again should have no effect.
+	sdb.registerSystemToSector(&system1)
+	if assert.Len(t, sdb.sectors, 1) {
+		systems, exists := sdb.sectors[zeroKey]
+		if assert.True(t, exists) {
+			assert.Equal(t, []*System{&system1}, systems)
+		}
+	}
+
+	// Add one at a different location.
+	system1.position.X = 11110002
+	system1.position.Y = -2341
+	system1.position.Z = 1.23423
+	newKey := system1.position.SectorKey()
+	sdb.registerSystemToSector(&system1)
+	if assert.Len(t, sdb.sectors, 2) {
+		systems, exists := sdb.sectors[zeroKey]
+		if assert.True(t, exists) {
+			assert.Equal(t, []*System{&system1}, systems)
+			systems, exists = sdb.sectors[newKey]
+			if assert.True(t, exists) {
+				assert.Equal(t, []*System{&system1}, systems)
+			}
+		}
+	}
+
+	// Adding a second system should work
+	system2 := System{DbEntity: DbEntity{ID: 404, DbName: "System2"}, position: system1.position}
+	sdb.registerSystemToSector(&system2)
+	if assert.Len(t, sdb.sectors, 2) {
+		systems, exists := sdb.sectors[newKey]
+		if assert.True(t, exists) {
+			assert.Equal(t, []*System{&system1, &system2}, systems)
+		}
+	}
+}
+
+type TestTimestamped struct {
+	timestamp uint64
+}
+
+func (t TestTimestamped) GetTimestampUtc() uint64 {
+	return t.timestamp
+}
+
+func Test_requireNewer(t *testing.T) {
+	var first, second TestTimestamped
+	assert.Nil(t, requireNewer(first, second))
+
+	second.timestamp = 4096
+	assert.Error(t, requireNewer(first, second))
+	assert.Nil(t, requireNewer(second, first))
+
+	first.timestamp = second.timestamp
+	assert.Nil(t, requireNewer(first, second))
 }

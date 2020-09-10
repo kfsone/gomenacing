@@ -1,10 +1,13 @@
 package main
 
 import (
+	"github.com/kfsone/gomenacing/pkg/gomschema"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -109,4 +112,48 @@ func TestDatabase_Close(t *testing.T) {
 	db.Close()
 	// Shouldn't have deleted it.
 	require.DirExists(t, db.Path())
+}
+
+func Test_getSchemaForMessage(t *testing.T) {
+	testDir := GetTestDir()
+	defer testDir.Close()
+
+	db, err := OpenDatabase(testDir.Path(), "schema.db")
+	require.Nil(t, err)
+	defer db.Close()
+
+	type args struct {
+		db      *Database
+		message proto.Message
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"invalid", args{db, nil}, true},
+		{"commodities", args{db, &gomschema.Commodity{}}, false},
+		{"systems", args{db, &gomschema.System{}}, false},
+		{"facilities", args{db, &gomschema.Facility{}}, false},
+		{"listings", args{db, &gomschema.FacilityListing{}}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getSchemaForMessage(tt.args.db, tt.args.message)
+			if got != nil {
+				defer func() {
+					if err = got.Close(); err != nil {
+						panic(err)
+					}
+				}()
+			}
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getSchemaForMessage() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err == nil && !reflect.DeepEqual(got.name, tt.name) {
+				t.Errorf("getSchemaForMessage() got = %s, want %s", got.name, tt.name)
+			}
+		})
+	}
 }

@@ -157,6 +157,9 @@ func (f *GOMFile) Load() (list []proto.Message, err error) {
 	list = make([]proto.Message, len(f.header.Sizes))
 	// Capture to populate the list.
 	consumer := func(in proto.Message, idx uint) error {
+		if idx < 3 {
+			fmt.Printf("%d: %v\n", idx, in)
+		}
 		list[idx] = in
 		return nil
 	}

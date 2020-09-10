@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
-	"time"
 )
 
 // FacilityFeatureMask holds a bit-mask of features/services of Facilities.
@@ -31,14 +30,14 @@ const (
 type Facility struct {
 	DbEntity
 	System       *System
-	TimestampUtc time.Time           // When the facility was last updated.
+	TimestampUtc uint64              // When the facility was last updated.
 	FacilityType gom.FacilityType    // Frontier facility type.
 	Features     FacilityFeatureMask // Features it has.
 	LsFromStar   uint32              // Distance from star.
 	Government   gom.GovernmentType  // Government operating the facility.
 	Allegiance   gom.AllegianceType  // Group to which the facility is allied.
 
-	listings map[EntityID]*Listing  // Table of sales/purchases
+	listings map[EntityID]*Listing // Table of sales/purchases
 }
 
 // NewFacility constructs a minimally populated Facility entity.
@@ -55,7 +54,7 @@ func (f *Facility) GetDbId() string {
 }
 
 func (f *Facility) GetTimestampUtc() uint64 {
-	return uint64(f.TimestampUtc.Unix())
+	return uint64(f.TimestampUtc)
 }
 
 // HasFeatures returns true if the facility has a matching set of features.

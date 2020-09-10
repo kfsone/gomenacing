@@ -4,10 +4,7 @@ package main
 // role in abstracting away database operations.
 
 import (
-	"log"
-
 	"github.com/akrylysov/pogreb"
-	"google.golang.org/protobuf/proto"
 )
 
 type Schema struct {
@@ -39,7 +36,7 @@ func (s *Schema) Put(key []byte, value []byte) error {
 	return s.store.Put(key, value)
 }
 
-func (s *Schema) LoadData(name string, into proto.Message, handler func() error) error {
+func (s *Schema) LoadData(loader *DataLoader) (int, error) {
 	defer func() { failOnError(s.Close()) }()
 
 	it := s.store.Items()
@@ -47,10 +44,7 @@ func (s *Schema) LoadData(name string, into proto.Message, handler func() error)
 	for {
 		key, val, err := it.Next()
 		if err == nil {
-			err = proto.Unmarshal(val, into)
-			if err == nil {
-				err = handler()
-			}
+			err = loader.Load(val)
 		}
 		if err != nil {
 			if err == pogreb.ErrIterationDone {
@@ -58,12 +52,10 @@ func (s *Schema) LoadData(name string, into proto.Message, handler func() error)
 			}
 			if FilterError(err) != nil {
 				failOnError(s.store.Delete(key))
-				return err
+				return loaded, err
 			}
 		}
 		loaded++
 	}
-
-	log.Printf("Loaded %d %s.\n", loaded, name)
-	return nil
+	return loaded, nil
 }

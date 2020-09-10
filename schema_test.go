@@ -86,10 +86,9 @@ func TestSchema_LoadData(t *testing.T) {
 	// With nothing in the database, nothing should happen.
 	log := captureLog(t, func(t *testing.T) {
 		loaded := 0
-		err = schema.LoadData("nothing", func(val []byte) error {
-			loaded = 1
-			return nil
-		})
+		loader := NewDataLoader(func([]byte) error { loaded++; return nil }, func() error { return nil })
+		require.NotNil(t, loader)
+		err = schema.LoadData("nothing", loader)
 		assert.Nil(t, err)
 		assert.Zero(t, loaded)
 	})
@@ -104,41 +103,43 @@ func TestSchema_LoadData(t *testing.T) {
 		setupFn(schema)
 
 		err = nil
-		loaded := make([]string, 0, 4)
+		marshaled := make([]string, 0, 4)
+		loaded := 0
+		loader := NewDataLoader(func(data []byte) error {
+			str := string(data)
+			marshaled = append(marshaled, str)
+			if str == "error" {
+				return errors.New("got error")
+			}
+			return nil
+		}, func() error { loaded++; return nil })
 		log := captureLog(t, func(t *testing.T) {
-			err = schema.LoadData("stuff", func(val []byte) error {
-				str := string(val)
-				loaded = append(loaded, str)
-				if str == "error" {
-					return errors.New("got error")
-				}
-				return nil
-			})
+			err = schema.LoadData("stuff", loader)
 			assert.Panics(t, func() { failOnError(schema.Close()) })
 		})
 		schema, _ = db.GetSchema("schema")
 		defer func() { failOnError(schema.Close()) }()
 		count := schema.Count()
-		return log, loaded, count, err
+		return log, marshaled, count, err
 	}
 
-	log, loaded, count, err := runTest(func(schema *Schema) {
+	log, marshalled, count, err := runTest(func(schema *Schema) {
 		assert.Nil(t, schema.Put([]byte("hello"), []byte("world")))
 		assert.Nil(t, schema.Put([]byte("world"), []byte("hello")))
 		assert.Nil(t, schema.Put([]byte("final"), []byte("biscuit")))
 	})
 	assert.Nil(t, err)
-	assert.Equal(t, []string{"world", "hello", "biscuit"}, loaded)
+	assert.Equal(t, []string{"world", "hello", "biscuit"}, marshalled)
 	if assert.Len(t, log, 1) {
 		assert.True(t, strings.HasSuffix(log[0], "Loaded 3 stuff."))
 	}
 	assert.EqualValues(t, 3, count)
 
-	log, loaded, count, err = runTest(func(schema *Schema) {
+	log, marshalled, count, err = runTest(func(schema *Schema) {
 		assert.Nil(t, schema.Put([]byte("final"), []byte("error")))
 	})
 	assert.Error(t, err)
-	assert.Equal(t, []string{"world", "hello", "error"}, loaded)
+	assert.Equal(t, []string{"world", "hello", "error"}, marshalled)
 	assert.Empty(t, log)
 	assert.EqualValues(t, count, 2)
 }

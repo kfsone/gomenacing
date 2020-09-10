@@ -20,3 +20,8 @@ func (td TestDir) String() string {
 func (td TestDir) Path() string {
 	return string(td)
 }
+
+// Timestamped is an interface that provides the GetTimestampUtc() function.
+type Timestamped interface {
+	GetTimestampUtc() uint64
+}

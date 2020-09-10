@@ -4,13 +4,12 @@ import (
 	"fmt"
 	gom "github.com/kfsone/gomenacing/pkg/gomschema"
 	"strings"
-	"time"
 )
 
 type System struct {
 	// System describes a star system within Elite Dangerous.
 	DbEntity
-	TimestampUtc  time.Time
+	TimestampUtc  uint64
 	position      Coordinate
 	Populated     bool
 	NeedsPermit   bool
@@ -42,7 +41,7 @@ func (s *System) GetFacility(name string) *Facility {
 }
 
 func (s *System) GetTimestampUtc() uint64 {
-	return uint64(s.TimestampUtc.Unix())
+	return s.TimestampUtc
 }
 
 func (s *System) Name() string {
@@ -52,6 +51,11 @@ func (s *System) Name() string {
 func (s *System) Position() *Coordinate {
 	return &s.position
 }
+
+func (s *System) Coordinate() *Coordinate {
+	return s.Position()
+}
+
 func (s *System) String() string {
 	return s.DbName
 }

@@ -35,7 +35,7 @@ func main() {
 		fmt.Printf("import not implemented")
 		//importEddbData(db)
 	}
-	failOnError(db.LoadData(sdb))
+	failOnError(db.LoadDatabase(sdb))
 
 	reader := bufio.NewReader(os.Stdin)
 

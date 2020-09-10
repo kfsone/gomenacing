@@ -36,7 +36,7 @@ func fnImportFile(r *Repl, pathname string, required bool) bool {
 	}
 	defer gomFile.Close()
 
-	schema, err := getSchemaForMessage(r.db, gomFile.Item())
+	schema, err := getSchemaForMessage(r.db, *gomFile.Item())
 	if err != nil {
 		fmt.Println(r, "Error:", err)
 		return false
